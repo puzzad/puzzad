@@ -23,7 +23,8 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 	for index := range createTeams {
-		_, err = puzzad.CreateTeam(context.Background(), client, createTeams[index])
+		log.Printf("Creating team: %s", createTeams[index])
+		_, err = puzzad.CreateTeam(context.Background(), client, createTeams[index], createTeams[index]+"@example.com")
 		if err != nil {
 			log.Printf("failed to create t: %v", err)
 		}

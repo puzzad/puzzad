@@ -9,13 +9,14 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func CreateTeam(ctx context.Context, client *ent.Client, name string) (*ent.Team, error) {
+func CreateTeam(ctx context.Context, client *ent.Client, name string, email string) (*ent.Team, error) {
 	t, err := client.Team.
 		Create().
 		SetName(name).
+		SetEmail(email).
 		Save(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed creating user: %w", err)
+		return nil, fmt.Errorf("failed creating team: %w", err)
 	}
 	return t, nil
 }

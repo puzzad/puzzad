@@ -85,6 +85,9 @@ var (
 // Status defines the type for the "status" enum field.
 type Status string
 
+// StatusUnverified is the default value of the Status enum.
+const DefaultStatus = StatusUnverified
+
 // Status values.
 const (
 	StatusUnverified Status = "Unverified"

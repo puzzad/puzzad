@@ -26,7 +26,7 @@ func (Team) Fields() []ent.Field {
 			}).
 			Unique(),
 		field.String("email").Unique(),
-		field.Enum("status").Values("Unverified", "Verified", "Disabled"),
+		field.Enum("status").Values("Unverified", "Verified", "Disabled").Default("Unverified"),
 	}
 }
 

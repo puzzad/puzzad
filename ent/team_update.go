@@ -62,6 +62,14 @@ func (tu *TeamUpdate) SetStatus(t team.Status) *TeamUpdate {
 	return tu
 }
 
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (tu *TeamUpdate) SetNillableStatus(t *team.Status) *TeamUpdate {
+	if t != nil {
+		tu.SetStatus(*t)
+	}
+	return tu
+}
+
 // AddAccesIDs adds the "access" edge to the Access entity by IDs.
 func (tu *TeamUpdate) AddAccesIDs(ids ...int) *TeamUpdate {
 	tu.mutation.AddAccesIDs(ids...)
@@ -506,6 +514,14 @@ func (tuo *TeamUpdateOne) SetEmail(s string) *TeamUpdateOne {
 // SetStatus sets the "status" field.
 func (tuo *TeamUpdateOne) SetStatus(t team.Status) *TeamUpdateOne {
 	tuo.mutation.SetStatus(t)
+	return tuo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (tuo *TeamUpdateOne) SetNillableStatus(t *team.Status) *TeamUpdateOne {
+	if t != nil {
+		tuo.SetStatus(*t)
+	}
 	return tuo
 }
 

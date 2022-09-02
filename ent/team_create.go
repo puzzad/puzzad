@@ -69,6 +69,14 @@ func (tc *TeamCreate) SetStatus(t team.Status) *TeamCreate {
 	return tc
 }
 
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (tc *TeamCreate) SetNillableStatus(t *team.Status) *TeamCreate {
+	if t != nil {
+		tc.SetStatus(*t)
+	}
+	return tc
+}
+
 // AddAccesIDs adds the "access" edge to the Access entity by IDs.
 func (tc *TeamCreate) AddAccesIDs(ids ...int) *TeamCreate {
 	tc.mutation.AddAccesIDs(ids...)
@@ -198,6 +206,10 @@ func (tc *TeamCreate) defaults() {
 	if _, ok := tc.mutation.Code(); !ok {
 		v := team.DefaultCode()
 		tc.mutation.SetCode(v)
+	}
+	if _, ok := tc.mutation.Status(); !ok {
+		v := team.DefaultStatus
+		tc.mutation.SetStatus(v)
 	}
 }
 
