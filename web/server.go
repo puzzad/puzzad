@@ -2,7 +2,9 @@ package web
 
 import (
 	"context"
+	"embed"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,6 +17,9 @@ import (
 	"github.com/go-chi/httprate"
 	"github.com/rs/zerolog"
 )
+
+//go:embed public
+var publicfs embed.FS
 
 type Webserver struct {
 	handler *http.Server
@@ -51,9 +56,8 @@ func (web *Webserver) addMiddleWare() {
 }
 
 func (web *Webserver) addRoutes() {
-	web.router.Get("/", func(writer http.ResponseWriter, request *http.Request) {
-		_, _ = writer.Write([]byte("Hi"))
-	})
+	pfs, _ := fs.Sub(publicfs, "public")
+	web.router.Handle("/*", http.FileServer(http.FS(pfs)))
 }
 
 func (web *Webserver) RunAndWait() error {
