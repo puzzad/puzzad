@@ -18,11 +18,7 @@ var (
 
 func main() {
 	envflag.Parse()
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	if *Debug {
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	}
+	logger := createLogger(*Debug)
 	client, err := puzzad.CreateEntClient(*Debug)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed creating ent client")
@@ -31,7 +27,7 @@ func main() {
 		_ = client.Close()
 	}()
 	server := web.Webserver{}
-	server.Init(*WebPort)
+	server.Init(*WebPort, logger)
 	log.Info().Msgf("Starting server: %d", *WebPort)
 	err = server.RunAndWait()
 	if err != nil {
@@ -39,4 +35,14 @@ func main() {
 	} else {
 		log.Info().Msgf("Server stopped.")
 	}
+}
+
+func createLogger(debug bool) *zerolog.Logger {
+	logger := log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	log.Logger = logger
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+	return &logger
 }

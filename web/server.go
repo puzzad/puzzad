@@ -13,15 +13,18 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
+	"github.com/rs/zerolog"
 )
 
 type Webserver struct {
 	handler *http.Server
 	router  *chi.Mux
+	log     *zerolog.Logger
 }
 
-func (web *Webserver) Init(port int) {
+func (web *Webserver) Init(port int, log *zerolog.Logger) {
 	web.router = chi.NewRouter()
+	web.log = log
 	web.addMiddleWare()
 	web.addRoutes()
 	web.handler = &http.Server{
@@ -33,9 +36,9 @@ func (web *Webserver) Init(port int) {
 func (web *Webserver) addMiddleWare() {
 	web.router.Use(middleware.RequestID)
 	web.router.Use(middleware.RealIP)
-	web.router.Use(middleware.Logger)
 	web.router.Use(middleware.Heartbeat("/ping"))
 	web.router.Use(middleware.Recoverer)
+	web.router.Use(loggerMiddleware(web.log))
 	web.router.Use(middleware.Timeout(60 * time.Second))
 	web.router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
@@ -48,6 +51,9 @@ func (web *Webserver) addMiddleWare() {
 }
 
 func (web *Webserver) addRoutes() {
+	web.router.Get("/", func(writer http.ResponseWriter, request *http.Request) {
+		_, _ = writer.Write([]byte("Hi"))
+	})
 }
 
 func (web *Webserver) RunAndWait() error {
@@ -70,4 +76,25 @@ func (web *Webserver) RunAndWait() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	return web.handler.Shutdown(ctx)
+}
+
+func loggerMiddleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			wrapper := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+			defer func() {
+				logger.Info().
+					Str("type", "access").
+					Timestamp().
+					Str("REMOTE_ADDR", r.RemoteAddr).
+					Str("url", r.URL.Path).
+					Str("Proto", r.Proto).
+					Str("Method", r.Method).
+					Str("User-Agent", r.Header.Get("User-Agent")).
+					Int("status", wrapper.Status()).
+					Msg("incoming_request")
+			}()
+			next.ServeHTTP(wrapper, r)
+		})
+	}
 }
