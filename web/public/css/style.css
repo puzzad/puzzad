@@ -19,6 +19,7 @@ nav ul li {
     display: inline;
 }
 body article {
+    border: none;
     display: flex;
     align-self: center;
     flex-direction: column;
