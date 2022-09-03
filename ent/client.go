@@ -193,13 +193,9 @@ func (c *AccessClient) Update() *AccessUpdate {
 
 // UpdateOne returns an update builder for the given entity.
 func (c *AccessClient) UpdateOne(a *Access) *AccessUpdateOne {
-	mutation := newAccessMutation(c.config, OpUpdateOne, withAccess(a))
-	return &AccessUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *AccessClient) UpdateOneID(id int) *AccessUpdateOne {
-	mutation := newAccessMutation(c.config, OpUpdateOne, withAccessID(id))
+	mutation := newAccessMutation(c.config, OpUpdateOne)
+	mutation.team = &a.TeamID
+	mutation.adventures = &a.AdventureID
 	return &AccessUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -209,19 +205,6 @@ func (c *AccessClient) Delete() *AccessDelete {
 	return &AccessDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// DeleteOne returns a builder for deleting the given entity.
-func (c *AccessClient) DeleteOne(a *Access) *AccessDeleteOne {
-	return c.DeleteOneID(a.ID)
-}
-
-// DeleteOne returns a builder for deleting the given entity by its id.
-func (c *AccessClient) DeleteOneID(id int) *AccessDeleteOne {
-	builder := c.Delete().Where(access.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &AccessDeleteOne{builder}
-}
-
 // Query returns a query builder for Access.
 func (c *AccessClient) Query() *AccessQuery {
 	return &AccessQuery{
@@ -229,34 +212,18 @@ func (c *AccessClient) Query() *AccessQuery {
 	}
 }
 
-// Get returns a Access entity by its id.
-func (c *AccessClient) Get(ctx context.Context, id int) (*Access, error) {
-	return c.Query().Where(access.ID(id)).Only(ctx)
+// QueryTeam queries the team edge of a Access.
+func (c *AccessClient) QueryTeam(a *Access) *TeamQuery {
+	return c.Query().
+		Where(access.TeamID(a.TeamID), access.AdventureID(a.AdventureID)).
+		QueryTeam()
 }
 
-// GetX is like Get, but panics if an error occurs.
-func (c *AccessClient) GetX(ctx context.Context, id int) *Access {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryAdventure queries the adventure edge of a Access.
-func (c *AccessClient) QueryAdventure(a *Access) *AdventureQuery {
-	query := &AdventureQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := a.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(access.Table, access.FieldID, id),
-			sqlgraph.To(adventure.Table, adventure.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, access.AdventureTable, access.AdventureColumn),
-		)
-		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
+// QueryAdventures queries the adventures edge of a Access.
+func (c *AccessClient) QueryAdventures(a *Access) *AdventureQuery {
+	return c.Query().
+		Where(access.TeamID(a.TeamID), access.AdventureID(a.AdventureID)).
+		QueryAdventures()
 }
 
 // Hooks returns the client hooks.
@@ -349,6 +316,22 @@ func (c *AdventureClient) GetX(ctx context.Context, id int) *Adventure {
 	return obj
 }
 
+// QueryTeam queries the team edge of a Adventure.
+func (c *AdventureClient) QueryTeam(a *Adventure) *TeamQuery {
+	query := &TeamQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(adventure.Table, adventure.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, adventure.TeamTable, adventure.TeamPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryQuestions queries the questions edge of a Adventure.
 func (c *AdventureClient) QueryQuestions(a *Adventure) *QuestionQuery {
 	query := &QuestionQuery{config: c.config}
@@ -358,6 +341,22 @@ func (c *AdventureClient) QueryQuestions(a *Adventure) *QuestionQuery {
 			sqlgraph.From(adventure.Table, adventure.FieldID, id),
 			sqlgraph.To(question.Table, question.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, adventure.QuestionsTable, adventure.QuestionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAccess queries the access edge of a Adventure.
+func (c *AdventureClient) QueryAccess(a *Adventure) *AccessQuery {
+	query := &AccessQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(adventure.Table, adventure.FieldID, id),
+			sqlgraph.To(access.Table, access.AdventuresColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, adventure.AccessTable, adventure.AccessColumn),
 		)
 		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
 		return fromV, nil
@@ -471,6 +470,22 @@ func (c *GuessClient) QueryQuestion(gu *Guess) *QuestionQuery {
 	return query
 }
 
+// QueryTeam queries the team edge of a Guess.
+func (c *GuessClient) QueryTeam(gu *Guess) *TeamQuery {
+	query := &TeamQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := gu.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(guess.Table, guess.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, guess.TeamTable, guess.TeamColumn),
+		)
+		fromV = sqlgraph.Neighbors(gu.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *GuessClient) Hooks() []Hook {
 	return c.hooks.Guess
@@ -559,6 +574,22 @@ func (c *ProgressClient) GetX(ctx context.Context, id int) *Progress {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryTeam queries the team edge of a Progress.
+func (c *ProgressClient) QueryTeam(pr *Progress) *TeamQuery {
+	query := &TeamQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(progress.Table, progress.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, progress.TeamTable, progress.TeamPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // QueryAdventure queries the adventure edge of a Progress.
@@ -789,31 +820,15 @@ func (c *TeamClient) GetX(ctx context.Context, id int) *Team {
 	return obj
 }
 
-// QueryAccess queries the access edge of a Team.
-func (c *TeamClient) QueryAccess(t *Team) *AccessQuery {
-	query := &AccessQuery{config: c.config}
+// QueryAdventures queries the adventures edge of a Team.
+func (c *TeamClient) QueryAdventures(t *Team) *AdventureQuery {
+	query := &AdventureQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := t.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(team.Table, team.FieldID, id),
-			sqlgraph.To(access.Table, access.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, team.AccessTable, team.AccessColumn),
-		)
-		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryGuesses queries the guesses edge of a Team.
-func (c *TeamClient) QueryGuesses(t *Team) *GuessQuery {
-	query := &GuessQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := t.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(team.Table, team.FieldID, id),
-			sqlgraph.To(guess.Table, guess.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, team.GuessesTable, team.GuessesColumn),
+			sqlgraph.To(adventure.Table, adventure.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, team.AdventuresTable, team.AdventuresPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
 		return fromV, nil
@@ -829,7 +844,23 @@ func (c *TeamClient) QueryProgress(t *Team) *ProgressQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(team.Table, team.FieldID, id),
 			sqlgraph.To(progress.Table, progress.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, team.ProgressTable, team.ProgressColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, team.ProgressTable, team.ProgressPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAccess queries the access edge of a Team.
+func (c *TeamClient) QueryAccess(t *Team) *AccessQuery {
+	query := &AccessQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(access.Table, access.TeamColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, team.AccessTable, team.AccessColumn),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
 		return fromV, nil

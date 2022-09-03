@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -11,6 +12,7 @@ import (
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/team"
 )
 
 // ProgressCreate is the builder for creating a Progress entity.
@@ -20,17 +22,24 @@ type ProgressCreate struct {
 	hooks    []Hook
 }
 
-// SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
-func (pc *ProgressCreate) SetAdventureID(id int) *ProgressCreate {
-	pc.mutation.SetAdventureID(id)
+// AddTeamIDs adds the "team" edge to the Team entity by IDs.
+func (pc *ProgressCreate) AddTeamIDs(ids ...int) *ProgressCreate {
+	pc.mutation.AddTeamIDs(ids...)
 	return pc
 }
 
-// SetNillableAdventureID sets the "adventure" edge to the Adventure entity by ID if the given value is not nil.
-func (pc *ProgressCreate) SetNillableAdventureID(id *int) *ProgressCreate {
-	if id != nil {
-		pc = pc.SetAdventureID(*id)
+// AddTeam adds the "team" edges to the Team entity.
+func (pc *ProgressCreate) AddTeam(t ...*Team) *ProgressCreate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
 	}
+	return pc.AddTeamIDs(ids...)
+}
+
+// SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
+func (pc *ProgressCreate) SetAdventureID(id int) *ProgressCreate {
+	pc.mutation.SetAdventureID(id)
 	return pc
 }
 
@@ -42,14 +51,6 @@ func (pc *ProgressCreate) SetAdventure(a *Adventure) *ProgressCreate {
 // SetQuestionID sets the "question" edge to the Question entity by ID.
 func (pc *ProgressCreate) SetQuestionID(id int) *ProgressCreate {
 	pc.mutation.SetQuestionID(id)
-	return pc
-}
-
-// SetNillableQuestionID sets the "question" edge to the Question entity by ID if the given value is not nil.
-func (pc *ProgressCreate) SetNillableQuestionID(id *int) *ProgressCreate {
-	if id != nil {
-		pc = pc.SetQuestionID(*id)
-	}
 	return pc
 }
 
@@ -134,6 +135,15 @@ func (pc *ProgressCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (pc *ProgressCreate) check() error {
+	if len(pc.mutation.TeamIDs()) == 0 {
+		return &ValidationError{Name: "team", err: errors.New(`ent: missing required edge "Progress.team"`)}
+	}
+	if _, ok := pc.mutation.AdventureID(); !ok {
+		return &ValidationError{Name: "adventure", err: errors.New(`ent: missing required edge "Progress.adventure"`)}
+	}
+	if _, ok := pc.mutation.QuestionID(); !ok {
+		return &ValidationError{Name: "question", err: errors.New(`ent: missing required edge "Progress.question"`)}
+	}
 	return nil
 }
 
@@ -161,6 +171,25 @@ func (pc *ProgressCreate) createSpec() (*Progress, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if nodes := pc.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   progress.TeamTable,
+			Columns: progress.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := pc.mutation.AdventureIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,

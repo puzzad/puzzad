@@ -9,23 +9,23 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/predicate"
+	"github.com/greboid/puzzad/ent/team"
 )
 
 // AccessQuery is the builder for querying Access entities.
 type AccessQuery struct {
 	config
-	limit         *int
-	offset        *int
-	unique        *bool
-	order         []OrderFunc
-	fields        []string
-	predicates    []predicate.Access
-	withAdventure *AdventureQuery
-	withFKs       bool
+	limit          *int
+	offset         *int
+	unique         *bool
+	order          []OrderFunc
+	fields         []string
+	predicates     []predicate.Access
+	withTeam       *TeamQuery
+	withAdventures *AdventureQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -62,8 +62,30 @@ func (aq *AccessQuery) Order(o ...OrderFunc) *AccessQuery {
 	return aq
 }
 
-// QueryAdventure chains the current query on the "adventure" edge.
-func (aq *AccessQuery) QueryAdventure() *AdventureQuery {
+// QueryTeam chains the current query on the "team" edge.
+func (aq *AccessQuery) QueryTeam() *TeamQuery {
+	query := &TeamQuery{config: aq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := aq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := aq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(access.Table, access.TeamColumn, selector),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, access.TeamTable, access.TeamColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAdventures chains the current query on the "adventures" edge.
+func (aq *AccessQuery) QueryAdventures() *AdventureQuery {
 	query := &AdventureQuery{config: aq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := aq.prepareQuery(ctx); err != nil {
@@ -74,9 +96,9 @@ func (aq *AccessQuery) QueryAdventure() *AdventureQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(access.Table, access.FieldID, selector),
+			sqlgraph.From(access.Table, access.AdventuresColumn, selector),
 			sqlgraph.To(adventure.Table, adventure.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, access.AdventureTable, access.AdventureColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, access.AdventuresTable, access.AdventuresColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
 		return fromU, nil
@@ -106,29 +128,6 @@ func (aq *AccessQuery) FirstX(ctx context.Context) *Access {
 	return node
 }
 
-// FirstID returns the first Access ID from the query.
-// Returns a *NotFoundError when no Access ID was found.
-func (aq *AccessQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
-	if ids, err = aq.Limit(1).IDs(ctx); err != nil {
-		return
-	}
-	if len(ids) == 0 {
-		err = &NotFoundError{access.Label}
-		return
-	}
-	return ids[0], nil
-}
-
-// FirstIDX is like FirstID, but panics if an error occurs.
-func (aq *AccessQuery) FirstIDX(ctx context.Context) int {
-	id, err := aq.FirstID(ctx)
-	if err != nil && !IsNotFound(err) {
-		panic(err)
-	}
-	return id
-}
-
 // Only returns a single Access entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one Access entity is found.
 // Returns a *NotFoundError when no Access entities are found.
@@ -156,34 +155,6 @@ func (aq *AccessQuery) OnlyX(ctx context.Context) *Access {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Access ID in the query.
-// Returns a *NotSingularError when more than one Access ID is found.
-// Returns a *NotFoundError when no entities are found.
-func (aq *AccessQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
-	if ids, err = aq.Limit(2).IDs(ctx); err != nil {
-		return
-	}
-	switch len(ids) {
-	case 1:
-		id = ids[0]
-	case 0:
-		err = &NotFoundError{access.Label}
-	default:
-		err = &NotSingularError{access.Label}
-	}
-	return
-}
-
-// OnlyIDX is like OnlyID, but panics if an error occurs.
-func (aq *AccessQuery) OnlyIDX(ctx context.Context) int {
-	id, err := aq.OnlyID(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return id
-}
-
 // All executes the query and returns a list of Accesses.
 func (aq *AccessQuery) All(ctx context.Context) ([]*Access, error) {
 	if err := aq.prepareQuery(ctx); err != nil {
@@ -199,24 +170,6 @@ func (aq *AccessQuery) AllX(ctx context.Context) []*Access {
 		panic(err)
 	}
 	return nodes
-}
-
-// IDs executes the query and returns a list of Access IDs.
-func (aq *AccessQuery) IDs(ctx context.Context) ([]int, error) {
-	var ids []int
-	if err := aq.Select(access.FieldID).Scan(ctx, &ids); err != nil {
-		return nil, err
-	}
-	return ids, nil
-}
-
-// IDsX is like IDs, but panics if an error occurs.
-func (aq *AccessQuery) IDsX(ctx context.Context) []int {
-	ids, err := aq.IDs(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return ids
 }
 
 // Count returns the count of the given query.
@@ -260,12 +213,13 @@ func (aq *AccessQuery) Clone() *AccessQuery {
 		return nil
 	}
 	return &AccessQuery{
-		config:        aq.config,
-		limit:         aq.limit,
-		offset:        aq.offset,
-		order:         append([]OrderFunc{}, aq.order...),
-		predicates:    append([]predicate.Access{}, aq.predicates...),
-		withAdventure: aq.withAdventure.Clone(),
+		config:         aq.config,
+		limit:          aq.limit,
+		offset:         aq.offset,
+		order:          append([]OrderFunc{}, aq.order...),
+		predicates:     append([]predicate.Access{}, aq.predicates...),
+		withTeam:       aq.withTeam.Clone(),
+		withAdventures: aq.withAdventures.Clone(),
 		// clone intermediate query.
 		sql:    aq.sql.Clone(),
 		path:   aq.path,
@@ -273,14 +227,25 @@ func (aq *AccessQuery) Clone() *AccessQuery {
 	}
 }
 
-// WithAdventure tells the query-builder to eager-load the nodes that are connected to
-// the "adventure" edge. The optional arguments are used to configure the query builder of the edge.
-func (aq *AccessQuery) WithAdventure(opts ...func(*AdventureQuery)) *AccessQuery {
+// WithTeam tells the query-builder to eager-load the nodes that are connected to
+// the "team" edge. The optional arguments are used to configure the query builder of the edge.
+func (aq *AccessQuery) WithTeam(opts ...func(*TeamQuery)) *AccessQuery {
+	query := &TeamQuery{config: aq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	aq.withTeam = query
+	return aq
+}
+
+// WithAdventures tells the query-builder to eager-load the nodes that are connected to
+// the "adventures" edge. The optional arguments are used to configure the query builder of the edge.
+func (aq *AccessQuery) WithAdventures(opts ...func(*AdventureQuery)) *AccessQuery {
 	query := &AdventureQuery{config: aq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	aq.withAdventure = query
+	aq.withAdventures = query
 	return aq
 }
 
@@ -351,18 +316,12 @@ func (aq *AccessQuery) prepareQuery(ctx context.Context) error {
 func (aq *AccessQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Access, error) {
 	var (
 		nodes       = []*Access{}
-		withFKs     = aq.withFKs
 		_spec       = aq.querySpec()
-		loadedTypes = [1]bool{
-			aq.withAdventure != nil,
+		loadedTypes = [2]bool{
+			aq.withTeam != nil,
+			aq.withAdventures != nil,
 		}
 	)
-	if aq.withAdventure != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, access.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		return (*Access).scanValues(nil, columns)
 	}
@@ -381,23 +340,52 @@ func (aq *AccessQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Acces
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := aq.withAdventure; query != nil {
-		if err := aq.loadAdventure(ctx, query, nodes, nil,
-			func(n *Access, e *Adventure) { n.Edges.Adventure = e }); err != nil {
+	if query := aq.withTeam; query != nil {
+		if err := aq.loadTeam(ctx, query, nodes, nil,
+			func(n *Access, e *Team) { n.Edges.Team = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := aq.withAdventures; query != nil {
+		if err := aq.loadAdventures(ctx, query, nodes, nil,
+			func(n *Access, e *Adventure) { n.Edges.Adventures = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (aq *AccessQuery) loadAdventure(ctx context.Context, query *AdventureQuery, nodes []*Access, init func(*Access), assign func(*Access, *Adventure)) error {
+func (aq *AccessQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Access, init func(*Access), assign func(*Access, *Team)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Access)
 	for i := range nodes {
-		if nodes[i].access_adventure == nil {
-			continue
+		fk := nodes[i].TeamID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
 		}
-		fk := *nodes[i].access_adventure
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	query.Where(team.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "team_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (aq *AccessQuery) loadAdventures(ctx context.Context, query *AdventureQuery, nodes []*Access, init func(*Access), assign func(*Access, *Adventure)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Access)
+	for i := range nodes {
+		fk := nodes[i].AdventureID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -411,7 +399,7 @@ func (aq *AccessQuery) loadAdventure(ctx context.Context, query *AdventureQuery,
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "access_adventure" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "adventure_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -422,10 +410,8 @@ func (aq *AccessQuery) loadAdventure(ctx context.Context, query *AdventureQuery,
 
 func (aq *AccessQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := aq.querySpec()
-	_spec.Node.Columns = aq.fields
-	if len(aq.fields) > 0 {
-		_spec.Unique = aq.unique != nil && *aq.unique
-	}
+	_spec.Unique = false
+	_spec.Node.Columns = nil
 	return sqlgraph.CountNodes(ctx, aq.driver, _spec)
 }
 
@@ -442,10 +428,6 @@ func (aq *AccessQuery) querySpec() *sqlgraph.QuerySpec {
 		Node: &sqlgraph.NodeSpec{
 			Table:   access.Table,
 			Columns: access.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: access.FieldID,
-			},
 		},
 		From:   aq.sql,
 		Unique: true,
@@ -455,11 +437,8 @@ func (aq *AccessQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := aq.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, access.FieldID)
 		for i := range fields {
-			if fields[i] != access.FieldID {
-				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
-			}
+			_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 		}
 	}
 	if ps := aq.predicates; len(ps) > 0 {

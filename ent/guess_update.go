@@ -14,6 +14,7 @@ import (
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/predicate"
 	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/team"
 )
 
 // GuessUpdate is the builder for updating Guess entities.
@@ -64,6 +65,21 @@ func (gu *GuessUpdate) AddQuestion(q ...*Question) *GuessUpdate {
 	return gu.AddQuestionIDs(ids...)
 }
 
+// AddTeamIDs adds the "team" edge to the Team entity by IDs.
+func (gu *GuessUpdate) AddTeamIDs(ids ...int) *GuessUpdate {
+	gu.mutation.AddTeamIDs(ids...)
+	return gu
+}
+
+// AddTeam adds the "team" edges to the Team entity.
+func (gu *GuessUpdate) AddTeam(t ...*Team) *GuessUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return gu.AddTeamIDs(ids...)
+}
+
 // Mutation returns the GuessMutation object of the builder.
 func (gu *GuessUpdate) Mutation() *GuessMutation {
 	return gu.mutation
@@ -88,6 +104,27 @@ func (gu *GuessUpdate) RemoveQuestion(q ...*Question) *GuessUpdate {
 		ids[i] = q[i].ID
 	}
 	return gu.RemoveQuestionIDs(ids...)
+}
+
+// ClearTeam clears all "team" edges to the Team entity.
+func (gu *GuessUpdate) ClearTeam() *GuessUpdate {
+	gu.mutation.ClearTeam()
+	return gu
+}
+
+// RemoveTeamIDs removes the "team" edge to Team entities by IDs.
+func (gu *GuessUpdate) RemoveTeamIDs(ids ...int) *GuessUpdate {
+	gu.mutation.RemoveTeamIDs(ids...)
+	return gu
+}
+
+// RemoveTeam removes "team" edges to Team entities.
+func (gu *GuessUpdate) RemoveTeam(t ...*Team) *GuessUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return gu.RemoveTeamIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -230,6 +267,60 @@ func (gu *GuessUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if gu.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   guess.TeamTable,
+			Columns: []string{guess.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := gu.mutation.RemovedTeamIDs(); len(nodes) > 0 && !gu.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   guess.TeamTable,
+			Columns: []string{guess.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := gu.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   guess.TeamTable,
+			Columns: []string{guess.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, gu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{guess.Label}
@@ -284,6 +375,21 @@ func (guo *GuessUpdateOne) AddQuestion(q ...*Question) *GuessUpdateOne {
 	return guo.AddQuestionIDs(ids...)
 }
 
+// AddTeamIDs adds the "team" edge to the Team entity by IDs.
+func (guo *GuessUpdateOne) AddTeamIDs(ids ...int) *GuessUpdateOne {
+	guo.mutation.AddTeamIDs(ids...)
+	return guo
+}
+
+// AddTeam adds the "team" edges to the Team entity.
+func (guo *GuessUpdateOne) AddTeam(t ...*Team) *GuessUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return guo.AddTeamIDs(ids...)
+}
+
 // Mutation returns the GuessMutation object of the builder.
 func (guo *GuessUpdateOne) Mutation() *GuessMutation {
 	return guo.mutation
@@ -308,6 +414,27 @@ func (guo *GuessUpdateOne) RemoveQuestion(q ...*Question) *GuessUpdateOne {
 		ids[i] = q[i].ID
 	}
 	return guo.RemoveQuestionIDs(ids...)
+}
+
+// ClearTeam clears all "team" edges to the Team entity.
+func (guo *GuessUpdateOne) ClearTeam() *GuessUpdateOne {
+	guo.mutation.ClearTeam()
+	return guo
+}
+
+// RemoveTeamIDs removes the "team" edge to Team entities by IDs.
+func (guo *GuessUpdateOne) RemoveTeamIDs(ids ...int) *GuessUpdateOne {
+	guo.mutation.RemoveTeamIDs(ids...)
+	return guo
+}
+
+// RemoveTeam removes "team" edges to Team entities.
+func (guo *GuessUpdateOne) RemoveTeam(t ...*Team) *GuessUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return guo.RemoveTeamIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -472,6 +599,60 @@ func (guo *GuessUpdateOne) sqlSave(ctx context.Context) (_node *Guess, err error
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: question.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if guo.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   guess.TeamTable,
+			Columns: []string{guess.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := guo.mutation.RemovedTeamIDs(); len(nodes) > 0 && !guo.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   guess.TeamTable,
+			Columns: []string{guess.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := guo.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   guess.TeamTable,
+			Columns: []string{guess.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
 				},
 			},
 		}

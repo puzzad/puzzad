@@ -21,7 +21,7 @@ func (db *DBClient) CreateTeam(ctx context.Context, name string, email string) (
 	return t, nil
 }
 
-func (db *DBClient) QueryTeam(ctx context.Context, name string) (*ent.Team, error) {
+func (db *DBClient) GetTeam(ctx context.Context, name string) (*ent.Team, error) {
 	t, err := db.entclient.Team.
 		Query().
 		Where(team.Name(name)).
@@ -30,4 +30,13 @@ func (db *DBClient) QueryTeam(ctx context.Context, name string) (*ent.Team, erro
 		return nil, fmt.Errorf("failed querying team: %w", err)
 	}
 	return t, nil
+}
+
+func (db *DBClient) UpdateTeamStatus(ctx context.Context, name string, newStatus team.Status) error {
+	t, err := db.GetTeam(ctx, name)
+	if err != nil {
+		return err
+	}
+	_, err = t.Update().SetStatus(newStatus).Save(ctx)
+	return err
 }

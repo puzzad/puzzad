@@ -8,7 +8,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/predicate"
 )
@@ -71,10 +70,6 @@ func (ad *AccessDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := &sqlgraph.DeleteSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table: access.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: access.FieldID,
-			},
 		},
 	}
 	if ps := ad.mutation.predicates; len(ps) > 0 {

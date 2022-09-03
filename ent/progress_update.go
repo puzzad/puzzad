@@ -14,6 +14,7 @@ import (
 	"github.com/greboid/puzzad/ent/predicate"
 	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/team"
 )
 
 // ProgressUpdate is the builder for updating Progress entities.
@@ -29,17 +30,24 @@ func (pu *ProgressUpdate) Where(ps ...predicate.Progress) *ProgressUpdate {
 	return pu
 }
 
-// SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
-func (pu *ProgressUpdate) SetAdventureID(id int) *ProgressUpdate {
-	pu.mutation.SetAdventureID(id)
+// AddTeamIDs adds the "team" edge to the Team entity by IDs.
+func (pu *ProgressUpdate) AddTeamIDs(ids ...int) *ProgressUpdate {
+	pu.mutation.AddTeamIDs(ids...)
 	return pu
 }
 
-// SetNillableAdventureID sets the "adventure" edge to the Adventure entity by ID if the given value is not nil.
-func (pu *ProgressUpdate) SetNillableAdventureID(id *int) *ProgressUpdate {
-	if id != nil {
-		pu = pu.SetAdventureID(*id)
+// AddTeam adds the "team" edges to the Team entity.
+func (pu *ProgressUpdate) AddTeam(t ...*Team) *ProgressUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
 	}
+	return pu.AddTeamIDs(ids...)
+}
+
+// SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
+func (pu *ProgressUpdate) SetAdventureID(id int) *ProgressUpdate {
+	pu.mutation.SetAdventureID(id)
 	return pu
 }
 
@@ -54,14 +62,6 @@ func (pu *ProgressUpdate) SetQuestionID(id int) *ProgressUpdate {
 	return pu
 }
 
-// SetNillableQuestionID sets the "question" edge to the Question entity by ID if the given value is not nil.
-func (pu *ProgressUpdate) SetNillableQuestionID(id *int) *ProgressUpdate {
-	if id != nil {
-		pu = pu.SetQuestionID(*id)
-	}
-	return pu
-}
-
 // SetQuestion sets the "question" edge to the Question entity.
 func (pu *ProgressUpdate) SetQuestion(q *Question) *ProgressUpdate {
 	return pu.SetQuestionID(q.ID)
@@ -70,6 +70,27 @@ func (pu *ProgressUpdate) SetQuestion(q *Question) *ProgressUpdate {
 // Mutation returns the ProgressMutation object of the builder.
 func (pu *ProgressUpdate) Mutation() *ProgressMutation {
 	return pu.mutation
+}
+
+// ClearTeam clears all "team" edges to the Team entity.
+func (pu *ProgressUpdate) ClearTeam() *ProgressUpdate {
+	pu.mutation.ClearTeam()
+	return pu
+}
+
+// RemoveTeamIDs removes the "team" edge to Team entities by IDs.
+func (pu *ProgressUpdate) RemoveTeamIDs(ids ...int) *ProgressUpdate {
+	pu.mutation.RemoveTeamIDs(ids...)
+	return pu
+}
+
+// RemoveTeam removes "team" edges to Team entities.
+func (pu *ProgressUpdate) RemoveTeam(t ...*Team) *ProgressUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return pu.RemoveTeamIDs(ids...)
 }
 
 // ClearAdventure clears the "adventure" edge to the Adventure entity.
@@ -91,12 +112,18 @@ func (pu *ProgressUpdate) Save(ctx context.Context) (int, error) {
 		affected int
 	)
 	if len(pu.hooks) == 0 {
+		if err = pu.check(); err != nil {
+			return 0, err
+		}
 		affected, err = pu.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*ProgressMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = pu.check(); err != nil {
+				return 0, err
 			}
 			pu.mutation = mutation
 			affected, err = pu.sqlSave(ctx)
@@ -138,6 +165,17 @@ func (pu *ProgressUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (pu *ProgressUpdate) check() error {
+	if _, ok := pu.mutation.AdventureID(); pu.mutation.AdventureCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Progress.adventure"`)
+	}
+	if _, ok := pu.mutation.QuestionID(); pu.mutation.QuestionCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Progress.question"`)
+	}
+	return nil
+}
+
 func (pu *ProgressUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -155,6 +193,60 @@ func (pu *ProgressUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if pu.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   progress.TeamTable,
+			Columns: progress.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.RemovedTeamIDs(); len(nodes) > 0 && !pu.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   progress.TeamTable,
+			Columns: progress.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   progress.TeamTable,
+			Columns: progress.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if pu.mutation.AdventureCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -245,17 +337,24 @@ type ProgressUpdateOne struct {
 	mutation *ProgressMutation
 }
 
-// SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
-func (puo *ProgressUpdateOne) SetAdventureID(id int) *ProgressUpdateOne {
-	puo.mutation.SetAdventureID(id)
+// AddTeamIDs adds the "team" edge to the Team entity by IDs.
+func (puo *ProgressUpdateOne) AddTeamIDs(ids ...int) *ProgressUpdateOne {
+	puo.mutation.AddTeamIDs(ids...)
 	return puo
 }
 
-// SetNillableAdventureID sets the "adventure" edge to the Adventure entity by ID if the given value is not nil.
-func (puo *ProgressUpdateOne) SetNillableAdventureID(id *int) *ProgressUpdateOne {
-	if id != nil {
-		puo = puo.SetAdventureID(*id)
+// AddTeam adds the "team" edges to the Team entity.
+func (puo *ProgressUpdateOne) AddTeam(t ...*Team) *ProgressUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
 	}
+	return puo.AddTeamIDs(ids...)
+}
+
+// SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
+func (puo *ProgressUpdateOne) SetAdventureID(id int) *ProgressUpdateOne {
+	puo.mutation.SetAdventureID(id)
 	return puo
 }
 
@@ -270,14 +369,6 @@ func (puo *ProgressUpdateOne) SetQuestionID(id int) *ProgressUpdateOne {
 	return puo
 }
 
-// SetNillableQuestionID sets the "question" edge to the Question entity by ID if the given value is not nil.
-func (puo *ProgressUpdateOne) SetNillableQuestionID(id *int) *ProgressUpdateOne {
-	if id != nil {
-		puo = puo.SetQuestionID(*id)
-	}
-	return puo
-}
-
 // SetQuestion sets the "question" edge to the Question entity.
 func (puo *ProgressUpdateOne) SetQuestion(q *Question) *ProgressUpdateOne {
 	return puo.SetQuestionID(q.ID)
@@ -286,6 +377,27 @@ func (puo *ProgressUpdateOne) SetQuestion(q *Question) *ProgressUpdateOne {
 // Mutation returns the ProgressMutation object of the builder.
 func (puo *ProgressUpdateOne) Mutation() *ProgressMutation {
 	return puo.mutation
+}
+
+// ClearTeam clears all "team" edges to the Team entity.
+func (puo *ProgressUpdateOne) ClearTeam() *ProgressUpdateOne {
+	puo.mutation.ClearTeam()
+	return puo
+}
+
+// RemoveTeamIDs removes the "team" edge to Team entities by IDs.
+func (puo *ProgressUpdateOne) RemoveTeamIDs(ids ...int) *ProgressUpdateOne {
+	puo.mutation.RemoveTeamIDs(ids...)
+	return puo
+}
+
+// RemoveTeam removes "team" edges to Team entities.
+func (puo *ProgressUpdateOne) RemoveTeam(t ...*Team) *ProgressUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return puo.RemoveTeamIDs(ids...)
 }
 
 // ClearAdventure clears the "adventure" edge to the Adventure entity.
@@ -314,12 +426,18 @@ func (puo *ProgressUpdateOne) Save(ctx context.Context) (*Progress, error) {
 		node *Progress
 	)
 	if len(puo.hooks) == 0 {
+		if err = puo.check(); err != nil {
+			return nil, err
+		}
 		node, err = puo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*ProgressMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = puo.check(); err != nil {
+				return nil, err
 			}
 			puo.mutation = mutation
 			node, err = puo.sqlSave(ctx)
@@ -367,6 +485,17 @@ func (puo *ProgressUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (puo *ProgressUpdateOne) check() error {
+	if _, ok := puo.mutation.AdventureID(); puo.mutation.AdventureCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Progress.adventure"`)
+	}
+	if _, ok := puo.mutation.QuestionID(); puo.mutation.QuestionCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Progress.question"`)
+	}
+	return nil
+}
+
 func (puo *ProgressUpdateOne) sqlSave(ctx context.Context) (_node *Progress, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -401,6 +530,60 @@ func (puo *ProgressUpdateOne) sqlSave(ctx context.Context) (_node *Progress, err
 				ps[i](selector)
 			}
 		}
+	}
+	if puo.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   progress.TeamTable,
+			Columns: progress.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.RemovedTeamIDs(); len(nodes) > 0 && !puo.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   progress.TeamTable,
+			Columns: progress.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   progress.TeamTable,
+			Columns: progress.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if puo.mutation.AdventureCleared() {
 		edge := &sqlgraph.EdgeSpec{

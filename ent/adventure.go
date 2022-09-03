@@ -24,20 +24,42 @@ type Adventure struct {
 
 // AdventureEdges holds the relations/edges for other nodes in the graph.
 type AdventureEdges struct {
+	// Team holds the value of the team edge.
+	Team []*Team `json:"team,omitempty"`
 	// Questions holds the value of the questions edge.
 	Questions []*Question `json:"questions,omitempty"`
+	// Access holds the value of the access edge.
+	Access []*Access `json:"access,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [3]bool
+}
+
+// TeamOrErr returns the Team value or an error if the edge
+// was not loaded in eager-loading.
+func (e AdventureEdges) TeamOrErr() ([]*Team, error) {
+	if e.loadedTypes[0] {
+		return e.Team, nil
+	}
+	return nil, &NotLoadedError{edge: "team"}
 }
 
 // QuestionsOrErr returns the Questions value or an error if the edge
 // was not loaded in eager-loading.
 func (e AdventureEdges) QuestionsOrErr() ([]*Question, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		return e.Questions, nil
 	}
 	return nil, &NotLoadedError{edge: "questions"}
+}
+
+// AccessOrErr returns the Access value or an error if the edge
+// was not loaded in eager-loading.
+func (e AdventureEdges) AccessOrErr() ([]*Access, error) {
+	if e.loadedTypes[2] {
+		return e.Access, nil
+	}
+	return nil, &NotLoadedError{edge: "access"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -81,9 +103,19 @@ func (a *Adventure) assignValues(columns []string, values []interface{}) error {
 	return nil
 }
 
+// QueryTeam queries the "team" edge of the Adventure entity.
+func (a *Adventure) QueryTeam() *TeamQuery {
+	return (&AdventureClient{config: a.config}).QueryTeam(a)
+}
+
 // QueryQuestions queries the "questions" edge of the Adventure entity.
 func (a *Adventure) QueryQuestions() *QuestionQuery {
 	return (&AdventureClient{config: a.config}).QueryQuestions(a)
+}
+
+// QueryAccess queries the "access" edge of the Adventure entity.
+func (a *Adventure) QueryAccess() *AccessQuery {
+	return (&AdventureClient{config: a.config}).QueryAccess(a)
 }
 
 // Update returns a builder for updating this Adventure.

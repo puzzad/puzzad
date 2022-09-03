@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/team"
 )
 
 // GuessCreate is the builder for creating a Guess entity.
@@ -19,6 +20,20 @@ type GuessCreate struct {
 	config
 	mutation *GuessMutation
 	hooks    []Hook
+}
+
+// SetCreateTime sets the "create_time" field.
+func (gc *GuessCreate) SetCreateTime(t time.Time) *GuessCreate {
+	gc.mutation.SetCreateTime(t)
+	return gc
+}
+
+// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
+func (gc *GuessCreate) SetNillableCreateTime(t *time.Time) *GuessCreate {
+	if t != nil {
+		gc.SetCreateTime(*t)
+	}
+	return gc
 }
 
 // SetContent sets the "content" field.
@@ -54,6 +69,21 @@ func (gc *GuessCreate) AddQuestion(q ...*Question) *GuessCreate {
 		ids[i] = q[i].ID
 	}
 	return gc.AddQuestionIDs(ids...)
+}
+
+// AddTeamIDs adds the "team" edge to the Team entity by IDs.
+func (gc *GuessCreate) AddTeamIDs(ids ...int) *GuessCreate {
+	gc.mutation.AddTeamIDs(ids...)
+	return gc
+}
+
+// AddTeam adds the "team" edges to the Team entity.
+func (gc *GuessCreate) AddTeam(t ...*Team) *GuessCreate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return gc.AddTeamIDs(ids...)
 }
 
 // Mutation returns the GuessMutation object of the builder.
@@ -133,6 +163,10 @@ func (gc *GuessCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (gc *GuessCreate) defaults() {
+	if _, ok := gc.mutation.CreateTime(); !ok {
+		v := guess.DefaultCreateTime()
+		gc.mutation.SetCreateTime(v)
+	}
 	if _, ok := gc.mutation.Submitted(); !ok {
 		v := guess.DefaultSubmitted
 		gc.mutation.SetSubmitted(v)
@@ -141,6 +175,9 @@ func (gc *GuessCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (gc *GuessCreate) check() error {
+	if _, ok := gc.mutation.CreateTime(); !ok {
+		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "Guess.create_time"`)}
+	}
 	if _, ok := gc.mutation.Content(); !ok {
 		return &ValidationError{Name: "content", err: errors.New(`ent: missing required field "Guess.content"`)}
 	}
@@ -174,6 +211,14 @@ func (gc *GuessCreate) createSpec() (*Guess, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if value, ok := gc.mutation.CreateTime(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: guess.FieldCreateTime,
+		})
+		_node.CreateTime = value
+	}
 	if value, ok := gc.mutation.Content(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -201,6 +246,25 @@ func (gc *GuessCreate) createSpec() (*Guess, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: question.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := gc.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   guess.TeamTable,
+			Columns: []string{guess.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
 				},
 			},
 		}

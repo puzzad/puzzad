@@ -14,6 +14,7 @@ import (
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/predicate"
 	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/team"
 )
 
 // GuessQuery is the builder for querying Guess entities.
@@ -26,7 +27,7 @@ type GuessQuery struct {
 	fields       []string
 	predicates   []predicate.Guess
 	withQuestion *QuestionQuery
-	withFKs      bool
+	withTeam     *TeamQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -78,6 +79,28 @@ func (gq *GuessQuery) QueryQuestion() *QuestionQuery {
 			sqlgraph.From(guess.Table, guess.FieldID, selector),
 			sqlgraph.To(question.Table, question.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, guess.QuestionTable, guess.QuestionColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTeam chains the current query on the "team" edge.
+func (gq *GuessQuery) QueryTeam() *TeamQuery {
+	query := &TeamQuery{config: gq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := gq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := gq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(guess.Table, guess.FieldID, selector),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, guess.TeamTable, guess.TeamColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
 		return fromU, nil
@@ -267,6 +290,7 @@ func (gq *GuessQuery) Clone() *GuessQuery {
 		order:        append([]OrderFunc{}, gq.order...),
 		predicates:   append([]predicate.Guess{}, gq.predicates...),
 		withQuestion: gq.withQuestion.Clone(),
+		withTeam:     gq.withTeam.Clone(),
 		// clone intermediate query.
 		sql:    gq.sql.Clone(),
 		path:   gq.path,
@@ -285,18 +309,29 @@ func (gq *GuessQuery) WithQuestion(opts ...func(*QuestionQuery)) *GuessQuery {
 	return gq
 }
 
+// WithTeam tells the query-builder to eager-load the nodes that are connected to
+// the "team" edge. The optional arguments are used to configure the query builder of the edge.
+func (gq *GuessQuery) WithTeam(opts ...func(*TeamQuery)) *GuessQuery {
+	query := &TeamQuery{config: gq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	gq.withTeam = query
+	return gq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
 // Example:
 //
 //	var v []struct {
-//		Content string `json:"content,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Guess.Query().
-//		GroupBy(guess.FieldContent).
+//		GroupBy(guess.FieldCreateTime).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (gq *GuessQuery) GroupBy(field string, fields ...string) *GuessGroupBy {
@@ -319,11 +354,11 @@ func (gq *GuessQuery) GroupBy(field string, fields ...string) *GuessGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Content string `json:"content,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //	}
 //
 //	client.Guess.Query().
-//		Select(guess.FieldContent).
+//		Select(guess.FieldCreateTime).
 //		Scan(ctx, &v)
 func (gq *GuessQuery) Select(fields ...string) *GuessSelect {
 	gq.fields = append(gq.fields, fields...)
@@ -352,15 +387,12 @@ func (gq *GuessQuery) prepareQuery(ctx context.Context) error {
 func (gq *GuessQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Guess, error) {
 	var (
 		nodes       = []*Guess{}
-		withFKs     = gq.withFKs
 		_spec       = gq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			gq.withQuestion != nil,
+			gq.withTeam != nil,
 		}
 	)
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, guess.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		return (*Guess).scanValues(nil, columns)
 	}
@@ -383,6 +415,13 @@ func (gq *GuessQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Guess,
 		if err := gq.loadQuestion(ctx, query, nodes,
 			func(n *Guess) { n.Edges.Question = []*Question{} },
 			func(n *Guess, e *Question) { n.Edges.Question = append(n.Edges.Question, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := gq.withTeam; query != nil {
+		if err := gq.loadTeam(ctx, query, nodes,
+			func(n *Guess) { n.Edges.Team = []*Team{} },
+			func(n *Guess, e *Team) { n.Edges.Team = append(n.Edges.Team, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -415,6 +454,37 @@ func (gq *GuessQuery) loadQuestion(ctx context.Context, query *QuestionQuery, no
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "guess_question" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (gq *GuessQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Guess, init func(*Guess), assign func(*Guess, *Team)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Guess)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.InValues(guess.TeamColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.guess_team
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "guess_team" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "guess_team" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

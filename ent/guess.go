@@ -16,23 +16,26 @@ type Guess struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// CreateTime holds the value of the "create_time" field.
+	CreateTime time.Time `json:"create_time,omitempty"`
 	// Content holds the value of the "content" field.
 	Content string `json:"content,omitempty"`
 	// Submitted holds the value of the "submitted" field.
 	Submitted time.Time `json:"submitted,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GuessQuery when eager-loading is set.
-	Edges        GuessEdges `json:"edges"`
-	team_guesses *int
+	Edges GuessEdges `json:"edges"`
 }
 
 // GuessEdges holds the relations/edges for other nodes in the graph.
 type GuessEdges struct {
 	// Question holds the value of the question edge.
 	Question []*Question `json:"question,omitempty"`
+	// Team holds the value of the team edge.
+	Team []*Team `json:"team,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // QuestionOrErr returns the Question value or an error if the edge
@@ -44,6 +47,15 @@ func (e GuessEdges) QuestionOrErr() ([]*Question, error) {
 	return nil, &NotLoadedError{edge: "question"}
 }
 
+// TeamOrErr returns the Team value or an error if the edge
+// was not loaded in eager-loading.
+func (e GuessEdges) TeamOrErr() ([]*Team, error) {
+	if e.loadedTypes[1] {
+		return e.Team, nil
+	}
+	return nil, &NotLoadedError{edge: "team"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Guess) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
@@ -53,10 +65,8 @@ func (*Guess) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullInt64)
 		case guess.FieldContent:
 			values[i] = new(sql.NullString)
-		case guess.FieldSubmitted:
+		case guess.FieldCreateTime, guess.FieldSubmitted:
 			values[i] = new(sql.NullTime)
-		case guess.ForeignKeys[0]: // team_guesses
-			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Guess", columns[i])
 		}
@@ -78,6 +88,12 @@ func (gu *Guess) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			gu.ID = int(value.Int64)
+		case guess.FieldCreateTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			} else if value.Valid {
+				gu.CreateTime = value.Time
+			}
 		case guess.FieldContent:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field content", values[i])
@@ -90,13 +106,6 @@ func (gu *Guess) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				gu.Submitted = value.Time
 			}
-		case guess.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field team_guesses", value)
-			} else if value.Valid {
-				gu.team_guesses = new(int)
-				*gu.team_guesses = int(value.Int64)
-			}
 		}
 	}
 	return nil
@@ -105,6 +114,11 @@ func (gu *Guess) assignValues(columns []string, values []interface{}) error {
 // QueryQuestion queries the "question" edge of the Guess entity.
 func (gu *Guess) QueryQuestion() *QuestionQuery {
 	return (&GuessClient{config: gu.config}).QueryQuestion(gu)
+}
+
+// QueryTeam queries the "team" edge of the Guess entity.
+func (gu *Guess) QueryTeam() *TeamQuery {
+	return (&GuessClient{config: gu.config}).QueryTeam(gu)
 }
 
 // Update returns a builder for updating this Guess.
@@ -130,6 +144,9 @@ func (gu *Guess) String() string {
 	var builder strings.Builder
 	builder.WriteString("Guess(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", gu.ID))
+	builder.WriteString("create_time=")
+	builder.WriteString(gu.CreateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("content=")
 	builder.WriteString(gu.Content)
 	builder.WriteString(", ")

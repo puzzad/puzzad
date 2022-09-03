@@ -22,35 +22,31 @@ const (
 	FieldEmail = "email"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// EdgeAccess holds the string denoting the access edge name in mutations.
-	EdgeAccess = "access"
-	// EdgeGuesses holds the string denoting the guesses edge name in mutations.
-	EdgeGuesses = "guesses"
+	// EdgeAdventures holds the string denoting the adventures edge name in mutations.
+	EdgeAdventures = "adventures"
 	// EdgeProgress holds the string denoting the progress edge name in mutations.
 	EdgeProgress = "progress"
+	// EdgeAccess holds the string denoting the access edge name in mutations.
+	EdgeAccess = "access"
 	// Table holds the table name of the team in the database.
 	Table = "teams"
+	// AdventuresTable is the table that holds the adventures relation/edge. The primary key declared below.
+	AdventuresTable = "accesses"
+	// AdventuresInverseTable is the table name for the Adventure entity.
+	// It exists in this package in order to avoid circular dependency with the "adventure" package.
+	AdventuresInverseTable = "adventures"
+	// ProgressTable is the table that holds the progress relation/edge. The primary key declared below.
+	ProgressTable = "team_progress"
+	// ProgressInverseTable is the table name for the Progress entity.
+	// It exists in this package in order to avoid circular dependency with the "progress" package.
+	ProgressInverseTable = "progresses"
 	// AccessTable is the table that holds the access relation/edge.
 	AccessTable = "accesses"
 	// AccessInverseTable is the table name for the Access entity.
 	// It exists in this package in order to avoid circular dependency with the "access" package.
 	AccessInverseTable = "accesses"
 	// AccessColumn is the table column denoting the access relation/edge.
-	AccessColumn = "team_access"
-	// GuessesTable is the table that holds the guesses relation/edge.
-	GuessesTable = "guesses"
-	// GuessesInverseTable is the table name for the Guess entity.
-	// It exists in this package in order to avoid circular dependency with the "guess" package.
-	GuessesInverseTable = "guesses"
-	// GuessesColumn is the table column denoting the guesses relation/edge.
-	GuessesColumn = "team_guesses"
-	// ProgressTable is the table that holds the progress relation/edge.
-	ProgressTable = "progresses"
-	// ProgressInverseTable is the table name for the Progress entity.
-	// It exists in this package in order to avoid circular dependency with the "progress" package.
-	ProgressInverseTable = "progresses"
-	// ProgressColumn is the table column denoting the progress relation/edge.
-	ProgressColumn = "team_progress"
+	AccessColumn = "team_id"
 )
 
 // Columns holds all SQL columns for team fields.
@@ -63,10 +59,30 @@ var Columns = []string{
 	FieldStatus,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "teams"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"guess_team",
+}
+
+var (
+	// AdventuresPrimaryKey and AdventuresColumn2 are the table columns denoting the
+	// primary key for the adventures relation (M2M).
+	AdventuresPrimaryKey = []string{"team_id", "adventure_id"}
+	// ProgressPrimaryKey and ProgressColumn2 are the table columns denoting the
+	// primary key for the progress relation (M2M).
+	ProgressPrimaryKey = []string{"team_id", "progress_id"}
+)
+
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}

@@ -12,7 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/access"
-	"github.com/greboid/puzzad/ent/guess"
+	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/predicate"
 	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/team"
@@ -21,15 +21,16 @@ import (
 // TeamQuery is the builder for querying Team entities.
 type TeamQuery struct {
 	config
-	limit        *int
-	offset       *int
-	unique       *bool
-	order        []OrderFunc
-	fields       []string
-	predicates   []predicate.Team
-	withAccess   *AccessQuery
-	withGuesses  *GuessQuery
-	withProgress *ProgressQuery
+	limit          *int
+	offset         *int
+	unique         *bool
+	order          []OrderFunc
+	fields         []string
+	predicates     []predicate.Team
+	withAdventures *AdventureQuery
+	withProgress   *ProgressQuery
+	withAccess     *AccessQuery
+	withFKs        bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -66,9 +67,9 @@ func (tq *TeamQuery) Order(o ...OrderFunc) *TeamQuery {
 	return tq
 }
 
-// QueryAccess chains the current query on the "access" edge.
-func (tq *TeamQuery) QueryAccess() *AccessQuery {
-	query := &AccessQuery{config: tq.config}
+// QueryAdventures chains the current query on the "adventures" edge.
+func (tq *TeamQuery) QueryAdventures() *AdventureQuery {
+	query := &AdventureQuery{config: tq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := tq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -79,30 +80,8 @@ func (tq *TeamQuery) QueryAccess() *AccessQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(team.Table, team.FieldID, selector),
-			sqlgraph.To(access.Table, access.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, team.AccessTable, team.AccessColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryGuesses chains the current query on the "guesses" edge.
-func (tq *TeamQuery) QueryGuesses() *GuessQuery {
-	query := &GuessQuery{config: tq.config}
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := tq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := tq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(team.Table, team.FieldID, selector),
-			sqlgraph.To(guess.Table, guess.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, team.GuessesTable, team.GuessesColumn),
+			sqlgraph.To(adventure.Table, adventure.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, team.AdventuresTable, team.AdventuresPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -124,7 +103,29 @@ func (tq *TeamQuery) QueryProgress() *ProgressQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(team.Table, team.FieldID, selector),
 			sqlgraph.To(progress.Table, progress.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, team.ProgressTable, team.ProgressColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, team.ProgressTable, team.ProgressPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAccess chains the current query on the "access" edge.
+func (tq *TeamQuery) QueryAccess() *AccessQuery {
+	query := &AccessQuery{config: tq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := tq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := tq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, selector),
+			sqlgraph.To(access.Table, access.TeamColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, team.AccessTable, team.AccessColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -308,14 +309,14 @@ func (tq *TeamQuery) Clone() *TeamQuery {
 		return nil
 	}
 	return &TeamQuery{
-		config:       tq.config,
-		limit:        tq.limit,
-		offset:       tq.offset,
-		order:        append([]OrderFunc{}, tq.order...),
-		predicates:   append([]predicate.Team{}, tq.predicates...),
-		withAccess:   tq.withAccess.Clone(),
-		withGuesses:  tq.withGuesses.Clone(),
-		withProgress: tq.withProgress.Clone(),
+		config:         tq.config,
+		limit:          tq.limit,
+		offset:         tq.offset,
+		order:          append([]OrderFunc{}, tq.order...),
+		predicates:     append([]predicate.Team{}, tq.predicates...),
+		withAdventures: tq.withAdventures.Clone(),
+		withProgress:   tq.withProgress.Clone(),
+		withAccess:     tq.withAccess.Clone(),
 		// clone intermediate query.
 		sql:    tq.sql.Clone(),
 		path:   tq.path,
@@ -323,25 +324,14 @@ func (tq *TeamQuery) Clone() *TeamQuery {
 	}
 }
 
-// WithAccess tells the query-builder to eager-load the nodes that are connected to
-// the "access" edge. The optional arguments are used to configure the query builder of the edge.
-func (tq *TeamQuery) WithAccess(opts ...func(*AccessQuery)) *TeamQuery {
-	query := &AccessQuery{config: tq.config}
+// WithAdventures tells the query-builder to eager-load the nodes that are connected to
+// the "adventures" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TeamQuery) WithAdventures(opts ...func(*AdventureQuery)) *TeamQuery {
+	query := &AdventureQuery{config: tq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	tq.withAccess = query
-	return tq
-}
-
-// WithGuesses tells the query-builder to eager-load the nodes that are connected to
-// the "guesses" edge. The optional arguments are used to configure the query builder of the edge.
-func (tq *TeamQuery) WithGuesses(opts ...func(*GuessQuery)) *TeamQuery {
-	query := &GuessQuery{config: tq.config}
-	for _, opt := range opts {
-		opt(query)
-	}
-	tq.withGuesses = query
+	tq.withAdventures = query
 	return tq
 }
 
@@ -353,6 +343,17 @@ func (tq *TeamQuery) WithProgress(opts ...func(*ProgressQuery)) *TeamQuery {
 		opt(query)
 	}
 	tq.withProgress = query
+	return tq
+}
+
+// WithAccess tells the query-builder to eager-load the nodes that are connected to
+// the "access" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TeamQuery) WithAccess(opts ...func(*AccessQuery)) *TeamQuery {
+	query := &AccessQuery{config: tq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	tq.withAccess = query
 	return tq
 }
 
@@ -423,13 +424,17 @@ func (tq *TeamQuery) prepareQuery(ctx context.Context) error {
 func (tq *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, error) {
 	var (
 		nodes       = []*Team{}
+		withFKs     = tq.withFKs
 		_spec       = tq.querySpec()
 		loadedTypes = [3]bool{
-			tq.withAccess != nil,
-			tq.withGuesses != nil,
+			tq.withAdventures != nil,
 			tq.withProgress != nil,
+			tq.withAccess != nil,
 		}
 	)
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, team.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		return (*Team).scanValues(nil, columns)
 	}
@@ -448,17 +453,10 @@ func (tq *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := tq.withAccess; query != nil {
-		if err := tq.loadAccess(ctx, query, nodes,
-			func(n *Team) { n.Edges.Access = []*Access{} },
-			func(n *Team, e *Access) { n.Edges.Access = append(n.Edges.Access, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := tq.withGuesses; query != nil {
-		if err := tq.loadGuesses(ctx, query, nodes,
-			func(n *Team) { n.Edges.Guesses = []*Guess{} },
-			func(n *Team, e *Guess) { n.Edges.Guesses = append(n.Edges.Guesses, e) }); err != nil {
+	if query := tq.withAdventures; query != nil {
+		if err := tq.loadAdventures(ctx, query, nodes,
+			func(n *Team) { n.Edges.Adventures = []*Adventure{} },
+			func(n *Team, e *Adventure) { n.Edges.Adventures = append(n.Edges.Adventures, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -469,9 +467,132 @@ func (tq *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, e
 			return nil, err
 		}
 	}
+	if query := tq.withAccess; query != nil {
+		if err := tq.loadAccess(ctx, query, nodes,
+			func(n *Team) { n.Edges.Access = []*Access{} },
+			func(n *Team, e *Access) { n.Edges.Access = append(n.Edges.Access, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
+func (tq *TeamQuery) loadAdventures(ctx context.Context, query *AdventureQuery, nodes []*Team, init func(*Team), assign func(*Team, *Adventure)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*Team)
+	nids := make(map[int]map[*Team]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(team.AdventuresTable)
+		s.Join(joinT).On(s.C(adventure.FieldID), joinT.C(team.AdventuresPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(team.AdventuresPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(team.AdventuresPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	neighbors, err := query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+		assign := spec.Assign
+		values := spec.ScanValues
+		spec.ScanValues = func(columns []string) ([]interface{}, error) {
+			values, err := values(columns[1:])
+			if err != nil {
+				return nil, err
+			}
+			return append([]interface{}{new(sql.NullInt64)}, values...), nil
+		}
+		spec.Assign = func(columns []string, values []interface{}) error {
+			outValue := int(values[0].(*sql.NullInt64).Int64)
+			inValue := int(values[1].(*sql.NullInt64).Int64)
+			if nids[inValue] == nil {
+				nids[inValue] = map[*Team]struct{}{byID[outValue]: struct{}{}}
+				return assign(columns[1:], values[1:])
+			}
+			nids[inValue][byID[outValue]] = struct{}{}
+			return nil
+		}
+	})
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "adventures" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
+}
+func (tq *TeamQuery) loadProgress(ctx context.Context, query *ProgressQuery, nodes []*Team, init func(*Team), assign func(*Team, *Progress)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*Team)
+	nids := make(map[int]map[*Team]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(team.ProgressTable)
+		s.Join(joinT).On(s.C(progress.FieldID), joinT.C(team.ProgressPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(team.ProgressPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(team.ProgressPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	neighbors, err := query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+		assign := spec.Assign
+		values := spec.ScanValues
+		spec.ScanValues = func(columns []string) ([]interface{}, error) {
+			values, err := values(columns[1:])
+			if err != nil {
+				return nil, err
+			}
+			return append([]interface{}{new(sql.NullInt64)}, values...), nil
+		}
+		spec.Assign = func(columns []string, values []interface{}) error {
+			outValue := int(values[0].(*sql.NullInt64).Int64)
+			inValue := int(values[1].(*sql.NullInt64).Int64)
+			if nids[inValue] == nil {
+				nids[inValue] = map[*Team]struct{}{byID[outValue]: struct{}{}}
+				return assign(columns[1:], values[1:])
+			}
+			nids[inValue][byID[outValue]] = struct{}{}
+			return nil
+		}
+	})
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "progress" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
+}
 func (tq *TeamQuery) loadAccess(ctx context.Context, query *AccessQuery, nodes []*Team, init func(*Team), assign func(*Team, *Access)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Team)
@@ -482,7 +603,6 @@ func (tq *TeamQuery) loadAccess(ctx context.Context, query *AccessQuery, nodes [
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
 	query.Where(predicate.Access(func(s *sql.Selector) {
 		s.Where(sql.InValues(team.AccessColumn, fks...))
 	}))
@@ -491,75 +611,10 @@ func (tq *TeamQuery) loadAccess(ctx context.Context, query *AccessQuery, nodes [
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.team_access
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "team_access" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.TeamID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "team_access" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (tq *TeamQuery) loadGuesses(ctx context.Context, query *GuessQuery, nodes []*Team, init func(*Team), assign func(*Team, *Guess)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Team)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.Guess(func(s *sql.Selector) {
-		s.Where(sql.InValues(team.GuessesColumn, fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.team_guesses
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "team_guesses" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "team_guesses" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (tq *TeamQuery) loadProgress(ctx context.Context, query *ProgressQuery, nodes []*Team, init func(*Team), assign func(*Team, *Progress)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Team)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.Progress(func(s *sql.Selector) {
-		s.Where(sql.InValues(team.ProgressColumn, fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.team_progress
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "team_progress" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "team_progress" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "team_id" returned %v for node %v`, fk, n)
 		}
 		assign(node, n)
 	}

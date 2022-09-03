@@ -14,8 +14,15 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	guessMixin := schema.Guess{}.Mixin()
+	guessMixinFields0 := guessMixin[0].Fields()
+	_ = guessMixinFields0
 	guessFields := schema.Guess{}.Fields()
 	_ = guessFields
+	// guessDescCreateTime is the schema descriptor for create_time field.
+	guessDescCreateTime := guessMixinFields0[0].Descriptor()
+	// guess.DefaultCreateTime holds the default value on creation for the create_time field.
+	guess.DefaultCreateTime = guessDescCreateTime.Default.(func() time.Time)
 	// guessDescSubmitted is the schema descriptor for submitted field.
 	guessDescSubmitted := guessFields[1].Descriptor()
 	// guess.DefaultSubmitted holds the default value on creation for the submitted field.

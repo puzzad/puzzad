@@ -39,8 +39,7 @@ func (Team) Mixin() []ent.Mixin {
 // Edges of the Team.
 func (Team) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("access", Access.Type),
-		edge.To("guesses", Guess.Type),
+		edge.To("adventures", Adventure.Type).Through("access", Access.Type),
 		edge.To("progress", Progress.Type),
 	}
 }

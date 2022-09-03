@@ -13,6 +13,7 @@ import (
 	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/predicate"
+	"github.com/greboid/puzzad/ent/team"
 )
 
 // AccessUpdate is the builder for updating Access entities.
@@ -34,23 +35,32 @@ func (au *AccessUpdate) SetStatus(a access.Status) *AccessUpdate {
 	return au
 }
 
-// SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
-func (au *AccessUpdate) SetAdventureID(id int) *AccessUpdate {
-	au.mutation.SetAdventureID(id)
+// SetTeamID sets the "team_id" field.
+func (au *AccessUpdate) SetTeamID(i int) *AccessUpdate {
+	au.mutation.SetTeamID(i)
 	return au
 }
 
-// SetNillableAdventureID sets the "adventure" edge to the Adventure entity by ID if the given value is not nil.
-func (au *AccessUpdate) SetNillableAdventureID(id *int) *AccessUpdate {
-	if id != nil {
-		au = au.SetAdventureID(*id)
-	}
+// SetAdventureID sets the "adventure_id" field.
+func (au *AccessUpdate) SetAdventureID(i int) *AccessUpdate {
+	au.mutation.SetAdventureID(i)
 	return au
 }
 
-// SetAdventure sets the "adventure" edge to the Adventure entity.
-func (au *AccessUpdate) SetAdventure(a *Adventure) *AccessUpdate {
-	return au.SetAdventureID(a.ID)
+// SetTeam sets the "team" edge to the Team entity.
+func (au *AccessUpdate) SetTeam(t *Team) *AccessUpdate {
+	return au.SetTeamID(t.ID)
+}
+
+// SetAdventuresID sets the "adventures" edge to the Adventure entity by ID.
+func (au *AccessUpdate) SetAdventuresID(id int) *AccessUpdate {
+	au.mutation.SetAdventuresID(id)
+	return au
+}
+
+// SetAdventures sets the "adventures" edge to the Adventure entity.
+func (au *AccessUpdate) SetAdventures(a *Adventure) *AccessUpdate {
+	return au.SetAdventuresID(a.ID)
 }
 
 // Mutation returns the AccessMutation object of the builder.
@@ -58,9 +68,15 @@ func (au *AccessUpdate) Mutation() *AccessMutation {
 	return au.mutation
 }
 
-// ClearAdventure clears the "adventure" edge to the Adventure entity.
-func (au *AccessUpdate) ClearAdventure() *AccessUpdate {
-	au.mutation.ClearAdventure()
+// ClearTeam clears the "team" edge to the Team entity.
+func (au *AccessUpdate) ClearTeam() *AccessUpdate {
+	au.mutation.ClearTeam()
+	return au
+}
+
+// ClearAdventures clears the "adventures" edge to the Adventure entity.
+func (au *AccessUpdate) ClearAdventures() *AccessUpdate {
+	au.mutation.ClearAdventures()
 	return au
 }
 
@@ -131,6 +147,12 @@ func (au *AccessUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Access.status": %w`, err)}
 		}
 	}
+	if _, ok := au.mutation.TeamID(); au.mutation.TeamCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Access.team"`)
+	}
+	if _, ok := au.mutation.AdventuresID(); au.mutation.AdventuresCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Access.adventures"`)
+	}
 	return nil
 }
 
@@ -139,9 +161,15 @@ func (au *AccessUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		Node: &sqlgraph.NodeSpec{
 			Table:   access.Table,
 			Columns: access.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: access.FieldID,
+			CompositeID: []*sqlgraph.FieldSpec{
+				{
+					Type:   field.TypeInt,
+					Column: access.FieldTeamID,
+				},
+				{
+					Type:   field.TypeInt,
+					Column: access.FieldAdventureID,
+				},
 			},
 		},
 	}
@@ -159,12 +187,47 @@ func (au *AccessUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: access.FieldStatus,
 		})
 	}
-	if au.mutation.AdventureCleared() {
+	if au.mutation.TeamCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   access.AdventureTable,
-			Columns: []string{access.AdventureColumn},
+			Table:   access.TeamTable,
+			Columns: []string{access.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   access.TeamTable,
+			Columns: []string{access.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if au.mutation.AdventuresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   access.AdventuresTable,
+			Columns: []string{access.AdventuresColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -175,12 +238,12 @@ func (au *AccessUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.AdventureIDs(); len(nodes) > 0 {
+	if nodes := au.mutation.AdventuresIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   access.AdventureTable,
-			Columns: []string{access.AdventureColumn},
+			Table:   access.AdventuresTable,
+			Columns: []string{access.AdventuresColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -219,23 +282,32 @@ func (auo *AccessUpdateOne) SetStatus(a access.Status) *AccessUpdateOne {
 	return auo
 }
 
-// SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
-func (auo *AccessUpdateOne) SetAdventureID(id int) *AccessUpdateOne {
-	auo.mutation.SetAdventureID(id)
+// SetTeamID sets the "team_id" field.
+func (auo *AccessUpdateOne) SetTeamID(i int) *AccessUpdateOne {
+	auo.mutation.SetTeamID(i)
 	return auo
 }
 
-// SetNillableAdventureID sets the "adventure" edge to the Adventure entity by ID if the given value is not nil.
-func (auo *AccessUpdateOne) SetNillableAdventureID(id *int) *AccessUpdateOne {
-	if id != nil {
-		auo = auo.SetAdventureID(*id)
-	}
+// SetAdventureID sets the "adventure_id" field.
+func (auo *AccessUpdateOne) SetAdventureID(i int) *AccessUpdateOne {
+	auo.mutation.SetAdventureID(i)
 	return auo
 }
 
-// SetAdventure sets the "adventure" edge to the Adventure entity.
-func (auo *AccessUpdateOne) SetAdventure(a *Adventure) *AccessUpdateOne {
-	return auo.SetAdventureID(a.ID)
+// SetTeam sets the "team" edge to the Team entity.
+func (auo *AccessUpdateOne) SetTeam(t *Team) *AccessUpdateOne {
+	return auo.SetTeamID(t.ID)
+}
+
+// SetAdventuresID sets the "adventures" edge to the Adventure entity by ID.
+func (auo *AccessUpdateOne) SetAdventuresID(id int) *AccessUpdateOne {
+	auo.mutation.SetAdventuresID(id)
+	return auo
+}
+
+// SetAdventures sets the "adventures" edge to the Adventure entity.
+func (auo *AccessUpdateOne) SetAdventures(a *Adventure) *AccessUpdateOne {
+	return auo.SetAdventuresID(a.ID)
 }
 
 // Mutation returns the AccessMutation object of the builder.
@@ -243,9 +315,15 @@ func (auo *AccessUpdateOne) Mutation() *AccessMutation {
 	return auo.mutation
 }
 
-// ClearAdventure clears the "adventure" edge to the Adventure entity.
-func (auo *AccessUpdateOne) ClearAdventure() *AccessUpdateOne {
-	auo.mutation.ClearAdventure()
+// ClearTeam clears the "team" edge to the Team entity.
+func (auo *AccessUpdateOne) ClearTeam() *AccessUpdateOne {
+	auo.mutation.ClearTeam()
+	return auo
+}
+
+// ClearAdventures clears the "adventures" edge to the Adventure entity.
+func (auo *AccessUpdateOne) ClearAdventures() *AccessUpdateOne {
+	auo.mutation.ClearAdventures()
 	return auo
 }
 
@@ -329,6 +407,12 @@ func (auo *AccessUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Access.status": %w`, err)}
 		}
 	}
+	if _, ok := auo.mutation.TeamID(); auo.mutation.TeamCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Access.team"`)
+	}
+	if _, ok := auo.mutation.AdventuresID(); auo.mutation.AdventuresCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Access.adventures"`)
+	}
 	return nil
 }
 
@@ -337,27 +421,35 @@ func (auo *AccessUpdateOne) sqlSave(ctx context.Context) (_node *Access, err err
 		Node: &sqlgraph.NodeSpec{
 			Table:   access.Table,
 			Columns: access.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: access.FieldID,
+			CompositeID: []*sqlgraph.FieldSpec{
+				{
+					Type:   field.TypeInt,
+					Column: access.FieldTeamID,
+				},
+				{
+					Type:   field.TypeInt,
+					Column: access.FieldAdventureID,
+				},
 			},
 		},
 	}
-	id, ok := auo.mutation.ID()
-	if !ok {
-		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Access.id" for update`)}
+	if id, ok := auo.mutation.TeamID(); !ok {
+		return nil, &ValidationError{Name: "team_id", err: errors.New(`ent: missing "Access.team_id" for update`)}
+	} else {
+		_spec.Node.CompositeID[0].Value = id
 	}
-	_spec.Node.ID.Value = id
+	if id, ok := auo.mutation.AdventureID(); !ok {
+		return nil, &ValidationError{Name: "adventure_id", err: errors.New(`ent: missing "Access.adventure_id" for update`)}
+	} else {
+		_spec.Node.CompositeID[1].Value = id
+	}
 	if fields := auo.fields; len(fields) > 0 {
-		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, access.FieldID)
-		for _, f := range fields {
+		_spec.Node.Columns = make([]string, len(fields))
+		for i, f := range fields {
 			if !access.ValidColumn(f) {
 				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 			}
-			if f != access.FieldID {
-				_spec.Node.Columns = append(_spec.Node.Columns, f)
-			}
+			_spec.Node.Columns[i] = f
 		}
 	}
 	if ps := auo.mutation.predicates; len(ps) > 0 {
@@ -374,12 +466,47 @@ func (auo *AccessUpdateOne) sqlSave(ctx context.Context) (_node *Access, err err
 			Column: access.FieldStatus,
 		})
 	}
-	if auo.mutation.AdventureCleared() {
+	if auo.mutation.TeamCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   access.AdventureTable,
-			Columns: []string{access.AdventureColumn},
+			Table:   access.TeamTable,
+			Columns: []string{access.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   access.TeamTable,
+			Columns: []string{access.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if auo.mutation.AdventuresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   access.AdventuresTable,
+			Columns: []string{access.AdventuresColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -390,12 +517,12 @@ func (auo *AccessUpdateOne) sqlSave(ctx context.Context) (_node *Access, err err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.AdventureIDs(); len(nodes) > 0 {
+	if nodes := auo.mutation.AdventuresIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   access.AdventureTable,
-			Columns: []string{access.AdventureColumn},
+			Table:   access.AdventuresTable,
+			Columns: []string{access.AdventuresColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

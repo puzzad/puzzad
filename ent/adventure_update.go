@@ -13,6 +13,7 @@ import (
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/predicate"
 	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/team"
 )
 
 // AdventureUpdate is the builder for updating Adventure entities.
@@ -34,6 +35,21 @@ func (au *AdventureUpdate) SetName(s string) *AdventureUpdate {
 	return au
 }
 
+// AddTeamIDs adds the "team" edge to the Team entity by IDs.
+func (au *AdventureUpdate) AddTeamIDs(ids ...int) *AdventureUpdate {
+	au.mutation.AddTeamIDs(ids...)
+	return au
+}
+
+// AddTeam adds the "team" edges to the Team entity.
+func (au *AdventureUpdate) AddTeam(t ...*Team) *AdventureUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return au.AddTeamIDs(ids...)
+}
+
 // AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
 func (au *AdventureUpdate) AddQuestionIDs(ids ...int) *AdventureUpdate {
 	au.mutation.AddQuestionIDs(ids...)
@@ -52,6 +68,27 @@ func (au *AdventureUpdate) AddQuestions(q ...*Question) *AdventureUpdate {
 // Mutation returns the AdventureMutation object of the builder.
 func (au *AdventureUpdate) Mutation() *AdventureMutation {
 	return au.mutation
+}
+
+// ClearTeam clears all "team" edges to the Team entity.
+func (au *AdventureUpdate) ClearTeam() *AdventureUpdate {
+	au.mutation.ClearTeam()
+	return au
+}
+
+// RemoveTeamIDs removes the "team" edge to Team entities by IDs.
+func (au *AdventureUpdate) RemoveTeamIDs(ids ...int) *AdventureUpdate {
+	au.mutation.RemoveTeamIDs(ids...)
+	return au
+}
+
+// RemoveTeam removes "team" edges to Team entities.
+func (au *AdventureUpdate) RemoveTeam(t ...*Team) *AdventureUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return au.RemoveTeamIDs(ids...)
 }
 
 // ClearQuestions clears all "questions" edges to the Question entity.
@@ -154,6 +191,60 @@ func (au *AdventureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: adventure.FieldName,
 		})
 	}
+	if au.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   adventure.TeamTable,
+			Columns: adventure.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.RemovedTeamIDs(); len(nodes) > 0 && !au.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   adventure.TeamTable,
+			Columns: adventure.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   adventure.TeamTable,
+			Columns: adventure.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if au.mutation.QuestionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -233,6 +324,21 @@ func (auo *AdventureUpdateOne) SetName(s string) *AdventureUpdateOne {
 	return auo
 }
 
+// AddTeamIDs adds the "team" edge to the Team entity by IDs.
+func (auo *AdventureUpdateOne) AddTeamIDs(ids ...int) *AdventureUpdateOne {
+	auo.mutation.AddTeamIDs(ids...)
+	return auo
+}
+
+// AddTeam adds the "team" edges to the Team entity.
+func (auo *AdventureUpdateOne) AddTeam(t ...*Team) *AdventureUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return auo.AddTeamIDs(ids...)
+}
+
 // AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
 func (auo *AdventureUpdateOne) AddQuestionIDs(ids ...int) *AdventureUpdateOne {
 	auo.mutation.AddQuestionIDs(ids...)
@@ -251,6 +357,27 @@ func (auo *AdventureUpdateOne) AddQuestions(q ...*Question) *AdventureUpdateOne 
 // Mutation returns the AdventureMutation object of the builder.
 func (auo *AdventureUpdateOne) Mutation() *AdventureMutation {
 	return auo.mutation
+}
+
+// ClearTeam clears all "team" edges to the Team entity.
+func (auo *AdventureUpdateOne) ClearTeam() *AdventureUpdateOne {
+	auo.mutation.ClearTeam()
+	return auo
+}
+
+// RemoveTeamIDs removes the "team" edge to Team entities by IDs.
+func (auo *AdventureUpdateOne) RemoveTeamIDs(ids ...int) *AdventureUpdateOne {
+	auo.mutation.RemoveTeamIDs(ids...)
+	return auo
+}
+
+// RemoveTeam removes "team" edges to Team entities.
+func (auo *AdventureUpdateOne) RemoveTeam(t ...*Team) *AdventureUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return auo.RemoveTeamIDs(ids...)
 }
 
 // ClearQuestions clears all "questions" edges to the Question entity.
@@ -382,6 +509,60 @@ func (auo *AdventureUpdateOne) sqlSave(ctx context.Context) (_node *Adventure, e
 			Value:  value,
 			Column: adventure.FieldName,
 		})
+	}
+	if auo.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   adventure.TeamTable,
+			Columns: adventure.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.RemovedTeamIDs(); len(nodes) > 0 && !auo.mutation.TeamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   adventure.TeamTable,
+			Columns: adventure.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   adventure.TeamTable,
+			Columns: adventure.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if auo.mutation.QuestionsCleared() {
 		edge := &sqlgraph.EdgeSpec{

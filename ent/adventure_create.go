@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/team"
 )
 
 // AdventureCreate is the builder for creating a Adventure entity.
@@ -24,6 +25,21 @@ type AdventureCreate struct {
 func (ac *AdventureCreate) SetName(s string) *AdventureCreate {
 	ac.mutation.SetName(s)
 	return ac
+}
+
+// AddTeamIDs adds the "team" edge to the Team entity by IDs.
+func (ac *AdventureCreate) AddTeamIDs(ids ...int) *AdventureCreate {
+	ac.mutation.AddTeamIDs(ids...)
+	return ac
+}
+
+// AddTeam adds the "team" edges to the Team entity.
+func (ac *AdventureCreate) AddTeam(t ...*Team) *AdventureCreate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return ac.AddTeamIDs(ids...)
 }
 
 // AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
@@ -154,6 +170,25 @@ func (ac *AdventureCreate) createSpec() (*Adventure, *sqlgraph.CreateSpec) {
 			Column: adventure.FieldName,
 		})
 		_node.Name = value
+	}
+	if nodes := ac.mutation.TeamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   adventure.TeamTable,
+			Columns: adventure.TeamPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := ac.mutation.QuestionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

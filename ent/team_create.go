@@ -10,8 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/greboid/puzzad/ent/access"
-	"github.com/greboid/puzzad/ent/guess"
+	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/team"
 )
@@ -77,34 +76,19 @@ func (tc *TeamCreate) SetNillableStatus(t *team.Status) *TeamCreate {
 	return tc
 }
 
-// AddAccesIDs adds the "access" edge to the Access entity by IDs.
-func (tc *TeamCreate) AddAccesIDs(ids ...int) *TeamCreate {
-	tc.mutation.AddAccesIDs(ids...)
+// AddAdventureIDs adds the "adventures" edge to the Adventure entity by IDs.
+func (tc *TeamCreate) AddAdventureIDs(ids ...int) *TeamCreate {
+	tc.mutation.AddAdventureIDs(ids...)
 	return tc
 }
 
-// AddAccess adds the "access" edges to the Access entity.
-func (tc *TeamCreate) AddAccess(a ...*Access) *TeamCreate {
+// AddAdventures adds the "adventures" edges to the Adventure entity.
+func (tc *TeamCreate) AddAdventures(a ...*Adventure) *TeamCreate {
 	ids := make([]int, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
 	}
-	return tc.AddAccesIDs(ids...)
-}
-
-// AddGuessIDs adds the "guesses" edge to the Guess entity by IDs.
-func (tc *TeamCreate) AddGuessIDs(ids ...int) *TeamCreate {
-	tc.mutation.AddGuessIDs(ids...)
-	return tc
-}
-
-// AddGuesses adds the "guesses" edges to the Guess entity.
-func (tc *TeamCreate) AddGuesses(g ...*Guess) *TeamCreate {
-	ids := make([]int, len(g))
-	for i := range g {
-		ids[i] = g[i].ID
-	}
-	return tc.AddGuessIDs(ids...)
+	return tc.AddAdventureIDs(ids...)
 }
 
 // AddProgresIDs adds the "progress" edge to the Progress entity by IDs.
@@ -307,36 +291,17 @@ func (tc *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 		})
 		_node.Status = value
 	}
-	if nodes := tc.mutation.AccessIDs(); len(nodes) > 0 {
+	if nodes := tc.mutation.AdventuresIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   team.AccessTable,
-			Columns: []string{team.AccessColumn},
+			Table:   team.AdventuresTable,
+			Columns: team.AdventuresPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: access.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := tc.mutation.GuessesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   team.GuessesTable,
-			Columns: []string{team.GuessesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: guess.FieldID,
+					Column: adventure.FieldID,
 				},
 			},
 		}
@@ -347,10 +312,10 @@ func (tc *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 	}
 	if nodes := tc.mutation.ProgressIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ProgressTable,
-			Columns: []string{team.ProgressColumn},
+			Columns: team.ProgressPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

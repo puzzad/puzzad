@@ -28,47 +28,48 @@ type Team struct {
 	Status team.Status `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TeamQuery when eager-loading is set.
-	Edges TeamEdges `json:"edges"`
+	Edges      TeamEdges `json:"edges"`
+	guess_team *int
 }
 
 // TeamEdges holds the relations/edges for other nodes in the graph.
 type TeamEdges struct {
-	// Access holds the value of the access edge.
-	Access []*Access `json:"access,omitempty"`
-	// Guesses holds the value of the guesses edge.
-	Guesses []*Guess `json:"guesses,omitempty"`
+	// Adventures holds the value of the adventures edge.
+	Adventures []*Adventure `json:"adventures,omitempty"`
 	// Progress holds the value of the progress edge.
 	Progress []*Progress `json:"progress,omitempty"`
+	// Access holds the value of the access edge.
+	Access []*Access `json:"access,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [3]bool
 }
 
-// AccessOrErr returns the Access value or an error if the edge
+// AdventuresOrErr returns the Adventures value or an error if the edge
 // was not loaded in eager-loading.
-func (e TeamEdges) AccessOrErr() ([]*Access, error) {
+func (e TeamEdges) AdventuresOrErr() ([]*Adventure, error) {
 	if e.loadedTypes[0] {
-		return e.Access, nil
+		return e.Adventures, nil
 	}
-	return nil, &NotLoadedError{edge: "access"}
-}
-
-// GuessesOrErr returns the Guesses value or an error if the edge
-// was not loaded in eager-loading.
-func (e TeamEdges) GuessesOrErr() ([]*Guess, error) {
-	if e.loadedTypes[1] {
-		return e.Guesses, nil
-	}
-	return nil, &NotLoadedError{edge: "guesses"}
+	return nil, &NotLoadedError{edge: "adventures"}
 }
 
 // ProgressOrErr returns the Progress value or an error if the edge
 // was not loaded in eager-loading.
 func (e TeamEdges) ProgressOrErr() ([]*Progress, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[1] {
 		return e.Progress, nil
 	}
 	return nil, &NotLoadedError{edge: "progress"}
+}
+
+// AccessOrErr returns the Access value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) AccessOrErr() ([]*Access, error) {
+	if e.loadedTypes[2] {
+		return e.Access, nil
+	}
+	return nil, &NotLoadedError{edge: "access"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -82,6 +83,8 @@ func (*Team) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullString)
 		case team.FieldCreateTime:
 			values[i] = new(sql.NullTime)
+		case team.ForeignKeys[0]: // guess_team
+			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Team", columns[i])
 		}
@@ -133,24 +136,31 @@ func (t *Team) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				t.Status = team.Status(value.String)
 			}
+		case team.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field guess_team", value)
+			} else if value.Valid {
+				t.guess_team = new(int)
+				*t.guess_team = int(value.Int64)
+			}
 		}
 	}
 	return nil
 }
 
-// QueryAccess queries the "access" edge of the Team entity.
-func (t *Team) QueryAccess() *AccessQuery {
-	return (&TeamClient{config: t.config}).QueryAccess(t)
-}
-
-// QueryGuesses queries the "guesses" edge of the Team entity.
-func (t *Team) QueryGuesses() *GuessQuery {
-	return (&TeamClient{config: t.config}).QueryGuesses(t)
+// QueryAdventures queries the "adventures" edge of the Team entity.
+func (t *Team) QueryAdventures() *AdventureQuery {
+	return (&TeamClient{config: t.config}).QueryAdventures(t)
 }
 
 // QueryProgress queries the "progress" edge of the Team entity.
 func (t *Team) QueryProgress() *ProgressQuery {
 	return (&TeamClient{config: t.config}).QueryProgress(t)
+}
+
+// QueryAccess queries the "access" edge of the Team entity.
+func (t *Team) QueryAccess() *AccessQuery {
+	return (&TeamClient{config: t.config}).QueryAccess(t)
 }
 
 // Update returns a builder for updating this Team.

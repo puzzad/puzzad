@@ -10,8 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/greboid/puzzad/ent/access"
-	"github.com/greboid/puzzad/ent/guess"
+	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/predicate"
 	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/team"
@@ -70,34 +69,19 @@ func (tu *TeamUpdate) SetNillableStatus(t *team.Status) *TeamUpdate {
 	return tu
 }
 
-// AddAccesIDs adds the "access" edge to the Access entity by IDs.
-func (tu *TeamUpdate) AddAccesIDs(ids ...int) *TeamUpdate {
-	tu.mutation.AddAccesIDs(ids...)
+// AddAdventureIDs adds the "adventures" edge to the Adventure entity by IDs.
+func (tu *TeamUpdate) AddAdventureIDs(ids ...int) *TeamUpdate {
+	tu.mutation.AddAdventureIDs(ids...)
 	return tu
 }
 
-// AddAccess adds the "access" edges to the Access entity.
-func (tu *TeamUpdate) AddAccess(a ...*Access) *TeamUpdate {
+// AddAdventures adds the "adventures" edges to the Adventure entity.
+func (tu *TeamUpdate) AddAdventures(a ...*Adventure) *TeamUpdate {
 	ids := make([]int, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
 	}
-	return tu.AddAccesIDs(ids...)
-}
-
-// AddGuessIDs adds the "guesses" edge to the Guess entity by IDs.
-func (tu *TeamUpdate) AddGuessIDs(ids ...int) *TeamUpdate {
-	tu.mutation.AddGuessIDs(ids...)
-	return tu
-}
-
-// AddGuesses adds the "guesses" edges to the Guess entity.
-func (tu *TeamUpdate) AddGuesses(g ...*Guess) *TeamUpdate {
-	ids := make([]int, len(g))
-	for i := range g {
-		ids[i] = g[i].ID
-	}
-	return tu.AddGuessIDs(ids...)
+	return tu.AddAdventureIDs(ids...)
 }
 
 // AddProgresIDs adds the "progress" edge to the Progress entity by IDs.
@@ -120,46 +104,25 @@ func (tu *TeamUpdate) Mutation() *TeamMutation {
 	return tu.mutation
 }
 
-// ClearAccess clears all "access" edges to the Access entity.
-func (tu *TeamUpdate) ClearAccess() *TeamUpdate {
-	tu.mutation.ClearAccess()
+// ClearAdventures clears all "adventures" edges to the Adventure entity.
+func (tu *TeamUpdate) ClearAdventures() *TeamUpdate {
+	tu.mutation.ClearAdventures()
 	return tu
 }
 
-// RemoveAccesIDs removes the "access" edge to Access entities by IDs.
-func (tu *TeamUpdate) RemoveAccesIDs(ids ...int) *TeamUpdate {
-	tu.mutation.RemoveAccesIDs(ids...)
+// RemoveAdventureIDs removes the "adventures" edge to Adventure entities by IDs.
+func (tu *TeamUpdate) RemoveAdventureIDs(ids ...int) *TeamUpdate {
+	tu.mutation.RemoveAdventureIDs(ids...)
 	return tu
 }
 
-// RemoveAccess removes "access" edges to Access entities.
-func (tu *TeamUpdate) RemoveAccess(a ...*Access) *TeamUpdate {
+// RemoveAdventures removes "adventures" edges to Adventure entities.
+func (tu *TeamUpdate) RemoveAdventures(a ...*Adventure) *TeamUpdate {
 	ids := make([]int, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
 	}
-	return tu.RemoveAccesIDs(ids...)
-}
-
-// ClearGuesses clears all "guesses" edges to the Guess entity.
-func (tu *TeamUpdate) ClearGuesses() *TeamUpdate {
-	tu.mutation.ClearGuesses()
-	return tu
-}
-
-// RemoveGuessIDs removes the "guesses" edge to Guess entities by IDs.
-func (tu *TeamUpdate) RemoveGuessIDs(ids ...int) *TeamUpdate {
-	tu.mutation.RemoveGuessIDs(ids...)
-	return tu
-}
-
-// RemoveGuesses removes "guesses" edges to Guess entities.
-func (tu *TeamUpdate) RemoveGuesses(g ...*Guess) *TeamUpdate {
-	ids := make([]int, len(g))
-	for i := range g {
-		ids[i] = g[i].ID
-	}
-	return tu.RemoveGuessIDs(ids...)
+	return tu.RemoveAdventureIDs(ids...)
 }
 
 // ClearProgress clears all "progress" edges to the Progress entity.
@@ -304,33 +267,33 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: team.FieldStatus,
 		})
 	}
-	if tu.mutation.AccessCleared() {
+	if tu.mutation.AdventuresCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   team.AccessTable,
-			Columns: []string{team.AccessColumn},
+			Table:   team.AdventuresTable,
+			Columns: team.AdventuresPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: access.FieldID,
+					Column: adventure.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tu.mutation.RemovedAccessIDs(); len(nodes) > 0 && !tu.mutation.AccessCleared() {
+	if nodes := tu.mutation.RemovedAdventuresIDs(); len(nodes) > 0 && !tu.mutation.AdventuresCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   team.AccessTable,
-			Columns: []string{team.AccessColumn},
+			Table:   team.AdventuresTable,
+			Columns: team.AdventuresPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: access.FieldID,
+					Column: adventure.FieldID,
 				},
 			},
 		}
@@ -339,71 +302,17 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tu.mutation.AccessIDs(); len(nodes) > 0 {
+	if nodes := tu.mutation.AdventuresIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   team.AccessTable,
-			Columns: []string{team.AccessColumn},
+			Table:   team.AdventuresTable,
+			Columns: team.AdventuresPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: access.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if tu.mutation.GuessesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   team.GuessesTable,
-			Columns: []string{team.GuessesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: guess.FieldID,
-				},
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tu.mutation.RemovedGuessesIDs(); len(nodes) > 0 && !tu.mutation.GuessesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   team.GuessesTable,
-			Columns: []string{team.GuessesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: guess.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tu.mutation.GuessesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   team.GuessesTable,
-			Columns: []string{team.GuessesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: guess.FieldID,
+					Column: adventure.FieldID,
 				},
 			},
 		}
@@ -414,10 +323,10 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if tu.mutation.ProgressCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ProgressTable,
-			Columns: []string{team.ProgressColumn},
+			Columns: team.ProgressPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -430,10 +339,10 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := tu.mutation.RemovedProgressIDs(); len(nodes) > 0 && !tu.mutation.ProgressCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ProgressTable,
-			Columns: []string{team.ProgressColumn},
+			Columns: team.ProgressPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -449,10 +358,10 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := tu.mutation.ProgressIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ProgressTable,
-			Columns: []string{team.ProgressColumn},
+			Columns: team.ProgressPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -525,34 +434,19 @@ func (tuo *TeamUpdateOne) SetNillableStatus(t *team.Status) *TeamUpdateOne {
 	return tuo
 }
 
-// AddAccesIDs adds the "access" edge to the Access entity by IDs.
-func (tuo *TeamUpdateOne) AddAccesIDs(ids ...int) *TeamUpdateOne {
-	tuo.mutation.AddAccesIDs(ids...)
+// AddAdventureIDs adds the "adventures" edge to the Adventure entity by IDs.
+func (tuo *TeamUpdateOne) AddAdventureIDs(ids ...int) *TeamUpdateOne {
+	tuo.mutation.AddAdventureIDs(ids...)
 	return tuo
 }
 
-// AddAccess adds the "access" edges to the Access entity.
-func (tuo *TeamUpdateOne) AddAccess(a ...*Access) *TeamUpdateOne {
+// AddAdventures adds the "adventures" edges to the Adventure entity.
+func (tuo *TeamUpdateOne) AddAdventures(a ...*Adventure) *TeamUpdateOne {
 	ids := make([]int, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
 	}
-	return tuo.AddAccesIDs(ids...)
-}
-
-// AddGuessIDs adds the "guesses" edge to the Guess entity by IDs.
-func (tuo *TeamUpdateOne) AddGuessIDs(ids ...int) *TeamUpdateOne {
-	tuo.mutation.AddGuessIDs(ids...)
-	return tuo
-}
-
-// AddGuesses adds the "guesses" edges to the Guess entity.
-func (tuo *TeamUpdateOne) AddGuesses(g ...*Guess) *TeamUpdateOne {
-	ids := make([]int, len(g))
-	for i := range g {
-		ids[i] = g[i].ID
-	}
-	return tuo.AddGuessIDs(ids...)
+	return tuo.AddAdventureIDs(ids...)
 }
 
 // AddProgresIDs adds the "progress" edge to the Progress entity by IDs.
@@ -575,46 +469,25 @@ func (tuo *TeamUpdateOne) Mutation() *TeamMutation {
 	return tuo.mutation
 }
 
-// ClearAccess clears all "access" edges to the Access entity.
-func (tuo *TeamUpdateOne) ClearAccess() *TeamUpdateOne {
-	tuo.mutation.ClearAccess()
+// ClearAdventures clears all "adventures" edges to the Adventure entity.
+func (tuo *TeamUpdateOne) ClearAdventures() *TeamUpdateOne {
+	tuo.mutation.ClearAdventures()
 	return tuo
 }
 
-// RemoveAccesIDs removes the "access" edge to Access entities by IDs.
-func (tuo *TeamUpdateOne) RemoveAccesIDs(ids ...int) *TeamUpdateOne {
-	tuo.mutation.RemoveAccesIDs(ids...)
+// RemoveAdventureIDs removes the "adventures" edge to Adventure entities by IDs.
+func (tuo *TeamUpdateOne) RemoveAdventureIDs(ids ...int) *TeamUpdateOne {
+	tuo.mutation.RemoveAdventureIDs(ids...)
 	return tuo
 }
 
-// RemoveAccess removes "access" edges to Access entities.
-func (tuo *TeamUpdateOne) RemoveAccess(a ...*Access) *TeamUpdateOne {
+// RemoveAdventures removes "adventures" edges to Adventure entities.
+func (tuo *TeamUpdateOne) RemoveAdventures(a ...*Adventure) *TeamUpdateOne {
 	ids := make([]int, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
 	}
-	return tuo.RemoveAccesIDs(ids...)
-}
-
-// ClearGuesses clears all "guesses" edges to the Guess entity.
-func (tuo *TeamUpdateOne) ClearGuesses() *TeamUpdateOne {
-	tuo.mutation.ClearGuesses()
-	return tuo
-}
-
-// RemoveGuessIDs removes the "guesses" edge to Guess entities by IDs.
-func (tuo *TeamUpdateOne) RemoveGuessIDs(ids ...int) *TeamUpdateOne {
-	tuo.mutation.RemoveGuessIDs(ids...)
-	return tuo
-}
-
-// RemoveGuesses removes "guesses" edges to Guess entities.
-func (tuo *TeamUpdateOne) RemoveGuesses(g ...*Guess) *TeamUpdateOne {
-	ids := make([]int, len(g))
-	for i := range g {
-		ids[i] = g[i].ID
-	}
-	return tuo.RemoveGuessIDs(ids...)
+	return tuo.RemoveAdventureIDs(ids...)
 }
 
 // ClearProgress clears all "progress" edges to the Progress entity.
@@ -789,33 +662,33 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 			Column: team.FieldStatus,
 		})
 	}
-	if tuo.mutation.AccessCleared() {
+	if tuo.mutation.AdventuresCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   team.AccessTable,
-			Columns: []string{team.AccessColumn},
+			Table:   team.AdventuresTable,
+			Columns: team.AdventuresPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: access.FieldID,
+					Column: adventure.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tuo.mutation.RemovedAccessIDs(); len(nodes) > 0 && !tuo.mutation.AccessCleared() {
+	if nodes := tuo.mutation.RemovedAdventuresIDs(); len(nodes) > 0 && !tuo.mutation.AdventuresCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   team.AccessTable,
-			Columns: []string{team.AccessColumn},
+			Table:   team.AdventuresTable,
+			Columns: team.AdventuresPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: access.FieldID,
+					Column: adventure.FieldID,
 				},
 			},
 		}
@@ -824,71 +697,17 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tuo.mutation.AccessIDs(); len(nodes) > 0 {
+	if nodes := tuo.mutation.AdventuresIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   team.AccessTable,
-			Columns: []string{team.AccessColumn},
+			Table:   team.AdventuresTable,
+			Columns: team.AdventuresPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: access.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if tuo.mutation.GuessesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   team.GuessesTable,
-			Columns: []string{team.GuessesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: guess.FieldID,
-				},
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tuo.mutation.RemovedGuessesIDs(); len(nodes) > 0 && !tuo.mutation.GuessesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   team.GuessesTable,
-			Columns: []string{team.GuessesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: guess.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tuo.mutation.GuessesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   team.GuessesTable,
-			Columns: []string{team.GuessesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: guess.FieldID,
+					Column: adventure.FieldID,
 				},
 			},
 		}
@@ -899,10 +718,10 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 	}
 	if tuo.mutation.ProgressCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ProgressTable,
-			Columns: []string{team.ProgressColumn},
+			Columns: team.ProgressPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -915,10 +734,10 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 	}
 	if nodes := tuo.mutation.RemovedProgressIDs(); len(nodes) > 0 && !tuo.mutation.ProgressCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ProgressTable,
-			Columns: []string{team.ProgressColumn},
+			Columns: team.ProgressPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -934,10 +753,10 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 	}
 	if nodes := tuo.mutation.ProgressIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   team.ProgressTable,
-			Columns: []string{team.ProgressColumn},
+			Columns: team.ProgressPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

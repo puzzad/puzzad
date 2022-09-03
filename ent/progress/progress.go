@@ -7,12 +7,19 @@ const (
 	Label = "progress"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// EdgeTeam holds the string denoting the team edge name in mutations.
+	EdgeTeam = "team"
 	// EdgeAdventure holds the string denoting the adventure edge name in mutations.
 	EdgeAdventure = "adventure"
 	// EdgeQuestion holds the string denoting the question edge name in mutations.
 	EdgeQuestion = "question"
 	// Table holds the table name of the progress in the database.
 	Table = "progresses"
+	// TeamTable is the table that holds the team relation/edge. The primary key declared below.
+	TeamTable = "team_progress"
+	// TeamInverseTable is the table name for the Team entity.
+	// It exists in this package in order to avoid circular dependency with the "team" package.
+	TeamInverseTable = "teams"
 	// AdventureTable is the table that holds the adventure relation/edge.
 	AdventureTable = "progresses"
 	// AdventureInverseTable is the table name for the Adventure entity.
@@ -39,8 +46,13 @@ var Columns = []string{
 var ForeignKeys = []string{
 	"progress_adventure",
 	"progress_question",
-	"team_progress",
 }
+
+var (
+	// TeamPrimaryKey and TeamColumn2 are the table columns denoting the
+	// primary key for the team relation (M2M).
+	TeamPrimaryKey = []string{"team_id", "progress_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {

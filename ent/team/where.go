@@ -506,53 +506,25 @@ func StatusNotIn(vs ...Status) predicate.Team {
 	})
 }
 
-// HasAccess applies the HasEdge predicate on the "access" edge.
-func HasAccess() predicate.Team {
+// HasAdventures applies the HasEdge predicate on the "adventures" edge.
+func HasAdventures() predicate.Team {
 	return predicate.Team(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(AccessTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, AccessTable, AccessColumn),
+			sqlgraph.To(AdventuresTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, AdventuresTable, AdventuresPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasAccessWith applies the HasEdge predicate on the "access" edge with a given conditions (other predicates).
-func HasAccessWith(preds ...predicate.Access) predicate.Team {
+// HasAdventuresWith applies the HasEdge predicate on the "adventures" edge with a given conditions (other predicates).
+func HasAdventuresWith(preds ...predicate.Adventure) predicate.Team {
 	return predicate.Team(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(AccessInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, AccessTable, AccessColumn),
-		)
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasGuesses applies the HasEdge predicate on the "guesses" edge.
-func HasGuesses() predicate.Team {
-	return predicate.Team(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(GuessesTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, GuessesTable, GuessesColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasGuessesWith applies the HasEdge predicate on the "guesses" edge with a given conditions (other predicates).
-func HasGuessesWith(preds ...predicate.Guess) predicate.Team {
-	return predicate.Team(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(GuessesInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, GuessesTable, GuessesColumn),
+			sqlgraph.To(AdventuresInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, AdventuresTable, AdventuresPrimaryKey...),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
@@ -568,7 +540,7 @@ func HasProgress() predicate.Team {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(ProgressTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ProgressTable, ProgressColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, ProgressTable, ProgressPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -580,7 +552,35 @@ func HasProgressWith(preds ...predicate.Progress) predicate.Team {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(ProgressInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ProgressTable, ProgressColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, ProgressTable, ProgressPrimaryKey...),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasAccess applies the HasEdge predicate on the "access" edge.
+func HasAccess() predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(AccessTable, AccessColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, AccessTable, AccessColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAccessWith applies the HasEdge predicate on the "access" edge with a given conditions (other predicates).
+func HasAccessWith(preds ...predicate.Access) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(AccessInverseTable, AccessColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, AccessTable, AccessColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

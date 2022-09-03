@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
+	"github.com/greboid/puzzad/ent/team"
 )
 
 // AccessCreate is the builder for creating a Access entity.
@@ -26,23 +27,32 @@ func (ac *AccessCreate) SetStatus(a access.Status) *AccessCreate {
 	return ac
 }
 
-// SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
-func (ac *AccessCreate) SetAdventureID(id int) *AccessCreate {
-	ac.mutation.SetAdventureID(id)
+// SetTeamID sets the "team_id" field.
+func (ac *AccessCreate) SetTeamID(i int) *AccessCreate {
+	ac.mutation.SetTeamID(i)
 	return ac
 }
 
-// SetNillableAdventureID sets the "adventure" edge to the Adventure entity by ID if the given value is not nil.
-func (ac *AccessCreate) SetNillableAdventureID(id *int) *AccessCreate {
-	if id != nil {
-		ac = ac.SetAdventureID(*id)
-	}
+// SetAdventureID sets the "adventure_id" field.
+func (ac *AccessCreate) SetAdventureID(i int) *AccessCreate {
+	ac.mutation.SetAdventureID(i)
 	return ac
 }
 
-// SetAdventure sets the "adventure" edge to the Adventure entity.
-func (ac *AccessCreate) SetAdventure(a *Adventure) *AccessCreate {
-	return ac.SetAdventureID(a.ID)
+// SetTeam sets the "team" edge to the Team entity.
+func (ac *AccessCreate) SetTeam(t *Team) *AccessCreate {
+	return ac.SetTeamID(t.ID)
+}
+
+// SetAdventuresID sets the "adventures" edge to the Adventure entity by ID.
+func (ac *AccessCreate) SetAdventuresID(id int) *AccessCreate {
+	ac.mutation.SetAdventuresID(id)
+	return ac
+}
+
+// SetAdventures sets the "adventures" edge to the Adventure entity.
+func (ac *AccessCreate) SetAdventures(a *Adventure) *AccessCreate {
+	return ac.SetAdventuresID(a.ID)
 }
 
 // Mutation returns the AccessMutation object of the builder.
@@ -74,8 +84,6 @@ func (ac *AccessCreate) Save(ctx context.Context) (*Access, error) {
 			if node, err = ac.sqlSave(ctx); err != nil {
 				return nil, err
 			}
-			mutation.id = &node.ID
-			mutation.done = true
 			return node, err
 		})
 		for i := len(ac.hooks) - 1; i >= 0; i-- {
@@ -129,6 +137,18 @@ func (ac *AccessCreate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Access.status": %w`, err)}
 		}
 	}
+	if _, ok := ac.mutation.TeamID(); !ok {
+		return &ValidationError{Name: "team_id", err: errors.New(`ent: missing required field "Access.team_id"`)}
+	}
+	if _, ok := ac.mutation.AdventureID(); !ok {
+		return &ValidationError{Name: "adventure_id", err: errors.New(`ent: missing required field "Access.adventure_id"`)}
+	}
+	if _, ok := ac.mutation.TeamID(); !ok {
+		return &ValidationError{Name: "team", err: errors.New(`ent: missing required edge "Access.team"`)}
+	}
+	if _, ok := ac.mutation.AdventuresID(); !ok {
+		return &ValidationError{Name: "adventures", err: errors.New(`ent: missing required edge "Access.adventures"`)}
+	}
 	return nil
 }
 
@@ -140,8 +160,6 @@ func (ac *AccessCreate) sqlSave(ctx context.Context) (*Access, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
 	return _node, nil
 }
 
@@ -150,10 +168,6 @@ func (ac *AccessCreate) createSpec() (*Access, *sqlgraph.CreateSpec) {
 		_node = &Access{config: ac.config}
 		_spec = &sqlgraph.CreateSpec{
 			Table: access.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: access.FieldID,
-			},
 		}
 	)
 	if value, ok := ac.mutation.Status(); ok {
@@ -164,12 +178,32 @@ func (ac *AccessCreate) createSpec() (*Access, *sqlgraph.CreateSpec) {
 		})
 		_node.Status = value
 	}
-	if nodes := ac.mutation.AdventureIDs(); len(nodes) > 0 {
+	if nodes := ac.mutation.TeamIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   access.AdventureTable,
-			Columns: []string{access.AdventureColumn},
+			Table:   access.TeamTable,
+			Columns: []string{access.TeamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.TeamID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := ac.mutation.AdventuresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   access.AdventuresTable,
+			Columns: []string{access.AdventuresColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -181,7 +215,7 @@ func (ac *AccessCreate) createSpec() (*Access, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.access_adventure = &nodes[0]
+		_node.AdventureID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -225,11 +259,6 @@ func (acb *AccessCreateBulk) Save(ctx context.Context) ([]*Access, error) {
 				}
 				if err != nil {
 					return nil, err
-				}
-				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
 				}
 				mutation.done = true
 				return nodes[i], nil

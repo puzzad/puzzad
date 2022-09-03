@@ -40,16 +40,17 @@ const (
 // AccessMutation represents an operation that mutates the Access nodes in the graph.
 type AccessMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *int
-	status           *access.Status
-	clearedFields    map[string]struct{}
-	adventure        *int
-	clearedadventure bool
-	done             bool
-	oldValue         func(context.Context) (*Access, error)
-	predicates       []predicate.Access
+	op                Op
+	typ               string
+	status            *access.Status
+	clearedFields     map[string]struct{}
+	team              *int
+	clearedteam       bool
+	adventures        *int
+	clearedadventures bool
+	done              bool
+	oldValue          func(context.Context) (*Access, error)
+	predicates        []predicate.Access
 }
 
 var _ ent.Mutation = (*AccessMutation)(nil)
@@ -71,38 +72,6 @@ func newAccessMutation(c config, op Op, opts ...accessOption) *AccessMutation {
 	return m
 }
 
-// withAccessID sets the ID field of the mutation.
-func withAccessID(id int) accessOption {
-	return func(m *AccessMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *Access
-		)
-		m.oldValue = func(ctx context.Context) (*Access, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().Access.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withAccess sets the old Access of the mutation.
-func withAccess(node *Access) accessOption {
-	return func(m *AccessMutation) {
-		m.oldValue = func(context.Context) (*Access, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
 // Client returns a new `ent.Client` from the mutation. If the mutation was
 // executed in a transaction (ent.Tx), a transactional client is returned.
 func (m AccessMutation) Client() *Client {
@@ -122,34 +91,6 @@ func (m AccessMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *AccessMutation) ID() (id int, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *AccessMutation) IDs(ctx context.Context) ([]int, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []int{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().Access.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
 // SetStatus sets the "status" field.
 func (m *AccessMutation) SetStatus(a access.Status) {
 	m.status = &a
@@ -164,65 +105,112 @@ func (m *AccessMutation) Status() (r access.Status, exists bool) {
 	return *v, true
 }
 
-// OldStatus returns the old "status" field's value of the Access entity.
-// If the Access object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AccessMutation) OldStatus(ctx context.Context) (v access.Status, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldStatus requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
-	}
-	return oldValue.Status, nil
-}
-
 // ResetStatus resets all changes to the "status" field.
 func (m *AccessMutation) ResetStatus() {
 	m.status = nil
 }
 
-// SetAdventureID sets the "adventure" edge to the Adventure entity by id.
-func (m *AccessMutation) SetAdventureID(id int) {
-	m.adventure = &id
+// SetTeamID sets the "team_id" field.
+func (m *AccessMutation) SetTeamID(i int) {
+	m.team = &i
 }
 
-// ClearAdventure clears the "adventure" edge to the Adventure entity.
-func (m *AccessMutation) ClearAdventure() {
-	m.clearedadventure = true
-}
-
-// AdventureCleared reports if the "adventure" edge to the Adventure entity was cleared.
-func (m *AccessMutation) AdventureCleared() bool {
-	return m.clearedadventure
-}
-
-// AdventureID returns the "adventure" edge ID in the mutation.
-func (m *AccessMutation) AdventureID() (id int, exists bool) {
-	if m.adventure != nil {
-		return *m.adventure, true
+// TeamID returns the value of the "team_id" field in the mutation.
+func (m *AccessMutation) TeamID() (r int, exists bool) {
+	v := m.team
+	if v == nil {
+		return
 	}
-	return
+	return *v, true
 }
 
-// AdventureIDs returns the "adventure" edge IDs in the mutation.
+// ResetTeamID resets all changes to the "team_id" field.
+func (m *AccessMutation) ResetTeamID() {
+	m.team = nil
+}
+
+// SetAdventureID sets the "adventure_id" field.
+func (m *AccessMutation) SetAdventureID(i int) {
+	m.adventures = &i
+}
+
+// AdventureID returns the value of the "adventure_id" field in the mutation.
+func (m *AccessMutation) AdventureID() (r int, exists bool) {
+	v := m.adventures
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAdventureID resets all changes to the "adventure_id" field.
+func (m *AccessMutation) ResetAdventureID() {
+	m.adventures = nil
+}
+
+// ClearTeam clears the "team" edge to the Team entity.
+func (m *AccessMutation) ClearTeam() {
+	m.clearedteam = true
+}
+
+// TeamCleared reports if the "team" edge to the Team entity was cleared.
+func (m *AccessMutation) TeamCleared() bool {
+	return m.clearedteam
+}
+
+// TeamIDs returns the "team" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// AdventureID instead. It exists only for internal usage by the builders.
-func (m *AccessMutation) AdventureIDs() (ids []int) {
-	if id := m.adventure; id != nil {
+// TeamID instead. It exists only for internal usage by the builders.
+func (m *AccessMutation) TeamIDs() (ids []int) {
+	if id := m.team; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetAdventure resets all changes to the "adventure" edge.
-func (m *AccessMutation) ResetAdventure() {
-	m.adventure = nil
-	m.clearedadventure = false
+// ResetTeam resets all changes to the "team" edge.
+func (m *AccessMutation) ResetTeam() {
+	m.team = nil
+	m.clearedteam = false
+}
+
+// SetAdventuresID sets the "adventures" edge to the Adventure entity by id.
+func (m *AccessMutation) SetAdventuresID(id int) {
+	m.adventures = &id
+}
+
+// ClearAdventures clears the "adventures" edge to the Adventure entity.
+func (m *AccessMutation) ClearAdventures() {
+	m.clearedadventures = true
+}
+
+// AdventuresCleared reports if the "adventures" edge to the Adventure entity was cleared.
+func (m *AccessMutation) AdventuresCleared() bool {
+	return m.clearedadventures
+}
+
+// AdventuresID returns the "adventures" edge ID in the mutation.
+func (m *AccessMutation) AdventuresID() (id int, exists bool) {
+	if m.adventures != nil {
+		return *m.adventures, true
+	}
+	return
+}
+
+// AdventuresIDs returns the "adventures" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// AdventuresID instead. It exists only for internal usage by the builders.
+func (m *AccessMutation) AdventuresIDs() (ids []int) {
+	if id := m.adventures; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetAdventures resets all changes to the "adventures" edge.
+func (m *AccessMutation) ResetAdventures() {
+	m.adventures = nil
+	m.clearedadventures = false
 }
 
 // Where appends a list predicates to the AccessMutation builder.
@@ -244,9 +232,15 @@ func (m *AccessMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AccessMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 3)
 	if m.status != nil {
 		fields = append(fields, access.FieldStatus)
+	}
+	if m.team != nil {
+		fields = append(fields, access.FieldTeamID)
+	}
+	if m.adventures != nil {
+		fields = append(fields, access.FieldAdventureID)
 	}
 	return fields
 }
@@ -258,6 +252,10 @@ func (m *AccessMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case access.FieldStatus:
 		return m.Status()
+	case access.FieldTeamID:
+		return m.TeamID()
+	case access.FieldAdventureID:
+		return m.AdventureID()
 	}
 	return nil, false
 }
@@ -266,11 +264,7 @@ func (m *AccessMutation) Field(name string) (ent.Value, bool) {
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *AccessMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case access.FieldStatus:
-		return m.OldStatus(ctx)
-	}
-	return nil, fmt.Errorf("unknown Access field %s", name)
+	return nil, errors.New("edge schema Access does not support getting old values")
 }
 
 // SetField sets the value of a field with the given name. It returns an error if
@@ -285,6 +279,20 @@ func (m *AccessMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetStatus(v)
 		return nil
+	case access.FieldTeamID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTeamID(v)
+		return nil
+	case access.FieldAdventureID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAdventureID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Access field %s", name)
 }
@@ -292,13 +300,16 @@ func (m *AccessMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *AccessMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *AccessMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
 	return nil, false
 }
 
@@ -337,15 +348,24 @@ func (m *AccessMutation) ResetField(name string) error {
 	case access.FieldStatus:
 		m.ResetStatus()
 		return nil
+	case access.FieldTeamID:
+		m.ResetTeamID()
+		return nil
+	case access.FieldAdventureID:
+		m.ResetAdventureID()
+		return nil
 	}
 	return fmt.Errorf("unknown Access field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *AccessMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.adventure != nil {
-		edges = append(edges, access.EdgeAdventure)
+	edges := make([]string, 0, 2)
+	if m.team != nil {
+		edges = append(edges, access.EdgeTeam)
+	}
+	if m.adventures != nil {
+		edges = append(edges, access.EdgeAdventures)
 	}
 	return edges
 }
@@ -354,8 +374,12 @@ func (m *AccessMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *AccessMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case access.EdgeAdventure:
-		if id := m.adventure; id != nil {
+	case access.EdgeTeam:
+		if id := m.team; id != nil {
+			return []ent.Value{*id}
+		}
+	case access.EdgeAdventures:
+		if id := m.adventures; id != nil {
 			return []ent.Value{*id}
 		}
 	}
@@ -364,7 +388,7 @@ func (m *AccessMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *AccessMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -378,9 +402,12 @@ func (m *AccessMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *AccessMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedadventure {
-		edges = append(edges, access.EdgeAdventure)
+	edges := make([]string, 0, 2)
+	if m.clearedteam {
+		edges = append(edges, access.EdgeTeam)
+	}
+	if m.clearedadventures {
+		edges = append(edges, access.EdgeAdventures)
 	}
 	return edges
 }
@@ -389,8 +416,10 @@ func (m *AccessMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *AccessMutation) EdgeCleared(name string) bool {
 	switch name {
-	case access.EdgeAdventure:
-		return m.clearedadventure
+	case access.EdgeTeam:
+		return m.clearedteam
+	case access.EdgeAdventures:
+		return m.clearedadventures
 	}
 	return false
 }
@@ -399,8 +428,11 @@ func (m *AccessMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *AccessMutation) ClearEdge(name string) error {
 	switch name {
-	case access.EdgeAdventure:
-		m.ClearAdventure()
+	case access.EdgeTeam:
+		m.ClearTeam()
+		return nil
+	case access.EdgeAdventures:
+		m.ClearAdventures()
 		return nil
 	}
 	return fmt.Errorf("unknown Access unique edge %s", name)
@@ -410,8 +442,11 @@ func (m *AccessMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *AccessMutation) ResetEdge(name string) error {
 	switch name {
-	case access.EdgeAdventure:
-		m.ResetAdventure()
+	case access.EdgeTeam:
+		m.ResetTeam()
+		return nil
+	case access.EdgeAdventures:
+		m.ResetAdventures()
 		return nil
 	}
 	return fmt.Errorf("unknown Access edge %s", name)
@@ -425,6 +460,9 @@ type AdventureMutation struct {
 	id               *int
 	name             *string
 	clearedFields    map[string]struct{}
+	team             map[int]struct{}
+	removedteam      map[int]struct{}
+	clearedteam      bool
 	questions        map[int]struct{}
 	removedquestions map[int]struct{}
 	clearedquestions bool
@@ -565,6 +603,60 @@ func (m *AdventureMutation) OldName(ctx context.Context) (v string, err error) {
 // ResetName resets all changes to the "name" field.
 func (m *AdventureMutation) ResetName() {
 	m.name = nil
+}
+
+// AddTeamIDs adds the "team" edge to the Team entity by ids.
+func (m *AdventureMutation) AddTeamIDs(ids ...int) {
+	if m.team == nil {
+		m.team = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.team[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTeam clears the "team" edge to the Team entity.
+func (m *AdventureMutation) ClearTeam() {
+	m.clearedteam = true
+}
+
+// TeamCleared reports if the "team" edge to the Team entity was cleared.
+func (m *AdventureMutation) TeamCleared() bool {
+	return m.clearedteam
+}
+
+// RemoveTeamIDs removes the "team" edge to the Team entity by IDs.
+func (m *AdventureMutation) RemoveTeamIDs(ids ...int) {
+	if m.removedteam == nil {
+		m.removedteam = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.team, ids[i])
+		m.removedteam[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTeam returns the removed IDs of the "team" edge to the Team entity.
+func (m *AdventureMutation) RemovedTeamIDs() (ids []int) {
+	for id := range m.removedteam {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TeamIDs returns the "team" edge IDs in the mutation.
+func (m *AdventureMutation) TeamIDs() (ids []int) {
+	for id := range m.team {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTeam resets all changes to the "team" edge.
+func (m *AdventureMutation) ResetTeam() {
+	m.team = nil
+	m.clearedteam = false
+	m.removedteam = nil
 }
 
 // AddQuestionIDs adds the "questions" edge to the Question entity by ids.
@@ -739,7 +831,10 @@ func (m *AdventureMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *AdventureMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.team != nil {
+		edges = append(edges, adventure.EdgeTeam)
+	}
 	if m.questions != nil {
 		edges = append(edges, adventure.EdgeQuestions)
 	}
@@ -750,6 +845,12 @@ func (m *AdventureMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *AdventureMutation) AddedIDs(name string) []ent.Value {
 	switch name {
+	case adventure.EdgeTeam:
+		ids := make([]ent.Value, 0, len(m.team))
+		for id := range m.team {
+			ids = append(ids, id)
+		}
+		return ids
 	case adventure.EdgeQuestions:
 		ids := make([]ent.Value, 0, len(m.questions))
 		for id := range m.questions {
@@ -762,7 +863,10 @@ func (m *AdventureMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *AdventureMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.removedteam != nil {
+		edges = append(edges, adventure.EdgeTeam)
+	}
 	if m.removedquestions != nil {
 		edges = append(edges, adventure.EdgeQuestions)
 	}
@@ -773,6 +877,12 @@ func (m *AdventureMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *AdventureMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
+	case adventure.EdgeTeam:
+		ids := make([]ent.Value, 0, len(m.removedteam))
+		for id := range m.removedteam {
+			ids = append(ids, id)
+		}
+		return ids
 	case adventure.EdgeQuestions:
 		ids := make([]ent.Value, 0, len(m.removedquestions))
 		for id := range m.removedquestions {
@@ -785,7 +895,10 @@ func (m *AdventureMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *AdventureMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.clearedteam {
+		edges = append(edges, adventure.EdgeTeam)
+	}
 	if m.clearedquestions {
 		edges = append(edges, adventure.EdgeQuestions)
 	}
@@ -796,6 +909,8 @@ func (m *AdventureMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *AdventureMutation) EdgeCleared(name string) bool {
 	switch name {
+	case adventure.EdgeTeam:
+		return m.clearedteam
 	case adventure.EdgeQuestions:
 		return m.clearedquestions
 	}
@@ -814,6 +929,9 @@ func (m *AdventureMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *AdventureMutation) ResetEdge(name string) error {
 	switch name {
+	case adventure.EdgeTeam:
+		m.ResetTeam()
+		return nil
 	case adventure.EdgeQuestions:
 		m.ResetQuestions()
 		return nil
@@ -827,12 +945,16 @@ type GuessMutation struct {
 	op              Op
 	typ             string
 	id              *int
+	create_time     *time.Time
 	content         *string
 	submitted       *time.Time
 	clearedFields   map[string]struct{}
 	question        map[int]struct{}
 	removedquestion map[int]struct{}
 	clearedquestion bool
+	team            map[int]struct{}
+	removedteam     map[int]struct{}
+	clearedteam     bool
 	done            bool
 	oldValue        func(context.Context) (*Guess, error)
 	predicates      []predicate.Guess
@@ -934,6 +1056,42 @@ func (m *GuessMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetCreateTime sets the "create_time" field.
+func (m *GuessMutation) SetCreateTime(t time.Time) {
+	m.create_time = &t
+}
+
+// CreateTime returns the value of the "create_time" field in the mutation.
+func (m *GuessMutation) CreateTime() (r time.Time, exists bool) {
+	v := m.create_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateTime returns the old "create_time" field's value of the Guess entity.
+// If the Guess object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GuessMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+	}
+	return oldValue.CreateTime, nil
+}
+
+// ResetCreateTime resets all changes to the "create_time" field.
+func (m *GuessMutation) ResetCreateTime() {
+	m.create_time = nil
 }
 
 // SetContent sets the "content" field.
@@ -1062,6 +1220,60 @@ func (m *GuessMutation) ResetQuestion() {
 	m.removedquestion = nil
 }
 
+// AddTeamIDs adds the "team" edge to the Team entity by ids.
+func (m *GuessMutation) AddTeamIDs(ids ...int) {
+	if m.team == nil {
+		m.team = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.team[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTeam clears the "team" edge to the Team entity.
+func (m *GuessMutation) ClearTeam() {
+	m.clearedteam = true
+}
+
+// TeamCleared reports if the "team" edge to the Team entity was cleared.
+func (m *GuessMutation) TeamCleared() bool {
+	return m.clearedteam
+}
+
+// RemoveTeamIDs removes the "team" edge to the Team entity by IDs.
+func (m *GuessMutation) RemoveTeamIDs(ids ...int) {
+	if m.removedteam == nil {
+		m.removedteam = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.team, ids[i])
+		m.removedteam[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTeam returns the removed IDs of the "team" edge to the Team entity.
+func (m *GuessMutation) RemovedTeamIDs() (ids []int) {
+	for id := range m.removedteam {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TeamIDs returns the "team" edge IDs in the mutation.
+func (m *GuessMutation) TeamIDs() (ids []int) {
+	for id := range m.team {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTeam resets all changes to the "team" edge.
+func (m *GuessMutation) ResetTeam() {
+	m.team = nil
+	m.clearedteam = false
+	m.removedteam = nil
+}
+
 // Where appends a list predicates to the GuessMutation builder.
 func (m *GuessMutation) Where(ps ...predicate.Guess) {
 	m.predicates = append(m.predicates, ps...)
@@ -1081,7 +1293,10 @@ func (m *GuessMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GuessMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
+	if m.create_time != nil {
+		fields = append(fields, guess.FieldCreateTime)
+	}
 	if m.content != nil {
 		fields = append(fields, guess.FieldContent)
 	}
@@ -1096,6 +1311,8 @@ func (m *GuessMutation) Fields() []string {
 // schema.
 func (m *GuessMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case guess.FieldCreateTime:
+		return m.CreateTime()
 	case guess.FieldContent:
 		return m.Content()
 	case guess.FieldSubmitted:
@@ -1109,6 +1326,8 @@ func (m *GuessMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *GuessMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case guess.FieldCreateTime:
+		return m.OldCreateTime(ctx)
 	case guess.FieldContent:
 		return m.OldContent(ctx)
 	case guess.FieldSubmitted:
@@ -1122,6 +1341,13 @@ func (m *GuessMutation) OldField(ctx context.Context, name string) (ent.Value, e
 // type.
 func (m *GuessMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case guess.FieldCreateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateTime(v)
+		return nil
 	case guess.FieldContent:
 		v, ok := value.(string)
 		if !ok {
@@ -1185,6 +1411,9 @@ func (m *GuessMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *GuessMutation) ResetField(name string) error {
 	switch name {
+	case guess.FieldCreateTime:
+		m.ResetCreateTime()
+		return nil
 	case guess.FieldContent:
 		m.ResetContent()
 		return nil
@@ -1197,9 +1426,12 @@ func (m *GuessMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *GuessMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.question != nil {
 		edges = append(edges, guess.EdgeQuestion)
+	}
+	if m.team != nil {
+		edges = append(edges, guess.EdgeTeam)
 	}
 	return edges
 }
@@ -1214,15 +1446,24 @@ func (m *GuessMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case guess.EdgeTeam:
+		ids := make([]ent.Value, 0, len(m.team))
+		for id := range m.team {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *GuessMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removedquestion != nil {
 		edges = append(edges, guess.EdgeQuestion)
+	}
+	if m.removedteam != nil {
+		edges = append(edges, guess.EdgeTeam)
 	}
 	return edges
 }
@@ -1237,15 +1478,24 @@ func (m *GuessMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case guess.EdgeTeam:
+		ids := make([]ent.Value, 0, len(m.removedteam))
+		for id := range m.removedteam {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *GuessMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedquestion {
 		edges = append(edges, guess.EdgeQuestion)
+	}
+	if m.clearedteam {
+		edges = append(edges, guess.EdgeTeam)
 	}
 	return edges
 }
@@ -1256,6 +1506,8 @@ func (m *GuessMutation) EdgeCleared(name string) bool {
 	switch name {
 	case guess.EdgeQuestion:
 		return m.clearedquestion
+	case guess.EdgeTeam:
+		return m.clearedteam
 	}
 	return false
 }
@@ -1275,6 +1527,9 @@ func (m *GuessMutation) ResetEdge(name string) error {
 	case guess.EdgeQuestion:
 		m.ResetQuestion()
 		return nil
+	case guess.EdgeTeam:
+		m.ResetTeam()
+		return nil
 	}
 	return fmt.Errorf("unknown Guess edge %s", name)
 }
@@ -1286,6 +1541,9 @@ type ProgressMutation struct {
 	typ              string
 	id               *int
 	clearedFields    map[string]struct{}
+	team             map[int]struct{}
+	removedteam      map[int]struct{}
+	clearedteam      bool
 	adventure        *int
 	clearedadventure bool
 	question         *int
@@ -1391,6 +1649,60 @@ func (m *ProgressMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// AddTeamIDs adds the "team" edge to the Team entity by ids.
+func (m *ProgressMutation) AddTeamIDs(ids ...int) {
+	if m.team == nil {
+		m.team = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.team[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTeam clears the "team" edge to the Team entity.
+func (m *ProgressMutation) ClearTeam() {
+	m.clearedteam = true
+}
+
+// TeamCleared reports if the "team" edge to the Team entity was cleared.
+func (m *ProgressMutation) TeamCleared() bool {
+	return m.clearedteam
+}
+
+// RemoveTeamIDs removes the "team" edge to the Team entity by IDs.
+func (m *ProgressMutation) RemoveTeamIDs(ids ...int) {
+	if m.removedteam == nil {
+		m.removedteam = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.team, ids[i])
+		m.removedteam[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTeam returns the removed IDs of the "team" edge to the Team entity.
+func (m *ProgressMutation) RemovedTeamIDs() (ids []int) {
+	for id := range m.removedteam {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TeamIDs returns the "team" edge IDs in the mutation.
+func (m *ProgressMutation) TeamIDs() (ids []int) {
+	for id := range m.team {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTeam resets all changes to the "team" edge.
+func (m *ProgressMutation) ResetTeam() {
+	m.team = nil
+	m.clearedteam = false
+	m.removedteam = nil
 }
 
 // SetAdventureID sets the "adventure" edge to the Adventure entity by id.
@@ -1564,7 +1876,10 @@ func (m *ProgressMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ProgressMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
+	if m.team != nil {
+		edges = append(edges, progress.EdgeTeam)
+	}
 	if m.adventure != nil {
 		edges = append(edges, progress.EdgeAdventure)
 	}
@@ -1578,6 +1893,12 @@ func (m *ProgressMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *ProgressMutation) AddedIDs(name string) []ent.Value {
 	switch name {
+	case progress.EdgeTeam:
+		ids := make([]ent.Value, 0, len(m.team))
+		for id := range m.team {
+			ids = append(ids, id)
+		}
+		return ids
 	case progress.EdgeAdventure:
 		if id := m.adventure; id != nil {
 			return []ent.Value{*id}
@@ -1592,7 +1913,10 @@ func (m *ProgressMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ProgressMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
+	if m.removedteam != nil {
+		edges = append(edges, progress.EdgeTeam)
+	}
 	return edges
 }
 
@@ -1600,13 +1924,22 @@ func (m *ProgressMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *ProgressMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
+	case progress.EdgeTeam:
+		ids := make([]ent.Value, 0, len(m.removedteam))
+		for id := range m.removedteam {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ProgressMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
+	if m.clearedteam {
+		edges = append(edges, progress.EdgeTeam)
+	}
 	if m.clearedadventure {
 		edges = append(edges, progress.EdgeAdventure)
 	}
@@ -1620,6 +1953,8 @@ func (m *ProgressMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *ProgressMutation) EdgeCleared(name string) bool {
 	switch name {
+	case progress.EdgeTeam:
+		return m.clearedteam
 	case progress.EdgeAdventure:
 		return m.clearedadventure
 	case progress.EdgeQuestion:
@@ -1646,6 +1981,9 @@ func (m *ProgressMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *ProgressMutation) ResetEdge(name string) error {
 	switch name {
+	case progress.EdgeTeam:
+		m.ResetTeam()
+		return nil
 	case progress.EdgeAdventure:
 		m.ResetAdventure()
 		return nil
@@ -2093,27 +2431,24 @@ func (m *QuestionMutation) ResetEdge(name string) error {
 // TeamMutation represents an operation that mutates the Team nodes in the graph.
 type TeamMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	create_time     *time.Time
-	name            *string
-	code            *string
-	email           *string
-	status          *team.Status
-	clearedFields   map[string]struct{}
-	access          map[int]struct{}
-	removedaccess   map[int]struct{}
-	clearedaccess   bool
-	guesses         map[int]struct{}
-	removedguesses  map[int]struct{}
-	clearedguesses  bool
-	progress        map[int]struct{}
-	removedprogress map[int]struct{}
-	clearedprogress bool
-	done            bool
-	oldValue        func(context.Context) (*Team, error)
-	predicates      []predicate.Team
+	op                Op
+	typ               string
+	id                *int
+	create_time       *time.Time
+	name              *string
+	code              *string
+	email             *string
+	status            *team.Status
+	clearedFields     map[string]struct{}
+	adventures        map[int]struct{}
+	removedadventures map[int]struct{}
+	clearedadventures bool
+	progress          map[int]struct{}
+	removedprogress   map[int]struct{}
+	clearedprogress   bool
+	done              bool
+	oldValue          func(context.Context) (*Team, error)
+	predicates        []predicate.Team
 }
 
 var _ ent.Mutation = (*TeamMutation)(nil)
@@ -2394,112 +2729,58 @@ func (m *TeamMutation) ResetStatus() {
 	m.status = nil
 }
 
-// AddAccesIDs adds the "access" edge to the Access entity by ids.
-func (m *TeamMutation) AddAccesIDs(ids ...int) {
-	if m.access == nil {
-		m.access = make(map[int]struct{})
+// AddAdventureIDs adds the "adventures" edge to the Adventure entity by ids.
+func (m *TeamMutation) AddAdventureIDs(ids ...int) {
+	if m.adventures == nil {
+		m.adventures = make(map[int]struct{})
 	}
 	for i := range ids {
-		m.access[ids[i]] = struct{}{}
+		m.adventures[ids[i]] = struct{}{}
 	}
 }
 
-// ClearAccess clears the "access" edge to the Access entity.
-func (m *TeamMutation) ClearAccess() {
-	m.clearedaccess = true
+// ClearAdventures clears the "adventures" edge to the Adventure entity.
+func (m *TeamMutation) ClearAdventures() {
+	m.clearedadventures = true
 }
 
-// AccessCleared reports if the "access" edge to the Access entity was cleared.
-func (m *TeamMutation) AccessCleared() bool {
-	return m.clearedaccess
+// AdventuresCleared reports if the "adventures" edge to the Adventure entity was cleared.
+func (m *TeamMutation) AdventuresCleared() bool {
+	return m.clearedadventures
 }
 
-// RemoveAccesIDs removes the "access" edge to the Access entity by IDs.
-func (m *TeamMutation) RemoveAccesIDs(ids ...int) {
-	if m.removedaccess == nil {
-		m.removedaccess = make(map[int]struct{})
+// RemoveAdventureIDs removes the "adventures" edge to the Adventure entity by IDs.
+func (m *TeamMutation) RemoveAdventureIDs(ids ...int) {
+	if m.removedadventures == nil {
+		m.removedadventures = make(map[int]struct{})
 	}
 	for i := range ids {
-		delete(m.access, ids[i])
-		m.removedaccess[ids[i]] = struct{}{}
+		delete(m.adventures, ids[i])
+		m.removedadventures[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedAccess returns the removed IDs of the "access" edge to the Access entity.
-func (m *TeamMutation) RemovedAccessIDs() (ids []int) {
-	for id := range m.removedaccess {
+// RemovedAdventures returns the removed IDs of the "adventures" edge to the Adventure entity.
+func (m *TeamMutation) RemovedAdventuresIDs() (ids []int) {
+	for id := range m.removedadventures {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// AccessIDs returns the "access" edge IDs in the mutation.
-func (m *TeamMutation) AccessIDs() (ids []int) {
-	for id := range m.access {
+// AdventuresIDs returns the "adventures" edge IDs in the mutation.
+func (m *TeamMutation) AdventuresIDs() (ids []int) {
+	for id := range m.adventures {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetAccess resets all changes to the "access" edge.
-func (m *TeamMutation) ResetAccess() {
-	m.access = nil
-	m.clearedaccess = false
-	m.removedaccess = nil
-}
-
-// AddGuessIDs adds the "guesses" edge to the Guess entity by ids.
-func (m *TeamMutation) AddGuessIDs(ids ...int) {
-	if m.guesses == nil {
-		m.guesses = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.guesses[ids[i]] = struct{}{}
-	}
-}
-
-// ClearGuesses clears the "guesses" edge to the Guess entity.
-func (m *TeamMutation) ClearGuesses() {
-	m.clearedguesses = true
-}
-
-// GuessesCleared reports if the "guesses" edge to the Guess entity was cleared.
-func (m *TeamMutation) GuessesCleared() bool {
-	return m.clearedguesses
-}
-
-// RemoveGuessIDs removes the "guesses" edge to the Guess entity by IDs.
-func (m *TeamMutation) RemoveGuessIDs(ids ...int) {
-	if m.removedguesses == nil {
-		m.removedguesses = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.guesses, ids[i])
-		m.removedguesses[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedGuesses returns the removed IDs of the "guesses" edge to the Guess entity.
-func (m *TeamMutation) RemovedGuessesIDs() (ids []int) {
-	for id := range m.removedguesses {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// GuessesIDs returns the "guesses" edge IDs in the mutation.
-func (m *TeamMutation) GuessesIDs() (ids []int) {
-	for id := range m.guesses {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetGuesses resets all changes to the "guesses" edge.
-func (m *TeamMutation) ResetGuesses() {
-	m.guesses = nil
-	m.clearedguesses = false
-	m.removedguesses = nil
+// ResetAdventures resets all changes to the "adventures" edge.
+func (m *TeamMutation) ResetAdventures() {
+	m.adventures = nil
+	m.clearedadventures = false
+	m.removedadventures = nil
 }
 
 // AddProgresIDs adds the "progress" edge to the Progress entity by ids.
@@ -2742,12 +3023,9 @@ func (m *TeamMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *TeamMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.access != nil {
-		edges = append(edges, team.EdgeAccess)
-	}
-	if m.guesses != nil {
-		edges = append(edges, team.EdgeGuesses)
+	edges := make([]string, 0, 2)
+	if m.adventures != nil {
+		edges = append(edges, team.EdgeAdventures)
 	}
 	if m.progress != nil {
 		edges = append(edges, team.EdgeProgress)
@@ -2759,15 +3037,9 @@ func (m *TeamMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *TeamMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case team.EdgeAccess:
-		ids := make([]ent.Value, 0, len(m.access))
-		for id := range m.access {
-			ids = append(ids, id)
-		}
-		return ids
-	case team.EdgeGuesses:
-		ids := make([]ent.Value, 0, len(m.guesses))
-		for id := range m.guesses {
+	case team.EdgeAdventures:
+		ids := make([]ent.Value, 0, len(m.adventures))
+		for id := range m.adventures {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2783,12 +3055,9 @@ func (m *TeamMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TeamMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.removedaccess != nil {
-		edges = append(edges, team.EdgeAccess)
-	}
-	if m.removedguesses != nil {
-		edges = append(edges, team.EdgeGuesses)
+	edges := make([]string, 0, 2)
+	if m.removedadventures != nil {
+		edges = append(edges, team.EdgeAdventures)
 	}
 	if m.removedprogress != nil {
 		edges = append(edges, team.EdgeProgress)
@@ -2800,15 +3069,9 @@ func (m *TeamMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *TeamMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case team.EdgeAccess:
-		ids := make([]ent.Value, 0, len(m.removedaccess))
-		for id := range m.removedaccess {
-			ids = append(ids, id)
-		}
-		return ids
-	case team.EdgeGuesses:
-		ids := make([]ent.Value, 0, len(m.removedguesses))
-		for id := range m.removedguesses {
+	case team.EdgeAdventures:
+		ids := make([]ent.Value, 0, len(m.removedadventures))
+		for id := range m.removedadventures {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2824,12 +3087,9 @@ func (m *TeamMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *TeamMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.clearedaccess {
-		edges = append(edges, team.EdgeAccess)
-	}
-	if m.clearedguesses {
-		edges = append(edges, team.EdgeGuesses)
+	edges := make([]string, 0, 2)
+	if m.clearedadventures {
+		edges = append(edges, team.EdgeAdventures)
 	}
 	if m.clearedprogress {
 		edges = append(edges, team.EdgeProgress)
@@ -2841,10 +3101,8 @@ func (m *TeamMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *TeamMutation) EdgeCleared(name string) bool {
 	switch name {
-	case team.EdgeAccess:
-		return m.clearedaccess
-	case team.EdgeGuesses:
-		return m.clearedguesses
+	case team.EdgeAdventures:
+		return m.clearedadventures
 	case team.EdgeProgress:
 		return m.clearedprogress
 	}
@@ -2863,11 +3121,8 @@ func (m *TeamMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *TeamMutation) ResetEdge(name string) error {
 	switch name {
-	case team.EdgeAccess:
-		m.ResetAccess()
-		return nil
-	case team.EdgeGuesses:
-		m.ResetGuesses()
+	case team.EdgeAdventures:
+		m.ResetAdventures()
 		return nil
 	case team.EdgeProgress:
 		m.ResetProgress()

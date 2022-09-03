@@ -9,42 +9,58 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
+	"github.com/greboid/puzzad/ent/team"
 )
 
 // Access is the model entity for the Access schema.
 type Access struct {
 	config `json:"-"`
-	// ID of the ent.
-	ID int `json:"id,omitempty"`
 	// Status holds the value of the "status" field.
 	Status access.Status `json:"status,omitempty"`
+	// TeamID holds the value of the "team_id" field.
+	TeamID int `json:"team_id,omitempty"`
+	// AdventureID holds the value of the "adventure_id" field.
+	AdventureID int `json:"adventure_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AccessQuery when eager-loading is set.
-	Edges            AccessEdges `json:"edges"`
-	access_adventure *int
-	team_access      *int
+	Edges AccessEdges `json:"edges"`
 }
 
 // AccessEdges holds the relations/edges for other nodes in the graph.
 type AccessEdges struct {
-	// Adventure holds the value of the adventure edge.
-	Adventure *Adventure `json:"adventure,omitempty"`
+	// Team holds the value of the team edge.
+	Team *Team `json:"team,omitempty"`
+	// Adventures holds the value of the adventures edge.
+	Adventures *Adventure `json:"adventures,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
-// AdventureOrErr returns the Adventure value or an error if the edge
+// TeamOrErr returns the Team value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e AccessEdges) AdventureOrErr() (*Adventure, error) {
+func (e AccessEdges) TeamOrErr() (*Team, error) {
 	if e.loadedTypes[0] {
-		if e.Adventure == nil {
+		if e.Team == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: team.Label}
+		}
+		return e.Team, nil
+	}
+	return nil, &NotLoadedError{edge: "team"}
+}
+
+// AdventuresOrErr returns the Adventures value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e AccessEdges) AdventuresOrErr() (*Adventure, error) {
+	if e.loadedTypes[1] {
+		if e.Adventures == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: adventure.Label}
 		}
-		return e.Adventure, nil
+		return e.Adventures, nil
 	}
-	return nil, &NotLoadedError{edge: "adventure"}
+	return nil, &NotLoadedError{edge: "adventures"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -52,14 +68,10 @@ func (*Access) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case access.FieldID:
+		case access.FieldTeamID, access.FieldAdventureID:
 			values[i] = new(sql.NullInt64)
 		case access.FieldStatus:
 			values[i] = new(sql.NullString)
-		case access.ForeignKeys[0]: // access_adventure
-			values[i] = new(sql.NullInt64)
-		case access.ForeignKeys[1]: // team_access
-			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Access", columns[i])
 		}
@@ -75,40 +87,37 @@ func (a *Access) assignValues(columns []string, values []interface{}) error {
 	}
 	for i := range columns {
 		switch columns[i] {
-		case access.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			a.ID = int(value.Int64)
 		case access.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
 				a.Status = access.Status(value.String)
 			}
-		case access.ForeignKeys[0]:
+		case access.FieldTeamID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field access_adventure", value)
+				return fmt.Errorf("unexpected type %T for field team_id", values[i])
 			} else if value.Valid {
-				a.access_adventure = new(int)
-				*a.access_adventure = int(value.Int64)
+				a.TeamID = int(value.Int64)
 			}
-		case access.ForeignKeys[1]:
+		case access.FieldAdventureID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field team_access", value)
+				return fmt.Errorf("unexpected type %T for field adventure_id", values[i])
 			} else if value.Valid {
-				a.team_access = new(int)
-				*a.team_access = int(value.Int64)
+				a.AdventureID = int(value.Int64)
 			}
 		}
 	}
 	return nil
 }
 
-// QueryAdventure queries the "adventure" edge of the Access entity.
-func (a *Access) QueryAdventure() *AdventureQuery {
-	return (&AccessClient{config: a.config}).QueryAdventure(a)
+// QueryTeam queries the "team" edge of the Access entity.
+func (a *Access) QueryTeam() *TeamQuery {
+	return (&AccessClient{config: a.config}).QueryTeam(a)
+}
+
+// QueryAdventures queries the "adventures" edge of the Access entity.
+func (a *Access) QueryAdventures() *AdventureQuery {
+	return (&AccessClient{config: a.config}).QueryAdventures(a)
 }
 
 // Update returns a builder for updating this Access.
@@ -133,9 +142,14 @@ func (a *Access) Unwrap() *Access {
 func (a *Access) String() string {
 	var builder strings.Builder
 	builder.WriteString("Access(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", a.ID))
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", a.Status))
+	builder.WriteString(", ")
+	builder.WriteString("team_id=")
+	builder.WriteString(fmt.Sprintf("%v", a.TeamID))
+	builder.WriteString(", ")
+	builder.WriteString("adventure_id=")
+	builder.WriteString(fmt.Sprintf("%v", a.AdventureID))
 	builder.WriteByte(')')
 	return builder.String()
 }

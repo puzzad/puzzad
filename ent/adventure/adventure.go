@@ -9,10 +9,19 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// EdgeTeam holds the string denoting the team edge name in mutations.
+	EdgeTeam = "team"
 	// EdgeQuestions holds the string denoting the questions edge name in mutations.
 	EdgeQuestions = "questions"
+	// EdgeAccess holds the string denoting the access edge name in mutations.
+	EdgeAccess = "access"
 	// Table holds the table name of the adventure in the database.
 	Table = "adventures"
+	// TeamTable is the table that holds the team relation/edge. The primary key declared below.
+	TeamTable = "accesses"
+	// TeamInverseTable is the table name for the Team entity.
+	// It exists in this package in order to avoid circular dependency with the "team" package.
+	TeamInverseTable = "teams"
 	// QuestionsTable is the table that holds the questions relation/edge.
 	QuestionsTable = "questions"
 	// QuestionsInverseTable is the table name for the Question entity.
@@ -20,6 +29,13 @@ const (
 	QuestionsInverseTable = "questions"
 	// QuestionsColumn is the table column denoting the questions relation/edge.
 	QuestionsColumn = "adventure_questions"
+	// AccessTable is the table that holds the access relation/edge.
+	AccessTable = "accesses"
+	// AccessInverseTable is the table name for the Access entity.
+	// It exists in this package in order to avoid circular dependency with the "access" package.
+	AccessInverseTable = "accesses"
+	// AccessColumn is the table column denoting the access relation/edge.
+	AccessColumn = "adventure_id"
 )
 
 // Columns holds all SQL columns for adventure fields.
@@ -27,6 +43,12 @@ var Columns = []string{
 	FieldID,
 	FieldName,
 }
+
+var (
+	// TeamPrimaryKey and TeamColumn2 are the table columns denoting the
+	// primary key for the team relation (M2M).
+	TeamPrimaryKey = []string{"team_id", "adventure_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {

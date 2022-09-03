@@ -22,24 +22,34 @@ type Progress struct {
 	Edges              ProgressEdges `json:"edges"`
 	progress_adventure *int
 	progress_question  *int
-	team_progress      *int
 }
 
 // ProgressEdges holds the relations/edges for other nodes in the graph.
 type ProgressEdges struct {
+	// Team holds the value of the team edge.
+	Team []*Team `json:"team,omitempty"`
 	// Adventure holds the value of the adventure edge.
 	Adventure *Adventure `json:"adventure,omitempty"`
 	// Question holds the value of the question edge.
 	Question *Question `json:"question,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
+}
+
+// TeamOrErr returns the Team value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProgressEdges) TeamOrErr() ([]*Team, error) {
+	if e.loadedTypes[0] {
+		return e.Team, nil
+	}
+	return nil, &NotLoadedError{edge: "team"}
 }
 
 // AdventureOrErr returns the Adventure value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ProgressEdges) AdventureOrErr() (*Adventure, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		if e.Adventure == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: adventure.Label}
@@ -52,7 +62,7 @@ func (e ProgressEdges) AdventureOrErr() (*Adventure, error) {
 // QuestionOrErr returns the Question value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ProgressEdges) QuestionOrErr() (*Question, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		if e.Question == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: question.Label}
@@ -72,8 +82,6 @@ func (*Progress) scanValues(columns []string) ([]interface{}, error) {
 		case progress.ForeignKeys[0]: // progress_adventure
 			values[i] = new(sql.NullInt64)
 		case progress.ForeignKeys[1]: // progress_question
-			values[i] = new(sql.NullInt64)
-		case progress.ForeignKeys[2]: // team_progress
 			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Progress", columns[i])
@@ -110,16 +118,14 @@ func (pr *Progress) assignValues(columns []string, values []interface{}) error {
 				pr.progress_question = new(int)
 				*pr.progress_question = int(value.Int64)
 			}
-		case progress.ForeignKeys[2]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field team_progress", value)
-			} else if value.Valid {
-				pr.team_progress = new(int)
-				*pr.team_progress = int(value.Int64)
-			}
 		}
 	}
 	return nil
+}
+
+// QueryTeam queries the "team" edge of the Progress entity.
+func (pr *Progress) QueryTeam() *TeamQuery {
+	return (&ProgressClient{config: pr.config}).QueryTeam(pr)
 }
 
 // QueryAdventure queries the "adventure" edge of the Progress entity.

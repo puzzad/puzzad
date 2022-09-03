@@ -10,28 +10,27 @@ import (
 var (
 	// AccessesColumns holds the columns for the "accesses" table.
 	AccessesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"Paid", "Unpaid", "Expired"}},
-		{Name: "access_adventure", Type: field.TypeInt, Nullable: true},
-		{Name: "team_access", Type: field.TypeInt, Nullable: true},
+		{Name: "team_id", Type: field.TypeInt},
+		{Name: "adventure_id", Type: field.TypeInt},
 	}
 	// AccessesTable holds the schema information for the "accesses" table.
 	AccessesTable = &schema.Table{
 		Name:       "accesses",
 		Columns:    AccessesColumns,
-		PrimaryKey: []*schema.Column{AccessesColumns[0]},
+		PrimaryKey: []*schema.Column{AccessesColumns[1], AccessesColumns[2]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "accesses_adventures_adventure",
-				Columns:    []*schema.Column{AccessesColumns[2]},
-				RefColumns: []*schema.Column{AdventuresColumns[0]},
-				OnDelete:   schema.SetNull,
+				Symbol:     "accesses_teams_team",
+				Columns:    []*schema.Column{AccessesColumns[1]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.NoAction,
 			},
 			{
-				Symbol:     "accesses_teams_access",
-				Columns:    []*schema.Column{AccessesColumns[3]},
-				RefColumns: []*schema.Column{TeamsColumns[0]},
-				OnDelete:   schema.SetNull,
+				Symbol:     "accesses_adventures_adventures",
+				Columns:    []*schema.Column{AccessesColumns[2]},
+				RefColumns: []*schema.Column{AdventuresColumns[0]},
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}
@@ -49,30 +48,21 @@ var (
 	// GuessesColumns holds the columns for the "guesses" table.
 	GuessesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
 		{Name: "content", Type: field.TypeString},
 		{Name: "submitted", Type: field.TypeTime},
-		{Name: "team_guesses", Type: field.TypeInt, Nullable: true},
 	}
 	// GuessesTable holds the schema information for the "guesses" table.
 	GuessesTable = &schema.Table{
 		Name:       "guesses",
 		Columns:    GuessesColumns,
 		PrimaryKey: []*schema.Column{GuessesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "guesses_teams_guesses",
-				Columns:    []*schema.Column{GuessesColumns[3]},
-				RefColumns: []*schema.Column{TeamsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 	}
 	// ProgressesColumns holds the columns for the "progresses" table.
 	ProgressesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "progress_adventure", Type: field.TypeInt, Nullable: true},
-		{Name: "progress_question", Type: field.TypeInt, Nullable: true},
-		{Name: "team_progress", Type: field.TypeInt, Nullable: true},
+		{Name: "progress_adventure", Type: field.TypeInt},
+		{Name: "progress_question", Type: field.TypeInt},
 	}
 	// ProgressesTable holds the schema information for the "progresses" table.
 	ProgressesTable = &schema.Table{
@@ -84,19 +74,13 @@ var (
 				Symbol:     "progresses_adventures_adventure",
 				Columns:    []*schema.Column{ProgressesColumns[1]},
 				RefColumns: []*schema.Column{AdventuresColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "progresses_questions_question",
 				Columns:    []*schema.Column{ProgressesColumns[2]},
 				RefColumns: []*schema.Column{QuestionsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "progresses_teams_progress",
-				Columns:    []*schema.Column{ProgressesColumns[3]},
-				RefColumns: []*schema.Column{TeamsColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}
@@ -136,12 +120,46 @@ var (
 		{Name: "code", Type: field.TypeString, Unique: true},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"Unverified", "Verified", "Disabled"}, Default: "Unverified"},
+		{Name: "guess_team", Type: field.TypeInt, Nullable: true},
 	}
 	// TeamsTable holds the schema information for the "teams" table.
 	TeamsTable = &schema.Table{
 		Name:       "teams",
 		Columns:    TeamsColumns,
 		PrimaryKey: []*schema.Column{TeamsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "teams_guesses_team",
+				Columns:    []*schema.Column{TeamsColumns[6]},
+				RefColumns: []*schema.Column{GuessesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// TeamProgressColumns holds the columns for the "team_progress" table.
+	TeamProgressColumns = []*schema.Column{
+		{Name: "team_id", Type: field.TypeInt},
+		{Name: "progress_id", Type: field.TypeInt},
+	}
+	// TeamProgressTable holds the schema information for the "team_progress" table.
+	TeamProgressTable = &schema.Table{
+		Name:       "team_progress",
+		Columns:    TeamProgressColumns,
+		PrimaryKey: []*schema.Column{TeamProgressColumns[0], TeamProgressColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "team_progress_team_id",
+				Columns:    []*schema.Column{TeamProgressColumns[0]},
+				RefColumns: []*schema.Column{TeamsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "team_progress_progress_id",
+				Columns:    []*schema.Column{TeamProgressColumns[1]},
+				RefColumns: []*schema.Column{ProgressesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
@@ -151,16 +169,18 @@ var (
 		ProgressesTable,
 		QuestionsTable,
 		TeamsTable,
+		TeamProgressTable,
 	}
 )
 
 func init() {
-	AccessesTable.ForeignKeys[0].RefTable = AdventuresTable
-	AccessesTable.ForeignKeys[1].RefTable = TeamsTable
-	GuessesTable.ForeignKeys[0].RefTable = TeamsTable
+	AccessesTable.ForeignKeys[0].RefTable = TeamsTable
+	AccessesTable.ForeignKeys[1].RefTable = AdventuresTable
 	ProgressesTable.ForeignKeys[0].RefTable = AdventuresTable
 	ProgressesTable.ForeignKeys[1].RefTable = QuestionsTable
-	ProgressesTable.ForeignKeys[2].RefTable = TeamsTable
 	QuestionsTable.ForeignKeys[0].RefTable = AdventuresTable
 	QuestionsTable.ForeignKeys[1].RefTable = GuessesTable
+	TeamsTable.ForeignKeys[0].RefTable = GuessesTable
+	TeamProgressTable.ForeignKeys[0].RefTable = TeamsTable
+	TeamProgressTable.ForeignKeys[1].RefTable = ProgressesTable
 }

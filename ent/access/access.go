@@ -9,45 +9,49 @@ import (
 const (
 	// Label holds the string label denoting the access type in the database.
 	Label = "access"
-	// FieldID holds the string denoting the id field in the database.
-	FieldID = "id"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// EdgeAdventure holds the string denoting the adventure edge name in mutations.
-	EdgeAdventure = "adventure"
+	// FieldTeamID holds the string denoting the team_id field in the database.
+	FieldTeamID = "team_id"
+	// FieldAdventureID holds the string denoting the adventure_id field in the database.
+	FieldAdventureID = "adventure_id"
+	// EdgeTeam holds the string denoting the team edge name in mutations.
+	EdgeTeam = "team"
+	// EdgeAdventures holds the string denoting the adventures edge name in mutations.
+	EdgeAdventures = "adventures"
+	// TeamFieldID holds the string denoting the ID field of the Team.
+	TeamFieldID = "id"
+	// AdventureFieldID holds the string denoting the ID field of the Adventure.
+	AdventureFieldID = "id"
 	// Table holds the table name of the access in the database.
 	Table = "accesses"
-	// AdventureTable is the table that holds the adventure relation/edge.
-	AdventureTable = "accesses"
-	// AdventureInverseTable is the table name for the Adventure entity.
+	// TeamTable is the table that holds the team relation/edge.
+	TeamTable = "accesses"
+	// TeamInverseTable is the table name for the Team entity.
+	// It exists in this package in order to avoid circular dependency with the "team" package.
+	TeamInverseTable = "teams"
+	// TeamColumn is the table column denoting the team relation/edge.
+	TeamColumn = "team_id"
+	// AdventuresTable is the table that holds the adventures relation/edge.
+	AdventuresTable = "accesses"
+	// AdventuresInverseTable is the table name for the Adventure entity.
 	// It exists in this package in order to avoid circular dependency with the "adventure" package.
-	AdventureInverseTable = "adventures"
-	// AdventureColumn is the table column denoting the adventure relation/edge.
-	AdventureColumn = "access_adventure"
+	AdventuresInverseTable = "adventures"
+	// AdventuresColumn is the table column denoting the adventures relation/edge.
+	AdventuresColumn = "adventure_id"
 )
 
 // Columns holds all SQL columns for access fields.
 var Columns = []string{
-	FieldID,
 	FieldStatus,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "accesses"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"access_adventure",
-	"team_access",
+	FieldTeamID,
+	FieldAdventureID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
