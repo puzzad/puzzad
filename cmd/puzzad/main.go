@@ -2,11 +2,13 @@ package main
 
 import (
 	"flag"
-	"log"
+	"os"
 
 	"github.com/csmith/envflag"
 	"github.com/greboid/puzzad/puzzad"
 	"github.com/greboid/puzzad/web"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -16,20 +18,25 @@ var (
 
 func main() {
 	envflag.Parse()
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if *Debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
 	client, err := puzzad.CreateEntClient(*Debug)
 	if err != nil {
-		log.Fatalf("failed creating ent client: %v", err)
+		log.Fatal().Err(err).Msg("Failed creating ent client")
 	}
 	defer func() {
 		_ = client.Close()
 	}()
 	server := web.Webserver{}
 	server.Init(*WebPort)
-	log.Printf("Starting server: %d", *WebPort)
+	log.Info().Msgf("Starting server: %d", *WebPort)
 	err = server.RunAndWait()
 	if err != nil {
-		log.Printf("Error: %s", err)
+		log.Error().Msgf("Error: %s", err)
 	} else {
-		log.Printf("Server stopped.")
+		log.Info().Msgf("Server stopped.")
 	}
 }
