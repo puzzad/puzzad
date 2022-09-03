@@ -11,11 +11,12 @@ import (
 
 var (
 	WebPort = flag.Int("web-port", 3000, "Port for webserver")
+	Debug   = flag.Bool("debug", true, "Enable debug logging")
 )
 
 func main() {
 	envflag.Parse()
-	client, err := puzzad.CreateEntClient(false)
+	client, err := puzzad.CreateEntClient(*Debug)
 	if err != nil {
 		log.Fatalf("failed creating ent client: %v", err)
 	}
