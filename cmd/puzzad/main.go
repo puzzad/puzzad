@@ -19,7 +19,8 @@ var (
 func main() {
 	envflag.Parse()
 	logger := createLogger(*Debug)
-	client, err := puzzad.CreateEntClient(*Debug)
+	client := puzzad.DBClient{}
+	err := client.Init()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed creating ent client")
 	}
@@ -28,10 +29,10 @@ func main() {
 	}()
 	server := web.Webserver{}
 	server.Init(*WebPort, logger)
-	log.Info().Msgf("Starting server: %d", *WebPort)
+	log.Info().Int("port", *WebPort).Msg("Starting web server.")
 	err = server.RunAndWait()
 	if err != nil {
-		log.Error().Msgf("Error: %s", err)
+		log.Error().Err(err).Msg("Failed running web server.")
 	} else {
 		log.Info().Msgf("Server stopped.")
 	}

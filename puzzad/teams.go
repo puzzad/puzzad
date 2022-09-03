@@ -9,8 +9,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func CreateTeam(ctx context.Context, client *ent.Client, name string, email string) (*ent.Team, error) {
-	t, err := client.Team.
+func (db *DBClient) CreateTeam(ctx context.Context, name string, email string) (*ent.Team, error) {
+	t, err := db.entclient.Team.
 		Create().
 		SetName(name).
 		SetEmail(email).
@@ -21,8 +21,8 @@ func CreateTeam(ctx context.Context, client *ent.Client, name string, email stri
 	return t, nil
 }
 
-func QueryTeam(ctx context.Context, client *ent.Client, name string) (*ent.Team, error) {
-	t, err := client.Team.
+func (db *DBClient) QueryTeam(ctx context.Context, name string) (*ent.Team, error) {
+	t, err := db.entclient.Team.
 		Query().
 		Where(team.Name(name)).
 		Only(ctx)

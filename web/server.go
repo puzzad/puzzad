@@ -84,7 +84,6 @@ func loggerMiddleware(logger *zerolog.Logger) func(next http.Handler) http.Handl
 			wrapper := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 			defer func() {
 				logger.Info().
-					Str("type", "access").
 					Timestamp().
 					Str("REMOTE_ADDR", r.RemoteAddr).
 					Str("url", r.URL.Path).
