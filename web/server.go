@@ -3,11 +3,13 @@ package web
 import (
 	"context"
 	"embed"
+	"errors"
 	"fmt"
 	"io/fs"
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -56,8 +58,13 @@ func (web *Webserver) addMiddleWare() {
 }
 
 func (web *Webserver) addRoutes() {
-	pfs, _ := fs.Sub(publicfs, "public")
-	web.router.Handle("/*", http.FileServer(http.FS(pfs)))
+	_, err := os.OpenFile(filepath.Join("web", "public"), os.O_RDONLY, 0644)
+	if errors.Is(err, os.ErrNotExist) {
+		pfs, _ := fs.Sub(publicfs, "public")
+		web.router.Handle("/*", http.FileServer(http.FS(pfs)))
+	} else {
+		web.router.Handle("/*", http.FileServer(http.FS(os.DirFS(filepath.Join("web", "public")))))
+	}
 }
 
 func (web *Webserver) RunAndWait() error {
