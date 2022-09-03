@@ -1,13 +1,20 @@
 package main
 
 import (
+	"flag"
 	"log"
 
+	"github.com/csmith/envflag"
 	"github.com/greboid/puzzad/puzzad"
 	"github.com/greboid/puzzad/web"
 )
 
+var (
+	WebPort = flag.Int("web-port", 3000, "Port for webserver")
+)
+
 func main() {
+	envflag.Parse()
 	client, err := puzzad.CreateEntClient(false)
 	if err != nil {
 		log.Fatalf("failed creating ent client: %v", err)
@@ -15,6 +22,13 @@ func main() {
 	defer func() {
 		_ = client.Close()
 	}()
-	h := web.CreateServer(3000)
-	web.RunAndWait(h)
+	server := web.Webserver{}
+	server.Init(*WebPort)
+	log.Printf("Starting server: %d", *WebPort)
+	err = server.RunAndWait()
+	if err != nil {
+		log.Printf("Error: %s", err)
+	} else {
+		log.Printf("Server stopped.")
+	}
 }
