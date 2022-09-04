@@ -14,11 +14,7 @@ func (db *DBClient) GetTeamPaidAdventures(ctx context.Context, team *ent.Team) (
 }
 
 func (db *DBClient) GetTeamdAventures(ctx context.Context, team *ent.Team, status access.Status) ([]*ent.Adventure, error) {
-	adventures, err := team.QueryAccess().Where(access.StatusEQ(status)).QueryAdventures().All(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return adventures, err
+	return team.QueryAccess().Where(access.StatusEQ(status)).QueryAdventures().All(ctx)
 }
 
 func (db *DBClient) CreateAdventure(ctx context.Context, name string) (*ent.Adventure, error) {
@@ -41,11 +37,7 @@ func (db *DBClient) AddAdventureToTeam(ctx context.Context, a *ent.Adventure, t 
 }
 
 func (db *DBClient) GetTeamAdventureAccess(ctx context.Context, a *ent.Adventure, t *ent.Team) (*ent.Access, error) {
-	ac, err := t.QueryAccess().Where(access.And(access.TeamID(t.ID), access.AdventureID(a.ID))).Only(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return ac, err
+	return t.QueryAccess().Where(access.And(access.TeamID(t.ID), access.AdventureID(a.ID))).Only(ctx)
 }
 
 func (db *DBClient) CheckTeamAdventureStatus(ctx context.Context, a *ent.Adventure, t *ent.Team) (access.Status, error) {
