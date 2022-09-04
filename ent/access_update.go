@@ -35,6 +35,14 @@ func (au *AccessUpdate) SetStatus(a access.Status) *AccessUpdate {
 	return au
 }
 
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (au *AccessUpdate) SetNillableStatus(a *access.Status) *AccessUpdate {
+	if a != nil {
+		au.SetStatus(*a)
+	}
+	return au
+}
+
 // SetTeamID sets the "team_id" field.
 func (au *AccessUpdate) SetTeamID(i int) *AccessUpdate {
 	au.mutation.SetTeamID(i)
@@ -279,6 +287,14 @@ type AccessUpdateOne struct {
 // SetStatus sets the "status" field.
 func (auo *AccessUpdateOne) SetStatus(a access.Status) *AccessUpdateOne {
 	auo.mutation.SetStatus(a)
+	return auo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (auo *AccessUpdateOne) SetNillableStatus(a *access.Status) *AccessUpdateOne {
+	if a != nil {
+		auo.SetStatus(*a)
+	}
 	return auo
 }
 

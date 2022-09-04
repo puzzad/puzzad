@@ -32,11 +32,7 @@ func (db *DBClient) GetTeam(ctx context.Context, name string) (*ent.Team, error)
 	return t, nil
 }
 
-func (db *DBClient) UpdateTeamStatus(ctx context.Context, name string, newStatus team.Status) error {
-	t, err := db.GetTeam(ctx, name)
-	if err != nil {
-		return err
-	}
-	_, err = t.Update().SetStatus(newStatus).Save(ctx)
+func (db *DBClient) UpdateTeamStatus(ctx context.Context, t *ent.Team, newStatus team.Status) error {
+	_, err := t.Update().SetStatus(newStatus).Save(ctx)
 	return err
 }

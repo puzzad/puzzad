@@ -188,6 +188,10 @@ func (ac *AdventureCreate) createSpec() (*Adventure, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		createE := &AccessCreate{config: ac.config, mutation: newAccessMutation(ac.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := ac.mutation.QuestionsIDs(); len(nodes) > 0 {

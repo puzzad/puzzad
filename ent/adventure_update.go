@@ -205,6 +205,10 @@ func (au *AdventureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				},
 			},
 		}
+		createE := &AccessCreate{config: au.config, mutation: newAccessMutation(au.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := au.mutation.RemovedTeamIDs(); len(nodes) > 0 && !au.mutation.TeamCleared() {
@@ -224,6 +228,10 @@ func (au *AdventureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		createE := &AccessCreate{config: au.config, mutation: newAccessMutation(au.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := au.mutation.TeamIDs(); len(nodes) > 0 {
@@ -243,6 +251,10 @@ func (au *AdventureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		createE := &AccessCreate{config: au.config, mutation: newAccessMutation(au.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if au.mutation.QuestionsCleared() {
@@ -524,6 +536,10 @@ func (auo *AdventureUpdateOne) sqlSave(ctx context.Context) (_node *Adventure, e
 				},
 			},
 		}
+		createE := &AccessCreate{config: auo.config, mutation: newAccessMutation(auo.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := auo.mutation.RemovedTeamIDs(); len(nodes) > 0 && !auo.mutation.TeamCleared() {
@@ -543,6 +559,10 @@ func (auo *AdventureUpdateOne) sqlSave(ctx context.Context) (_node *Adventure, e
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		createE := &AccessCreate{config: auo.config, mutation: newAccessMutation(auo.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := auo.mutation.TeamIDs(); len(nodes) > 0 {
@@ -562,6 +582,10 @@ func (auo *AdventureUpdateOne) sqlSave(ctx context.Context) (_node *Adventure, e
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		createE := &AccessCreate{config: auo.config, mutation: newAccessMutation(auo.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if auo.mutation.QuestionsCleared() {

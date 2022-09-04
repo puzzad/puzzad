@@ -61,6 +61,9 @@ func ValidColumn(column string) bool {
 // Status defines the type for the "status" enum field.
 type Status string
 
+// StatusUnpaid is the default value of the Status enum.
+const DefaultStatus = StatusUnpaid
+
 // Status values.
 const (
 	StatusPaid    Status = "Paid"

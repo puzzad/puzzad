@@ -21,7 +21,7 @@ func (Access) Annotations() []schema.Annotation {
 // Fields of the Access.
 func (Access) Fields() []ent.Field {
 	return []ent.Field{
-		field.Enum("status").Values("Paid", "Unpaid", "Expired"),
+		field.Enum("status").Values("Paid", "Unpaid", "Expired").Default("Unpaid"),
 		field.Int("team_id"),
 		field.Int("adventure_id"),
 	}

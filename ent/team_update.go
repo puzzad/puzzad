@@ -281,6 +281,10 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				},
 			},
 		}
+		createE := &AccessCreate{config: tu.config, mutation: newAccessMutation(tu.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := tu.mutation.RemovedAdventuresIDs(); len(nodes) > 0 && !tu.mutation.AdventuresCleared() {
@@ -300,6 +304,10 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		createE := &AccessCreate{config: tu.config, mutation: newAccessMutation(tu.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := tu.mutation.AdventuresIDs(); len(nodes) > 0 {
@@ -319,6 +327,10 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		createE := &AccessCreate{config: tu.config, mutation: newAccessMutation(tu.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if tu.mutation.ProgressCleared() {
@@ -676,6 +688,10 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 				},
 			},
 		}
+		createE := &AccessCreate{config: tuo.config, mutation: newAccessMutation(tuo.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := tuo.mutation.RemovedAdventuresIDs(); len(nodes) > 0 && !tuo.mutation.AdventuresCleared() {
@@ -695,6 +711,10 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		createE := &AccessCreate{config: tuo.config, mutation: newAccessMutation(tuo.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := tuo.mutation.AdventuresIDs(); len(nodes) > 0 {
@@ -714,6 +734,10 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		createE := &AccessCreate{config: tuo.config, mutation: newAccessMutation(tuo.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if tuo.mutation.ProgressCleared() {

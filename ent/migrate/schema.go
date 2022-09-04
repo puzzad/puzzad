@@ -10,7 +10,7 @@ import (
 var (
 	// AccessesColumns holds the columns for the "accesses" table.
 	AccessesColumns = []*schema.Column{
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"Paid", "Unpaid", "Expired"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"Paid", "Unpaid", "Expired"}, Default: "Unpaid"},
 		{Name: "team_id", Type: field.TypeInt},
 		{Name: "adventure_id", Type: field.TypeInt},
 	}

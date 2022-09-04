@@ -14,6 +14,8 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	accessFields := schema.Access{}.Fields()
+	_ = accessFields
 	guessMixin := schema.Guess{}.Mixin()
 	guessMixinFields0 := guessMixin[0].Fields()
 	_ = guessMixinFields0

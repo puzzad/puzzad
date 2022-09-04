@@ -27,6 +27,14 @@ func (ac *AccessCreate) SetStatus(a access.Status) *AccessCreate {
 	return ac
 }
 
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (ac *AccessCreate) SetNillableStatus(a *access.Status) *AccessCreate {
+	if a != nil {
+		ac.SetStatus(*a)
+	}
+	return ac
+}
+
 // SetTeamID sets the "team_id" field.
 func (ac *AccessCreate) SetTeamID(i int) *AccessCreate {
 	ac.mutation.SetTeamID(i)
@@ -66,6 +74,7 @@ func (ac *AccessCreate) Save(ctx context.Context) (*Access, error) {
 		err  error
 		node *Access
 	)
+	ac.defaults()
 	if len(ac.hooks) == 0 {
 		if err = ac.check(); err != nil {
 			return nil, err
@@ -124,6 +133,14 @@ func (ac *AccessCreate) Exec(ctx context.Context) error {
 func (ac *AccessCreate) ExecX(ctx context.Context) {
 	if err := ac.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (ac *AccessCreate) defaults() {
+	if _, ok := ac.mutation.Status(); !ok {
+		v := access.DefaultStatus
+		ac.mutation.SetStatus(v)
 	}
 }
 
@@ -235,6 +252,7 @@ func (acb *AccessCreateBulk) Save(ctx context.Context) ([]*Access, error) {
 	for i := range acb.builders {
 		func(i int, root context.Context) {
 			builder := acb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*AccessMutation)
 				if !ok {
