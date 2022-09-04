@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -33,20 +32,6 @@ func (gu *GuessUpdate) Where(ps ...predicate.Guess) *GuessUpdate {
 // SetContent sets the "content" field.
 func (gu *GuessUpdate) SetContent(s string) *GuessUpdate {
 	gu.mutation.SetContent(s)
-	return gu
-}
-
-// SetSubmitted sets the "submitted" field.
-func (gu *GuessUpdate) SetSubmitted(t time.Time) *GuessUpdate {
-	gu.mutation.SetSubmitted(t)
-	return gu
-}
-
-// SetNillableSubmitted sets the "submitted" field if the given value is not nil.
-func (gu *GuessUpdate) SetNillableSubmitted(t *time.Time) *GuessUpdate {
-	if t != nil {
-		gu.SetSubmitted(*t)
-	}
 	return gu
 }
 
@@ -206,13 +191,6 @@ func (gu *GuessUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: guess.FieldContent,
 		})
 	}
-	if value, ok := gu.mutation.Submitted(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: guess.FieldSubmitted,
-		})
-	}
 	if gu.mutation.QuestionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -343,20 +321,6 @@ type GuessUpdateOne struct {
 // SetContent sets the "content" field.
 func (guo *GuessUpdateOne) SetContent(s string) *GuessUpdateOne {
 	guo.mutation.SetContent(s)
-	return guo
-}
-
-// SetSubmitted sets the "submitted" field.
-func (guo *GuessUpdateOne) SetSubmitted(t time.Time) *GuessUpdateOne {
-	guo.mutation.SetSubmitted(t)
-	return guo
-}
-
-// SetNillableSubmitted sets the "submitted" field if the given value is not nil.
-func (guo *GuessUpdateOne) SetNillableSubmitted(t *time.Time) *GuessUpdateOne {
-	if t != nil {
-		guo.SetSubmitted(*t)
-	}
 	return guo
 }
 
@@ -544,13 +508,6 @@ func (guo *GuessUpdateOne) sqlSave(ctx context.Context) (_node *Guess, err error
 			Type:   field.TypeString,
 			Value:  value,
 			Column: guess.FieldContent,
-		})
-	}
-	if value, ok := guo.mutation.Submitted(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: guess.FieldSubmitted,
 		})
 	}
 	if guo.mutation.QuestionCleared() {

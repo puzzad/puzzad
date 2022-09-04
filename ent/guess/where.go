@@ -95,13 +95,6 @@ func Content(v string) predicate.Guess {
 	})
 }
 
-// Submitted applies equality check predicate on the "submitted" field. It's identical to SubmittedEQ.
-func Submitted(v time.Time) predicate.Guess {
-	return predicate.Guess(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldSubmitted), v))
-	})
-}
-
 // CreateTimeEQ applies the EQ predicate on the "create_time" field.
 func CreateTimeEQ(v time.Time) predicate.Guess {
 	return predicate.Guess(func(s *sql.Selector) {
@@ -262,70 +255,6 @@ func ContentEqualFold(v string) predicate.Guess {
 func ContentContainsFold(v string) predicate.Guess {
 	return predicate.Guess(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldContent), v))
-	})
-}
-
-// SubmittedEQ applies the EQ predicate on the "submitted" field.
-func SubmittedEQ(v time.Time) predicate.Guess {
-	return predicate.Guess(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldSubmitted), v))
-	})
-}
-
-// SubmittedNEQ applies the NEQ predicate on the "submitted" field.
-func SubmittedNEQ(v time.Time) predicate.Guess {
-	return predicate.Guess(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldSubmitted), v))
-	})
-}
-
-// SubmittedIn applies the In predicate on the "submitted" field.
-func SubmittedIn(vs ...time.Time) predicate.Guess {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Guess(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldSubmitted), v...))
-	})
-}
-
-// SubmittedNotIn applies the NotIn predicate on the "submitted" field.
-func SubmittedNotIn(vs ...time.Time) predicate.Guess {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Guess(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldSubmitted), v...))
-	})
-}
-
-// SubmittedGT applies the GT predicate on the "submitted" field.
-func SubmittedGT(v time.Time) predicate.Guess {
-	return predicate.Guess(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldSubmitted), v))
-	})
-}
-
-// SubmittedGTE applies the GTE predicate on the "submitted" field.
-func SubmittedGTE(v time.Time) predicate.Guess {
-	return predicate.Guess(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldSubmitted), v))
-	})
-}
-
-// SubmittedLT applies the LT predicate on the "submitted" field.
-func SubmittedLT(v time.Time) predicate.Guess {
-	return predicate.Guess(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldSubmitted), v))
-	})
-}
-
-// SubmittedLTE applies the LTE predicate on the "submitted" field.
-func SubmittedLTE(v time.Time) predicate.Guess {
-	return predicate.Guess(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldSubmitted), v))
 	})
 }
 

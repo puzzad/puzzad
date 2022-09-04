@@ -25,10 +25,6 @@ func init() {
 	guessDescCreateTime := guessMixinFields0[0].Descriptor()
 	// guess.DefaultCreateTime holds the default value on creation for the create_time field.
 	guess.DefaultCreateTime = guessDescCreateTime.Default.(func() time.Time)
-	// guessDescSubmitted is the schema descriptor for submitted field.
-	guessDescSubmitted := guessFields[1].Descriptor()
-	// guess.DefaultSubmitted holds the default value on creation for the submitted field.
-	guess.DefaultSubmitted = guessDescSubmitted.Default.(time.Time)
 	teamMixin := schema.Team{}.Mixin()
 	teamMixinFields0 := teamMixin[0].Fields()
 	_ = teamMixinFields0

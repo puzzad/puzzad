@@ -20,8 +20,6 @@ type Guess struct {
 	CreateTime time.Time `json:"create_time,omitempty"`
 	// Content holds the value of the "content" field.
 	Content string `json:"content,omitempty"`
-	// Submitted holds the value of the "submitted" field.
-	Submitted time.Time `json:"submitted,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GuessQuery when eager-loading is set.
 	Edges GuessEdges `json:"edges"`
@@ -65,7 +63,7 @@ func (*Guess) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullInt64)
 		case guess.FieldContent:
 			values[i] = new(sql.NullString)
-		case guess.FieldCreateTime, guess.FieldSubmitted:
+		case guess.FieldCreateTime:
 			values[i] = new(sql.NullTime)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Guess", columns[i])
@@ -99,12 +97,6 @@ func (gu *Guess) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field content", values[i])
 			} else if value.Valid {
 				gu.Content = value.String
-			}
-		case guess.FieldSubmitted:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field submitted", values[i])
-			} else if value.Valid {
-				gu.Submitted = value.Time
 			}
 		}
 	}
@@ -149,9 +141,6 @@ func (gu *Guess) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("content=")
 	builder.WriteString(gu.Content)
-	builder.WriteString(", ")
-	builder.WriteString("submitted=")
-	builder.WriteString(gu.Submitted.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

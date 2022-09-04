@@ -42,20 +42,6 @@ func (gc *GuessCreate) SetContent(s string) *GuessCreate {
 	return gc
 }
 
-// SetSubmitted sets the "submitted" field.
-func (gc *GuessCreate) SetSubmitted(t time.Time) *GuessCreate {
-	gc.mutation.SetSubmitted(t)
-	return gc
-}
-
-// SetNillableSubmitted sets the "submitted" field if the given value is not nil.
-func (gc *GuessCreate) SetNillableSubmitted(t *time.Time) *GuessCreate {
-	if t != nil {
-		gc.SetSubmitted(*t)
-	}
-	return gc
-}
-
 // AddQuestionIDs adds the "question" edge to the Question entity by IDs.
 func (gc *GuessCreate) AddQuestionIDs(ids ...int) *GuessCreate {
 	gc.mutation.AddQuestionIDs(ids...)
@@ -167,10 +153,6 @@ func (gc *GuessCreate) defaults() {
 		v := guess.DefaultCreateTime()
 		gc.mutation.SetCreateTime(v)
 	}
-	if _, ok := gc.mutation.Submitted(); !ok {
-		v := guess.DefaultSubmitted
-		gc.mutation.SetSubmitted(v)
-	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -180,9 +162,6 @@ func (gc *GuessCreate) check() error {
 	}
 	if _, ok := gc.mutation.Content(); !ok {
 		return &ValidationError{Name: "content", err: errors.New(`ent: missing required field "Guess.content"`)}
-	}
-	if _, ok := gc.mutation.Submitted(); !ok {
-		return &ValidationError{Name: "submitted", err: errors.New(`ent: missing required field "Guess.submitted"`)}
 	}
 	return nil
 }
@@ -226,14 +205,6 @@ func (gc *GuessCreate) createSpec() (*Guess, *sqlgraph.CreateSpec) {
 			Column: guess.FieldContent,
 		})
 		_node.Content = value
-	}
-	if value, ok := gc.mutation.Submitted(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: guess.FieldSubmitted,
-		})
-		_node.Submitted = value
 	}
 	if nodes := gc.mutation.QuestionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

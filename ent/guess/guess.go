@@ -15,8 +15,6 @@ const (
 	FieldCreateTime = "create_time"
 	// FieldContent holds the string denoting the content field in the database.
 	FieldContent = "content"
-	// FieldSubmitted holds the string denoting the submitted field in the database.
-	FieldSubmitted = "submitted"
 	// EdgeQuestion holds the string denoting the question edge name in mutations.
 	EdgeQuestion = "question"
 	// EdgeTeam holds the string denoting the team edge name in mutations.
@@ -44,7 +42,6 @@ var Columns = []string{
 	FieldID,
 	FieldCreateTime,
 	FieldContent,
-	FieldSubmitted,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -60,6 +57,4 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultCreateTime holds the default value on creation for the "create_time" field.
 	DefaultCreateTime func() time.Time
-	// DefaultSubmitted holds the default value on creation for the "submitted" field.
-	DefaultSubmitted time.Time
 )

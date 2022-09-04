@@ -947,7 +947,6 @@ type GuessMutation struct {
 	id              *int
 	create_time     *time.Time
 	content         *string
-	submitted       *time.Time
 	clearedFields   map[string]struct{}
 	question        map[int]struct{}
 	removedquestion map[int]struct{}
@@ -1130,42 +1129,6 @@ func (m *GuessMutation) ResetContent() {
 	m.content = nil
 }
 
-// SetSubmitted sets the "submitted" field.
-func (m *GuessMutation) SetSubmitted(t time.Time) {
-	m.submitted = &t
-}
-
-// Submitted returns the value of the "submitted" field in the mutation.
-func (m *GuessMutation) Submitted() (r time.Time, exists bool) {
-	v := m.submitted
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSubmitted returns the old "submitted" field's value of the Guess entity.
-// If the Guess object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GuessMutation) OldSubmitted(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSubmitted is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSubmitted requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSubmitted: %w", err)
-	}
-	return oldValue.Submitted, nil
-}
-
-// ResetSubmitted resets all changes to the "submitted" field.
-func (m *GuessMutation) ResetSubmitted() {
-	m.submitted = nil
-}
-
 // AddQuestionIDs adds the "question" edge to the Question entity by ids.
 func (m *GuessMutation) AddQuestionIDs(ids ...int) {
 	if m.question == nil {
@@ -1293,15 +1256,12 @@ func (m *GuessMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GuessMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 2)
 	if m.create_time != nil {
 		fields = append(fields, guess.FieldCreateTime)
 	}
 	if m.content != nil {
 		fields = append(fields, guess.FieldContent)
-	}
-	if m.submitted != nil {
-		fields = append(fields, guess.FieldSubmitted)
 	}
 	return fields
 }
@@ -1315,8 +1275,6 @@ func (m *GuessMutation) Field(name string) (ent.Value, bool) {
 		return m.CreateTime()
 	case guess.FieldContent:
 		return m.Content()
-	case guess.FieldSubmitted:
-		return m.Submitted()
 	}
 	return nil, false
 }
@@ -1330,8 +1288,6 @@ func (m *GuessMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldCreateTime(ctx)
 	case guess.FieldContent:
 		return m.OldContent(ctx)
-	case guess.FieldSubmitted:
-		return m.OldSubmitted(ctx)
 	}
 	return nil, fmt.Errorf("unknown Guess field %s", name)
 }
@@ -1354,13 +1310,6 @@ func (m *GuessMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetContent(v)
-		return nil
-	case guess.FieldSubmitted:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSubmitted(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Guess field %s", name)
@@ -1416,9 +1365,6 @@ func (m *GuessMutation) ResetField(name string) error {
 		return nil
 	case guess.FieldContent:
 		m.ResetContent()
-		return nil
-	case guess.FieldSubmitted:
-		m.ResetSubmitted()
 		return nil
 	}
 	return fmt.Errorf("unknown Guess field %s", name)

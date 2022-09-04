@@ -50,7 +50,6 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "content", Type: field.TypeString},
-		{Name: "submitted", Type: field.TypeTime},
 	}
 	// GuessesTable holds the schema information for the "guesses" table.
 	GuessesTable = &schema.Table{
