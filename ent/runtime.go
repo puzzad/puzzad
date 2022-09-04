@@ -56,4 +56,8 @@ func init() {
 	teamDescCode := teamFields[1].Descriptor()
 	// team.DefaultCode holds the default value on creation for the code field.
 	team.DefaultCode = teamDescCode.Default.(func() string)
+	// teamDescVerifyCode is the schema descriptor for verifyCode field.
+	teamDescVerifyCode := teamFields[2].Descriptor()
+	// team.DefaultVerifyCode holds the default value on creation for the verifyCode field.
+	team.DefaultVerifyCode = teamDescVerifyCode.Default.(func() string)
 }

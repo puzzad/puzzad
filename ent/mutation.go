@@ -2383,6 +2383,7 @@ type TeamMutation struct {
 	create_time       *time.Time
 	name              *string
 	code              *string
+	verifyCode        *string
 	email             *string
 	status            *team.Status
 	clearedFields     map[string]struct{}
@@ -2603,6 +2604,42 @@ func (m *TeamMutation) ResetCode() {
 	m.code = nil
 }
 
+// SetVerifyCode sets the "verifyCode" field.
+func (m *TeamMutation) SetVerifyCode(s string) {
+	m.verifyCode = &s
+}
+
+// VerifyCode returns the value of the "verifyCode" field in the mutation.
+func (m *TeamMutation) VerifyCode() (r string, exists bool) {
+	v := m.verifyCode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVerifyCode returns the old "verifyCode" field's value of the Team entity.
+// If the Team object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TeamMutation) OldVerifyCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVerifyCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVerifyCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVerifyCode: %w", err)
+	}
+	return oldValue.VerifyCode, nil
+}
+
+// ResetVerifyCode resets all changes to the "verifyCode" field.
+func (m *TeamMutation) ResetVerifyCode() {
+	m.verifyCode = nil
+}
+
 // SetEmail sets the "email" field.
 func (m *TeamMutation) SetEmail(s string) {
 	m.email = &s
@@ -2802,7 +2839,7 @@ func (m *TeamMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TeamMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.create_time != nil {
 		fields = append(fields, team.FieldCreateTime)
 	}
@@ -2811,6 +2848,9 @@ func (m *TeamMutation) Fields() []string {
 	}
 	if m.code != nil {
 		fields = append(fields, team.FieldCode)
+	}
+	if m.verifyCode != nil {
+		fields = append(fields, team.FieldVerifyCode)
 	}
 	if m.email != nil {
 		fields = append(fields, team.FieldEmail)
@@ -2832,6 +2872,8 @@ func (m *TeamMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case team.FieldCode:
 		return m.Code()
+	case team.FieldVerifyCode:
+		return m.VerifyCode()
 	case team.FieldEmail:
 		return m.Email()
 	case team.FieldStatus:
@@ -2851,6 +2893,8 @@ func (m *TeamMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldName(ctx)
 	case team.FieldCode:
 		return m.OldCode(ctx)
+	case team.FieldVerifyCode:
+		return m.OldVerifyCode(ctx)
 	case team.FieldEmail:
 		return m.OldEmail(ctx)
 	case team.FieldStatus:
@@ -2884,6 +2928,13 @@ func (m *TeamMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCode(v)
+		return nil
+	case team.FieldVerifyCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVerifyCode(v)
 		return nil
 	case team.FieldEmail:
 		v, ok := value.(string)
@@ -2956,6 +3007,9 @@ func (m *TeamMutation) ResetField(name string) error {
 		return nil
 	case team.FieldCode:
 		m.ResetCode()
+		return nil
+	case team.FieldVerifyCode:
+		m.ResetVerifyCode()
 		return nil
 	case team.FieldEmail:
 		m.ResetEmail()

@@ -25,6 +25,11 @@ func (Team) Fields() []ent.Field {
 				return uuid.New().String()
 			}).
 			Unique(),
+		field.String("verifyCode").
+			DefaultFunc(func() string {
+				return uuid.New().String()
+			}).
+			Unique(),
 		field.String("email").Unique(),
 		field.Enum("status").Values("Unverified", "Verified", "Disabled").Default("Unverified"),
 	}

@@ -56,6 +56,20 @@ func (tc *TeamCreate) SetNillableCode(s *string) *TeamCreate {
 	return tc
 }
 
+// SetVerifyCode sets the "verifyCode" field.
+func (tc *TeamCreate) SetVerifyCode(s string) *TeamCreate {
+	tc.mutation.SetVerifyCode(s)
+	return tc
+}
+
+// SetNillableVerifyCode sets the "verifyCode" field if the given value is not nil.
+func (tc *TeamCreate) SetNillableVerifyCode(s *string) *TeamCreate {
+	if s != nil {
+		tc.SetVerifyCode(*s)
+	}
+	return tc
+}
+
 // SetEmail sets the "email" field.
 func (tc *TeamCreate) SetEmail(s string) *TeamCreate {
 	tc.mutation.SetEmail(s)
@@ -191,6 +205,10 @@ func (tc *TeamCreate) defaults() {
 		v := team.DefaultCode()
 		tc.mutation.SetCode(v)
 	}
+	if _, ok := tc.mutation.VerifyCode(); !ok {
+		v := team.DefaultVerifyCode()
+		tc.mutation.SetVerifyCode(v)
+	}
 	if _, ok := tc.mutation.Status(); !ok {
 		v := team.DefaultStatus
 		tc.mutation.SetStatus(v)
@@ -212,6 +230,9 @@ func (tc *TeamCreate) check() error {
 	}
 	if _, ok := tc.mutation.Code(); !ok {
 		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Team.code"`)}
+	}
+	if _, ok := tc.mutation.VerifyCode(); !ok {
+		return &ValidationError{Name: "verifyCode", err: errors.New(`ent: missing required field "Team.verifyCode"`)}
 	}
 	if _, ok := tc.mutation.Email(); !ok {
 		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "Team.email"`)}
@@ -274,6 +295,14 @@ func (tc *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 			Column: team.FieldCode,
 		})
 		_node.Code = value
+	}
+	if value, ok := tc.mutation.VerifyCode(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: team.FieldVerifyCode,
+		})
+		_node.VerifyCode = value
 	}
 	if value, ok := tc.mutation.Email(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

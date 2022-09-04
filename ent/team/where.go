@@ -102,6 +102,13 @@ func Code(v string) predicate.Team {
 	})
 }
 
+// VerifyCode applies equality check predicate on the "verifyCode" field. It's identical to VerifyCodeEQ.
+func VerifyCode(v string) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldVerifyCode), v))
+	})
+}
+
 // Email applies equality check predicate on the "email" field. It's identical to EmailEQ.
 func Email(v string) predicate.Team {
 	return predicate.Team(func(s *sql.Selector) {
@@ -368,6 +375,105 @@ func CodeEqualFold(v string) predicate.Team {
 func CodeContainsFold(v string) predicate.Team {
 	return predicate.Team(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldCode), v))
+	})
+}
+
+// VerifyCodeEQ applies the EQ predicate on the "verifyCode" field.
+func VerifyCodeEQ(v string) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldVerifyCode), v))
+	})
+}
+
+// VerifyCodeNEQ applies the NEQ predicate on the "verifyCode" field.
+func VerifyCodeNEQ(v string) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldVerifyCode), v))
+	})
+}
+
+// VerifyCodeIn applies the In predicate on the "verifyCode" field.
+func VerifyCodeIn(vs ...string) predicate.Team {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldVerifyCode), v...))
+	})
+}
+
+// VerifyCodeNotIn applies the NotIn predicate on the "verifyCode" field.
+func VerifyCodeNotIn(vs ...string) predicate.Team {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldVerifyCode), v...))
+	})
+}
+
+// VerifyCodeGT applies the GT predicate on the "verifyCode" field.
+func VerifyCodeGT(v string) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldVerifyCode), v))
+	})
+}
+
+// VerifyCodeGTE applies the GTE predicate on the "verifyCode" field.
+func VerifyCodeGTE(v string) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldVerifyCode), v))
+	})
+}
+
+// VerifyCodeLT applies the LT predicate on the "verifyCode" field.
+func VerifyCodeLT(v string) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldVerifyCode), v))
+	})
+}
+
+// VerifyCodeLTE applies the LTE predicate on the "verifyCode" field.
+func VerifyCodeLTE(v string) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldVerifyCode), v))
+	})
+}
+
+// VerifyCodeContains applies the Contains predicate on the "verifyCode" field.
+func VerifyCodeContains(v string) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldVerifyCode), v))
+	})
+}
+
+// VerifyCodeHasPrefix applies the HasPrefix predicate on the "verifyCode" field.
+func VerifyCodeHasPrefix(v string) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldVerifyCode), v))
+	})
+}
+
+// VerifyCodeHasSuffix applies the HasSuffix predicate on the "verifyCode" field.
+func VerifyCodeHasSuffix(v string) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldVerifyCode), v))
+	})
+}
+
+// VerifyCodeEqualFold applies the EqualFold predicate on the "verifyCode" field.
+func VerifyCodeEqualFold(v string) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldVerifyCode), v))
+	})
+}
+
+// VerifyCodeContainsFold applies the ContainsFold predicate on the "verifyCode" field.
+func VerifyCodeContainsFold(v string) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldVerifyCode), v))
 	})
 }
 

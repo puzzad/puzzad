@@ -18,6 +18,8 @@ const (
 	FieldName = "name"
 	// FieldCode holds the string denoting the code field in the database.
 	FieldCode = "code"
+	// FieldVerifyCode holds the string denoting the verifycode field in the database.
+	FieldVerifyCode = "verify_code"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
 	// FieldStatus holds the string denoting the status field in the database.
@@ -55,6 +57,7 @@ var Columns = []string{
 	FieldCreateTime,
 	FieldName,
 	FieldCode,
+	FieldVerifyCode,
 	FieldEmail,
 	FieldStatus,
 }
@@ -96,6 +99,8 @@ var (
 	NameValidator func(string) error
 	// DefaultCode holds the default value on creation for the "code" field.
 	DefaultCode func() string
+	// DefaultVerifyCode holds the default value on creation for the "verifyCode" field.
+	DefaultVerifyCode func() string
 )
 
 // Status defines the type for the "status" enum field.

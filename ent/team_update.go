@@ -49,6 +49,20 @@ func (tu *TeamUpdate) SetNillableCode(s *string) *TeamUpdate {
 	return tu
 }
 
+// SetVerifyCode sets the "verifyCode" field.
+func (tu *TeamUpdate) SetVerifyCode(s string) *TeamUpdate {
+	tu.mutation.SetVerifyCode(s)
+	return tu
+}
+
+// SetNillableVerifyCode sets the "verifyCode" field if the given value is not nil.
+func (tu *TeamUpdate) SetNillableVerifyCode(s *string) *TeamUpdate {
+	if s != nil {
+		tu.SetVerifyCode(*s)
+	}
+	return tu
+}
+
 // SetEmail sets the "email" field.
 func (tu *TeamUpdate) SetEmail(s string) *TeamUpdate {
 	tu.mutation.SetEmail(s)
@@ -253,6 +267,13 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: team.FieldCode,
 		})
 	}
+	if value, ok := tu.mutation.VerifyCode(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: team.FieldVerifyCode,
+		})
+	}
 	if value, ok := tu.mutation.Email(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -422,6 +443,20 @@ func (tuo *TeamUpdateOne) SetCode(s string) *TeamUpdateOne {
 func (tuo *TeamUpdateOne) SetNillableCode(s *string) *TeamUpdateOne {
 	if s != nil {
 		tuo.SetCode(*s)
+	}
+	return tuo
+}
+
+// SetVerifyCode sets the "verifyCode" field.
+func (tuo *TeamUpdateOne) SetVerifyCode(s string) *TeamUpdateOne {
+	tuo.mutation.SetVerifyCode(s)
+	return tuo
+}
+
+// SetNillableVerifyCode sets the "verifyCode" field if the given value is not nil.
+func (tuo *TeamUpdateOne) SetNillableVerifyCode(s *string) *TeamUpdateOne {
+	if s != nil {
+		tuo.SetVerifyCode(*s)
 	}
 	return tuo
 }
@@ -658,6 +693,13 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: team.FieldCode,
+		})
+	}
+	if value, ok := tuo.mutation.VerifyCode(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: team.FieldVerifyCode,
 		})
 	}
 	if value, ok := tuo.mutation.Email(); ok {

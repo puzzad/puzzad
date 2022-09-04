@@ -22,6 +22,8 @@ type Team struct {
 	Name string `json:"name,omitempty"`
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
+	// VerifyCode holds the value of the "verifyCode" field.
+	VerifyCode string `json:"verifyCode,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
 	// Status holds the value of the "status" field.
@@ -79,7 +81,7 @@ func (*Team) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case team.FieldID:
 			values[i] = new(sql.NullInt64)
-		case team.FieldName, team.FieldCode, team.FieldEmail, team.FieldStatus:
+		case team.FieldName, team.FieldCode, team.FieldVerifyCode, team.FieldEmail, team.FieldStatus:
 			values[i] = new(sql.NullString)
 		case team.FieldCreateTime:
 			values[i] = new(sql.NullTime)
@@ -123,6 +125,12 @@ func (t *Team) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field code", values[i])
 			} else if value.Valid {
 				t.Code = value.String
+			}
+		case team.FieldVerifyCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field verifyCode", values[i])
+			} else if value.Valid {
+				t.VerifyCode = value.String
 			}
 		case team.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -194,6 +202,9 @@ func (t *Team) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("code=")
 	builder.WriteString(t.Code)
+	builder.WriteString(", ")
+	builder.WriteString("verifyCode=")
+	builder.WriteString(t.VerifyCode)
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(t.Email)

@@ -117,6 +117,7 @@ var (
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString, Unique: true, Size: 20},
 		{Name: "code", Type: field.TypeString, Unique: true},
+		{Name: "verify_code", Type: field.TypeString, Unique: true},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"Unverified", "Verified", "Disabled"}, Default: "Unverified"},
 		{Name: "guess_team", Type: field.TypeInt, Nullable: true},
@@ -129,7 +130,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "teams_guesses_team",
-				Columns:    []*schema.Column{TeamsColumns[6]},
+				Columns:    []*schema.Column{TeamsColumns[7]},
 				RefColumns: []*schema.Column{GuessesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
