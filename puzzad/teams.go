@@ -27,3 +27,8 @@ func (db *DBClient) UpdateTeamStatus(ctx context.Context, t *ent.Team, newStatus
 	_, err := t.Update().SetStatus(newStatus).Save(ctx)
 	return err
 }
+
+func (db *DBClient) VerifyTeamCode(ctx context.Context, code string) error {
+	_, err := db.entclient.Team.Query().Where(team.Code(code)).Only(ctx)
+	return err
+}

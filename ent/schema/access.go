@@ -26,7 +26,7 @@ func (Access) Fields() []ent.Field {
 		field.Enum("status").Values("Paid", "Unpaid", "Expired").Default("Unpaid"),
 		field.String("code").
 			DefaultFunc(func() string {
-				return uuid.New().String()
+				return "a" + uuid.New().String()
 			}).
 			Unique(),
 		field.Int("team_id"),

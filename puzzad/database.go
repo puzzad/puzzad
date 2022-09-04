@@ -9,11 +9,18 @@ import (
 
 type DBClient struct {
 	entclient *ent.Client
+	debug     bool
 }
 
-func (db *DBClient) Init() error {
+func (db *DBClient) Init(debug bool) error {
+	var dsn string
+	if debug {
+		dsn = "file:ent?mode=memory&cache=shared&_fk=1"
+	} else {
+		dsn = "file:test.db?mode=rwc&_fk=1&_auto_vacuum=incremental"
+	}
 	var err error
-	db.entclient, err = ent.Open("sqlite3", "file:test.db?mode=rwc&_fk=1&_auto_vacuum=incremental")
+	db.entclient, err = ent.Open("sqlite3", dsn)
 	if err != nil {
 		return err
 	}

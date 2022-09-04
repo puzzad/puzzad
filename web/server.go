@@ -3,8 +3,10 @@ package web
 import (
 	"context"
 	"embed"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -17,6 +19,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
+	"github.com/greboid/puzzad/puzzad"
 	"github.com/rs/zerolog"
 )
 
@@ -27,6 +30,11 @@ type Webserver struct {
 	handler *http.Server
 	router  *chi.Mux
 	log     *zerolog.Logger
+	Client  *puzzad.DBClient
+}
+
+type Login struct {
+	Code string
 }
 
 func (web *Webserver) Init(port int, log *zerolog.Logger) {
@@ -58,9 +66,10 @@ func (web *Webserver) addMiddleWare() {
 }
 
 func (web *Webserver) addRoutes() {
-	web.router.Post("/register", handleRegister)
-	web.router.Post("/login", handleLogin)
-	web.router.Post("/validate", handleValidate)
+	web.router.Post("/register", web.handleRegister)
+	web.router.Post("/login", web.handleLoginPost)
+	web.router.Get("/login", web.handleLoginGet)
+	web.router.Post("/validate", web.handleValidate)
 	_, err := os.OpenFile(filepath.Join("web", "public"), os.O_RDONLY, 0644)
 	if errors.Is(err, os.ErrNotExist) {
 		pfs, _ := fs.Sub(publicfs, "public")
@@ -70,7 +79,7 @@ func (web *Webserver) addRoutes() {
 	}
 }
 
-func handleValidate(writer http.ResponseWriter, request *http.Request) {
+func (web *Webserver) handleValidate(writer http.ResponseWriter, request *http.Request) {
 	time.Sleep(2 * time.Second)
 	writer.WriteHeader(http.StatusTemporaryRedirect)
 	if request.Header.Get("HX-Request") != "" {
@@ -80,18 +89,54 @@ func handleValidate(writer http.ResponseWriter, request *http.Request) {
 		http.Redirect(writer, request, "/index.html", http.StatusTemporaryRedirect)
 	}
 }
+func (web *Webserver) handleLoginGet(writer http.ResponseWriter, request *http.Request) {
+	web.handleLogin(writer, request, request.URL.Query().Get("code"))
+}
 
-func handleLogin(writer http.ResponseWriter, request *http.Request) {
-	time.Sleep(2 * time.Second)
+func (web *Webserver) handleLoginPost(writer http.ResponseWriter, request *http.Request) {
+	data := &Login{}
+	bytes, err := io.ReadAll(request.Body)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(bytes, data)
+	if err != nil {
+		return
+	}
+	web.handleLogin(writer, request, data.Code)
+}
+
+func (web *Webserver) handleLogin(writer http.ResponseWriter, request *http.Request, code string) {
+	var redirect string
+	switch code[0] {
+	case 'a':
+		err := web.Client.VerifyAdventureCode(request.Context(), code)
+		if err != nil {
+			redirect = "login.html"
+			break
+		}
+		redirect = "adventure.html"
+		break
+	case 't':
+		err := web.Client.VerifyTeamCode(request.Context(), code)
+		if err != nil {
+			redirect = "login.html"
+			break
+		}
+		redirect = "team.html"
+		break
+	default:
+		redirect = "login.html"
+	}
 	if request.Header.Get("HX-Request") != "" {
-		writer.Header().Set("HX-Redirect", "/index.html")
+		writer.Header().Set("HX-Redirect", redirect)
 		writer.WriteHeader(http.StatusTemporaryRedirect)
 	} else {
-		http.Redirect(writer, request, "/index.html", http.StatusTemporaryRedirect)
+		http.Redirect(writer, request, redirect, http.StatusTemporaryRedirect)
 	}
 }
 
-func handleRegister(writer http.ResponseWriter, request *http.Request) {
+func (web *Webserver) handleRegister(writer http.ResponseWriter, request *http.Request) {
 	time.Sleep(2 * time.Second)
 	if request.Header.Get("HX-Request") != "" {
 		writer.Header().Set("HX-Redirect", "/validate.html")

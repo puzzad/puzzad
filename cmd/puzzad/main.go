@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 
 	"github.com/csmith/envflag"
+	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/puzzad"
 	"github.com/greboid/puzzad/web"
 	"github.com/rs/zerolog"
@@ -19,15 +21,32 @@ var (
 func main() {
 	envflag.Parse()
 	logger := createLogger(*Debug)
-	client := puzzad.DBClient{}
-	err := client.Init()
+	client := &puzzad.DBClient{}
+	err := client.Init(*Debug)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed creating ent client")
 	}
 	defer func() {
 		_ = client.Close()
 	}()
-	server := web.Webserver{}
+	go func() {
+		ctx := context.Background()
+		t, _ := client.CreateTeam(ctx, "Test Team", "test@test.test")
+		t, _ = client.GetTeam(ctx, "Test Team")
+		log.Printf("Team Code: %s", t.Code)
+		ad, _ := client.CreateAdventure(ctx, "Test Adventure")
+		ad, _ = client.GetAdventure(ctx, "Test Adventure")
+		_ = client.AddAdventureToTeam(ctx, ad, t)
+		_ = client.SetTeamAdventureStatus(ctx, ad, t, access.StatusPaid)
+		adventures, _ := client.GetTeamPaidAdventures(ctx, t)
+		for index := range adventures {
+			ac, _ := adventures[index].QueryAccess().Where(access.TeamID(t.ID)).Only(ctx)
+			log.Printf("Adventure codes: %s: %s", adventures[index].Name, ac.Code)
+		}
+	}()
+	server := web.Webserver{
+		Client: client,
+	}
 	server.Init(*WebPort, logger)
 	log.Info().Int("port", *WebPort).Msg("Starting web server.")
 	err = server.RunAndWait()

@@ -59,3 +59,8 @@ func (db *DBClient) SetTeamAdventureStatus(ctx context.Context, a *ent.Adventure
 	}
 	return nil
 }
+
+func (db *DBClient) VerifyAdventureCode(ctx context.Context, code string) error {
+	_, err := db.entclient.Access.Query().Where(access.Code(code)).Only(ctx)
+	return err
+}

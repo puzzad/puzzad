@@ -22,7 +22,7 @@ func (Team) Fields() []ent.Field {
 			MinLen(1),
 		field.String("code").
 			DefaultFunc(func() string {
-				return uuid.New().String()
+				return "t" + uuid.New().String()
 			}).
 			Unique(),
 		field.String("verifyCode").
