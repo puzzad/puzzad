@@ -26,13 +26,9 @@ func (db *DBClient) UpdateQuestion(ctx context.Context, q *ent.Question, title, 
 }
 
 func (db *DBClient) DeleteQuestion(ctx context.Context, q *ent.Question) error {
-	a, err := q.QueryAdventure().Only(ctx)
-	if err != nil {
-		return err
-	}
-	_, err = a.Update().RemoveQuestions(q).Save(ctx)
-	if err != nil {
-		return err
-	}
-	return nil
+	return db.entclient.Question.DeleteOne(q).Exec(ctx)
+}
+
+func (db *DBClient) GetQuestionsForAdventure(ctx context.Context, a *ent.Adventure) ([]*ent.Question, error) {
+	return db.entclient.Adventure.QueryQuestions(a).All(ctx)
 }
