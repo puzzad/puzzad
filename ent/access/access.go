@@ -11,6 +11,8 @@ const (
 	Label = "access"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldCode holds the string denoting the code field in the database.
+	FieldCode = "code"
 	// FieldTeamID holds the string denoting the team_id field in the database.
 	FieldTeamID = "team_id"
 	// FieldAdventureID holds the string denoting the adventure_id field in the database.
@@ -44,6 +46,7 @@ const (
 // Columns holds all SQL columns for access fields.
 var Columns = []string{
 	FieldStatus,
+	FieldCode,
 	FieldTeamID,
 	FieldAdventureID,
 }
@@ -57,6 +60,11 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultCode holds the default value on creation for the "code" field.
+	DefaultCode func() string
+)
 
 // Status defines the type for the "status" enum field.
 type Status string

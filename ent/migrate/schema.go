@@ -11,6 +11,7 @@ var (
 	// AccessesColumns holds the columns for the "accesses" table.
 	AccessesColumns = []*schema.Column{
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"Paid", "Unpaid", "Expired"}, Default: "Unpaid"},
+		{Name: "code", Type: field.TypeString, Unique: true},
 		{Name: "team_id", Type: field.TypeInt},
 		{Name: "adventure_id", Type: field.TypeInt},
 	}
@@ -18,17 +19,17 @@ var (
 	AccessesTable = &schema.Table{
 		Name:       "accesses",
 		Columns:    AccessesColumns,
-		PrimaryKey: []*schema.Column{AccessesColumns[1], AccessesColumns[2]},
+		PrimaryKey: []*schema.Column{AccessesColumns[2], AccessesColumns[3]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "accesses_teams_team",
-				Columns:    []*schema.Column{AccessesColumns[1]},
+				Columns:    []*schema.Column{AccessesColumns[2]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "accesses_adventures_adventures",
-				Columns:    []*schema.Column{AccessesColumns[2]},
+				Columns:    []*schema.Column{AccessesColumns[3]},
 				RefColumns: []*schema.Column{AdventuresColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -37,7 +38,7 @@ var (
 	// AdventuresColumns holds the columns for the "adventures" table.
 	AdventuresColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString},
+		{Name: "name", Type: field.TypeString, Unique: true},
 	}
 	// AdventuresTable holds the schema information for the "adventures" table.
 	AdventuresTable = &schema.Table{

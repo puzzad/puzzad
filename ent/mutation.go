@@ -43,6 +43,7 @@ type AccessMutation struct {
 	op                Op
 	typ               string
 	status            *access.Status
+	code              *string
 	clearedFields     map[string]struct{}
 	team              *int
 	clearedteam       bool
@@ -108,6 +109,25 @@ func (m *AccessMutation) Status() (r access.Status, exists bool) {
 // ResetStatus resets all changes to the "status" field.
 func (m *AccessMutation) ResetStatus() {
 	m.status = nil
+}
+
+// SetCode sets the "code" field.
+func (m *AccessMutation) SetCode(s string) {
+	m.code = &s
+}
+
+// Code returns the value of the "code" field in the mutation.
+func (m *AccessMutation) Code() (r string, exists bool) {
+	v := m.code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCode resets all changes to the "code" field.
+func (m *AccessMutation) ResetCode() {
+	m.code = nil
 }
 
 // SetTeamID sets the "team_id" field.
@@ -232,9 +252,12 @@ func (m *AccessMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AccessMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.status != nil {
 		fields = append(fields, access.FieldStatus)
+	}
+	if m.code != nil {
+		fields = append(fields, access.FieldCode)
 	}
 	if m.team != nil {
 		fields = append(fields, access.FieldTeamID)
@@ -252,6 +275,8 @@ func (m *AccessMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case access.FieldStatus:
 		return m.Status()
+	case access.FieldCode:
+		return m.Code()
 	case access.FieldTeamID:
 		return m.TeamID()
 	case access.FieldAdventureID:
@@ -278,6 +303,13 @@ func (m *AccessMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStatus(v)
+		return nil
+	case access.FieldCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCode(v)
 		return nil
 	case access.FieldTeamID:
 		v, ok := value.(int)
@@ -347,6 +379,9 @@ func (m *AccessMutation) ResetField(name string) error {
 	switch name {
 	case access.FieldStatus:
 		m.ResetStatus()
+		return nil
+	case access.FieldCode:
+		m.ResetCode()
 		return nil
 	case access.FieldTeamID:
 		m.ResetTeamID()

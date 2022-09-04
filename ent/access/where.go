@@ -8,6 +8,13 @@ import (
 	"github.com/greboid/puzzad/ent/predicate"
 )
 
+// Code applies equality check predicate on the "code" field. It's identical to CodeEQ.
+func Code(v string) predicate.Access {
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCode), v))
+	})
+}
+
 // TeamID applies equality check predicate on the "team_id" field. It's identical to TeamIDEQ.
 func TeamID(v int) predicate.Access {
 	return predicate.Access(func(s *sql.Selector) {
@@ -55,6 +62,105 @@ func StatusNotIn(vs ...Status) predicate.Access {
 	}
 	return predicate.Access(func(s *sql.Selector) {
 		s.Where(sql.NotIn(s.C(FieldStatus), v...))
+	})
+}
+
+// CodeEQ applies the EQ predicate on the "code" field.
+func CodeEQ(v string) predicate.Access {
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCode), v))
+	})
+}
+
+// CodeNEQ applies the NEQ predicate on the "code" field.
+func CodeNEQ(v string) predicate.Access {
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldCode), v))
+	})
+}
+
+// CodeIn applies the In predicate on the "code" field.
+func CodeIn(vs ...string) predicate.Access {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldCode), v...))
+	})
+}
+
+// CodeNotIn applies the NotIn predicate on the "code" field.
+func CodeNotIn(vs ...string) predicate.Access {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldCode), v...))
+	})
+}
+
+// CodeGT applies the GT predicate on the "code" field.
+func CodeGT(v string) predicate.Access {
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldCode), v))
+	})
+}
+
+// CodeGTE applies the GTE predicate on the "code" field.
+func CodeGTE(v string) predicate.Access {
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldCode), v))
+	})
+}
+
+// CodeLT applies the LT predicate on the "code" field.
+func CodeLT(v string) predicate.Access {
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldCode), v))
+	})
+}
+
+// CodeLTE applies the LTE predicate on the "code" field.
+func CodeLTE(v string) predicate.Access {
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldCode), v))
+	})
+}
+
+// CodeContains applies the Contains predicate on the "code" field.
+func CodeContains(v string) predicate.Access {
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldCode), v))
+	})
+}
+
+// CodeHasPrefix applies the HasPrefix predicate on the "code" field.
+func CodeHasPrefix(v string) predicate.Access {
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldCode), v))
+	})
+}
+
+// CodeHasSuffix applies the HasSuffix predicate on the "code" field.
+func CodeHasSuffix(v string) predicate.Access {
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldCode), v))
+	})
+}
+
+// CodeEqualFold applies the EqualFold predicate on the "code" field.
+func CodeEqualFold(v string) predicate.Access {
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldCode), v))
+	})
+}
+
+// CodeContainsFold applies the ContainsFold predicate on the "code" field.
+func CodeContainsFold(v string) predicate.Access {
+	return predicate.Access(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldCode), v))
 	})
 }
 

@@ -14,7 +14,7 @@ type Adventure struct {
 // Fields of the Adventure.
 func (Adventure) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name"),
+		field.String("name").Unique(),
 	}
 }
 

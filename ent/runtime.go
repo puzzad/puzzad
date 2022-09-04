@@ -5,6 +5,7 @@ package ent
 import (
 	"time"
 
+	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/schema"
 	"github.com/greboid/puzzad/ent/team"
@@ -16,6 +17,10 @@ import (
 func init() {
 	accessFields := schema.Access{}.Fields()
 	_ = accessFields
+	// accessDescCode is the schema descriptor for code field.
+	accessDescCode := accessFields[1].Descriptor()
+	// access.DefaultCode holds the default value on creation for the code field.
+	access.DefaultCode = accessDescCode.Default.(func() string)
 	guessMixin := schema.Guess{}.Mixin()
 	guessMixinFields0 := guessMixin[0].Fields()
 	_ = guessMixinFields0

@@ -35,6 +35,20 @@ func (ac *AccessCreate) SetNillableStatus(a *access.Status) *AccessCreate {
 	return ac
 }
 
+// SetCode sets the "code" field.
+func (ac *AccessCreate) SetCode(s string) *AccessCreate {
+	ac.mutation.SetCode(s)
+	return ac
+}
+
+// SetNillableCode sets the "code" field if the given value is not nil.
+func (ac *AccessCreate) SetNillableCode(s *string) *AccessCreate {
+	if s != nil {
+		ac.SetCode(*s)
+	}
+	return ac
+}
+
 // SetTeamID sets the "team_id" field.
 func (ac *AccessCreate) SetTeamID(i int) *AccessCreate {
 	ac.mutation.SetTeamID(i)
@@ -142,6 +156,10 @@ func (ac *AccessCreate) defaults() {
 		v := access.DefaultStatus
 		ac.mutation.SetStatus(v)
 	}
+	if _, ok := ac.mutation.Code(); !ok {
+		v := access.DefaultCode()
+		ac.mutation.SetCode(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -153,6 +171,9 @@ func (ac *AccessCreate) check() error {
 		if err := access.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Access.status": %w`, err)}
 		}
+	}
+	if _, ok := ac.mutation.Code(); !ok {
+		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Access.code"`)}
 	}
 	if _, ok := ac.mutation.TeamID(); !ok {
 		return &ValidationError{Name: "team_id", err: errors.New(`ent: missing required field "Access.team_id"`)}
@@ -194,6 +215,14 @@ func (ac *AccessCreate) createSpec() (*Access, *sqlgraph.CreateSpec) {
 			Column: access.FieldStatus,
 		})
 		_node.Status = value
+	}
+	if value, ok := ac.mutation.Code(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: access.FieldCode,
+		})
+		_node.Code = value
 	}
 	if nodes := ac.mutation.TeamIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -43,6 +43,20 @@ func (au *AccessUpdate) SetNillableStatus(a *access.Status) *AccessUpdate {
 	return au
 }
 
+// SetCode sets the "code" field.
+func (au *AccessUpdate) SetCode(s string) *AccessUpdate {
+	au.mutation.SetCode(s)
+	return au
+}
+
+// SetNillableCode sets the "code" field if the given value is not nil.
+func (au *AccessUpdate) SetNillableCode(s *string) *AccessUpdate {
+	if s != nil {
+		au.SetCode(*s)
+	}
+	return au
+}
+
 // SetTeamID sets the "team_id" field.
 func (au *AccessUpdate) SetTeamID(i int) *AccessUpdate {
 	au.mutation.SetTeamID(i)
@@ -195,6 +209,13 @@ func (au *AccessUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: access.FieldStatus,
 		})
 	}
+	if value, ok := au.mutation.Code(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: access.FieldCode,
+		})
+	}
 	if au.mutation.TeamCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -294,6 +315,20 @@ func (auo *AccessUpdateOne) SetStatus(a access.Status) *AccessUpdateOne {
 func (auo *AccessUpdateOne) SetNillableStatus(a *access.Status) *AccessUpdateOne {
 	if a != nil {
 		auo.SetStatus(*a)
+	}
+	return auo
+}
+
+// SetCode sets the "code" field.
+func (auo *AccessUpdateOne) SetCode(s string) *AccessUpdateOne {
+	auo.mutation.SetCode(s)
+	return auo
+}
+
+// SetNillableCode sets the "code" field if the given value is not nil.
+func (auo *AccessUpdateOne) SetNillableCode(s *string) *AccessUpdateOne {
+	if s != nil {
+		auo.SetCode(*s)
 	}
 	return auo
 }
@@ -480,6 +515,13 @@ func (auo *AccessUpdateOne) sqlSave(ctx context.Context) (_node *Access, err err
 			Type:   field.TypeEnum,
 			Value:  value,
 			Column: access.FieldStatus,
+		})
+	}
+	if value, ok := auo.mutation.Code(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: access.FieldCode,
 		})
 	}
 	if auo.mutation.TeamCleared() {

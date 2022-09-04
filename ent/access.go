@@ -17,6 +17,8 @@ type Access struct {
 	config `json:"-"`
 	// Status holds the value of the "status" field.
 	Status access.Status `json:"status,omitempty"`
+	// Code holds the value of the "code" field.
+	Code string `json:"code,omitempty"`
 	// TeamID holds the value of the "team_id" field.
 	TeamID int `json:"team_id,omitempty"`
 	// AdventureID holds the value of the "adventure_id" field.
@@ -70,7 +72,7 @@ func (*Access) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case access.FieldTeamID, access.FieldAdventureID:
 			values[i] = new(sql.NullInt64)
-		case access.FieldStatus:
+		case access.FieldStatus, access.FieldCode:
 			values[i] = new(sql.NullString)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Access", columns[i])
@@ -92,6 +94,12 @@ func (a *Access) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
 				a.Status = access.Status(value.String)
+			}
+		case access.FieldCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field code", values[i])
+			} else if value.Valid {
+				a.Code = value.String
 			}
 		case access.FieldTeamID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -144,6 +152,9 @@ func (a *Access) String() string {
 	builder.WriteString("Access(")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", a.Status))
+	builder.WriteString(", ")
+	builder.WriteString("code=")
+	builder.WriteString(a.Code)
 	builder.WriteString(", ")
 	builder.WriteString("team_id=")
 	builder.WriteString(fmt.Sprintf("%v", a.TeamID))

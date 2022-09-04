@@ -5,6 +5,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // Access holds the schema definition for the Access entity.
@@ -23,6 +24,11 @@ func (Access) Annotations() []schema.Annotation {
 func (Access) Fields() []ent.Field {
 	return []ent.Field{
 		field.Enum("status").Values("Paid", "Unpaid", "Expired").Default("Unpaid"),
+		field.String("code").
+			DefaultFunc(func() string {
+				return uuid.New().String()
+			}).
+			Unique(),
 		field.Int("team_id"),
 		field.Int("adventure_id"),
 	}
