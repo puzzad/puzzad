@@ -14,6 +14,7 @@ type Access struct {
 
 func (Access) Annotations() []schema.Annotation {
 	return []schema.Annotation{
+		//This crashes the ent schema description command, but its written as per the docs
 		field.ID("team_id", "adventure_id"),
 	}
 }
