@@ -50,7 +50,7 @@ func (web *Webserver) addMiddleWare() {
 	web.router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "hx-current-url", "hx-request", "hx-target", "hx-trigger", "hx-trigger-name"},
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
@@ -58,12 +58,46 @@ func (web *Webserver) addMiddleWare() {
 }
 
 func (web *Webserver) addRoutes() {
+	web.router.Post("/register", handleRegister)
+	web.router.Post("/login", handleLogin)
+	web.router.Post("/validate", handleValidate)
 	_, err := os.OpenFile(filepath.Join("web", "public"), os.O_RDONLY, 0644)
 	if errors.Is(err, os.ErrNotExist) {
 		pfs, _ := fs.Sub(publicfs, "public")
 		web.router.Handle("/*", http.FileServer(http.FS(pfs)))
 	} else {
 		web.router.Handle("/*", http.FileServer(http.FS(os.DirFS(filepath.Join("web", "public")))))
+	}
+}
+
+func handleValidate(writer http.ResponseWriter, request *http.Request) {
+	time.Sleep(2 * time.Second)
+	writer.WriteHeader(http.StatusTemporaryRedirect)
+	if request.Header.Get("HX-Request") != "" {
+		writer.Header().Set("HX-Redirect", "/index.html")
+		writer.WriteHeader(http.StatusTemporaryRedirect)
+	} else {
+		http.Redirect(writer, request, "/index.html", http.StatusTemporaryRedirect)
+	}
+}
+
+func handleLogin(writer http.ResponseWriter, request *http.Request) {
+	time.Sleep(2 * time.Second)
+	if request.Header.Get("HX-Request") != "" {
+		writer.Header().Set("HX-Redirect", "/index.html")
+		writer.WriteHeader(http.StatusTemporaryRedirect)
+	} else {
+		http.Redirect(writer, request, "/index.html", http.StatusTemporaryRedirect)
+	}
+}
+
+func handleRegister(writer http.ResponseWriter, request *http.Request) {
+	time.Sleep(2 * time.Second)
+	if request.Header.Get("HX-Request") != "" {
+		writer.Header().Set("HX-Redirect", "/validate.html")
+		writer.WriteHeader(http.StatusTemporaryRedirect)
+	} else {
+		http.Redirect(writer, request, "/validate.html", http.StatusTemporaryRedirect)
 	}
 }
 

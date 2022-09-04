@@ -9,7 +9,7 @@
     <script defer src="/js/htmx-1.8.0.js"></script>
     <script defer src="/js/index.js"></script>
 </head>
-<body>
+<body hx-ext="json-enc, disable-element">
 <header>
     <h1>Puzzad</h1>
 </header>
@@ -21,7 +21,11 @@
     </ul>
 </nav>
 <article>
-    <p>This is the frontpage.</p>
+    <p>This is the login page.</p>
+    <form hx-post="/login" hx-disable-element="#submit">
+        <label>Code: <input type="text" name="code" required></label>
+        <button id="submit" type="submit">Login</button>
+    </form>
 </article>
 <footer>
     <p>Footer</p>
