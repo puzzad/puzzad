@@ -109,6 +109,13 @@ func Email(v string) predicate.User {
 	})
 }
 
+// Passhash applies equality check predicate on the "passhash" field. It's identical to PasshashEQ.
+func Passhash(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPasshash), v))
+	})
+}
+
 // CreateTimeEQ applies the EQ predicate on the "create_time" field.
 func CreateTimeEQ(v time.Time) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -432,6 +439,105 @@ func EmailEqualFold(v string) predicate.User {
 func EmailContainsFold(v string) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldEmail), v))
+	})
+}
+
+// PasshashEQ applies the EQ predicate on the "passhash" field.
+func PasshashEQ(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPasshash), v))
+	})
+}
+
+// PasshashNEQ applies the NEQ predicate on the "passhash" field.
+func PasshashNEQ(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPasshash), v))
+	})
+}
+
+// PasshashIn applies the In predicate on the "passhash" field.
+func PasshashIn(vs ...string) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldPasshash), v...))
+	})
+}
+
+// PasshashNotIn applies the NotIn predicate on the "passhash" field.
+func PasshashNotIn(vs ...string) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldPasshash), v...))
+	})
+}
+
+// PasshashGT applies the GT predicate on the "passhash" field.
+func PasshashGT(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldPasshash), v))
+	})
+}
+
+// PasshashGTE applies the GTE predicate on the "passhash" field.
+func PasshashGTE(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldPasshash), v))
+	})
+}
+
+// PasshashLT applies the LT predicate on the "passhash" field.
+func PasshashLT(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldPasshash), v))
+	})
+}
+
+// PasshashLTE applies the LTE predicate on the "passhash" field.
+func PasshashLTE(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldPasshash), v))
+	})
+}
+
+// PasshashContains applies the Contains predicate on the "passhash" field.
+func PasshashContains(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldPasshash), v))
+	})
+}
+
+// PasshashHasPrefix applies the HasPrefix predicate on the "passhash" field.
+func PasshashHasPrefix(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldPasshash), v))
+	})
+}
+
+// PasshashHasSuffix applies the HasSuffix predicate on the "passhash" field.
+func PasshashHasSuffix(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldPasshash), v))
+	})
+}
+
+// PasshashEqualFold applies the EqualFold predicate on the "passhash" field.
+func PasshashEqualFold(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldPasshash), v))
+	})
+}
+
+// PasshashContainsFold applies the ContainsFold predicate on the "passhash" field.
+func PasshashContainsFold(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldPasshash), v))
 	})
 }
 

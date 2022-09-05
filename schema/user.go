@@ -1,12 +1,13 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
 	"github.com/google/uuid"
-	"time"
 )
 
 // User holds the schema definition for the User entity.
@@ -27,6 +28,7 @@ func (User) Fields() []ent.Field {
 				return time.Now().Add(time.Hour)
 			}),
 		field.String("email").Unique(),
+		field.String("passhash"),
 		field.Enum("status").Values("Unverified", "Verified", "Disabled").Default("Unverified"),
 	}
 }

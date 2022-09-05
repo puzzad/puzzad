@@ -24,6 +24,8 @@ type User struct {
 	VerifyExpiry time.Time `json:"verifyExpiry,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
+	// Passhash holds the value of the "passhash" field.
+	Passhash string `json:"passhash,omitempty"`
 	// Status holds the value of the "status" field.
 	Status user.Status `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -57,7 +59,7 @@ func (*User) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case user.FieldID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldVerifyCode, user.FieldEmail, user.FieldStatus:
+		case user.FieldVerifyCode, user.FieldEmail, user.FieldPasshash, user.FieldStatus:
 			values[i] = new(sql.NullString)
 		case user.FieldCreateTime, user.FieldVerifyExpiry:
 			values[i] = new(sql.NullTime)
@@ -107,6 +109,12 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
 				u.Email = value.String
+			}
+		case user.FieldPasshash:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field passhash", values[i])
+			} else if value.Valid {
+				u.Passhash = value.String
 			}
 		case user.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -165,6 +173,9 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(u.Email)
+	builder.WriteString(", ")
+	builder.WriteString("passhash=")
+	builder.WriteString(u.Passhash)
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", u.Status))

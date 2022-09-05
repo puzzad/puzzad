@@ -2149,6 +2149,7 @@ type UserMutation struct {
 	verifyCode    *string
 	verifyExpiry  *time.Time
 	email         *string
+	passhash      *string
 	status        *user.Status
 	clearedFields map[string]struct{}
 	game          map[int]struct{}
@@ -2401,6 +2402,42 @@ func (m *UserMutation) ResetEmail() {
 	m.email = nil
 }
 
+// SetPasshash sets the "passhash" field.
+func (m *UserMutation) SetPasshash(s string) {
+	m.passhash = &s
+}
+
+// Passhash returns the value of the "passhash" field in the mutation.
+func (m *UserMutation) Passhash() (r string, exists bool) {
+	v := m.passhash
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPasshash returns the old "passhash" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldPasshash(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPasshash is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPasshash requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPasshash: %w", err)
+	}
+	return oldValue.Passhash, nil
+}
+
+// ResetPasshash resets all changes to the "passhash" field.
+func (m *UserMutation) ResetPasshash() {
+	m.passhash = nil
+}
+
 // SetStatus sets the "status" field.
 func (m *UserMutation) SetStatus(u user.Status) {
 	m.status = &u
@@ -2510,7 +2547,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.create_time != nil {
 		fields = append(fields, user.FieldCreateTime)
 	}
@@ -2522,6 +2559,9 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.email != nil {
 		fields = append(fields, user.FieldEmail)
+	}
+	if m.passhash != nil {
+		fields = append(fields, user.FieldPasshash)
 	}
 	if m.status != nil {
 		fields = append(fields, user.FieldStatus)
@@ -2542,6 +2582,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.VerifyExpiry()
 	case user.FieldEmail:
 		return m.Email()
+	case user.FieldPasshash:
+		return m.Passhash()
 	case user.FieldStatus:
 		return m.Status()
 	}
@@ -2561,6 +2603,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldVerifyExpiry(ctx)
 	case user.FieldEmail:
 		return m.OldEmail(ctx)
+	case user.FieldPasshash:
+		return m.OldPasshash(ctx)
 	case user.FieldStatus:
 		return m.OldStatus(ctx)
 	}
@@ -2599,6 +2643,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEmail(v)
+		return nil
+	case user.FieldPasshash:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPasshash(v)
 		return nil
 	case user.FieldStatus:
 		v, ok := value.(user.Status)
@@ -2667,6 +2718,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldEmail:
 		m.ResetEmail()
+		return nil
+	case user.FieldPasshash:
+		m.ResetPasshash()
 		return nil
 	case user.FieldStatus:
 		m.ResetStatus()

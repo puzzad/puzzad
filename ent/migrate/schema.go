@@ -102,6 +102,7 @@ var (
 		{Name: "verify_code", Type: field.TypeString, Unique: true},
 		{Name: "verify_expiry", Type: field.TypeTime},
 		{Name: "email", Type: field.TypeString, Unique: true},
+		{Name: "passhash", Type: field.TypeString},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"Unverified", "Verified", "Disabled"}, Default: "Unverified"},
 		{Name: "guess_team", Type: field.TypeInt, Nullable: true},
 	}
@@ -113,7 +114,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_guesses_team",
-				Columns:    []*schema.Column{UsersColumns[6]},
+				Columns:    []*schema.Column{UsersColumns[7]},
 				RefColumns: []*schema.Column{GuessesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

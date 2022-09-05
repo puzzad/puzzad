@@ -63,6 +63,12 @@ func (uu *UserUpdate) SetEmail(s string) *UserUpdate {
 	return uu
 }
 
+// SetPasshash sets the "passhash" field.
+func (uu *UserUpdate) SetPasshash(s string) *UserUpdate {
+	uu.mutation.SetPasshash(s)
+	return uu
+}
+
 // SetStatus sets the "status" field.
 func (uu *UserUpdate) SetStatus(u user.Status) *UserUpdate {
 	uu.mutation.SetStatus(u)
@@ -227,6 +233,13 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldEmail,
 		})
 	}
+	if value, ok := uu.mutation.Passhash(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldPasshash,
+		})
+	}
 	if value, ok := uu.mutation.Status(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeEnum,
@@ -338,6 +351,12 @@ func (uuo *UserUpdateOne) SetNillableVerifyExpiry(t *time.Time) *UserUpdateOne {
 // SetEmail sets the "email" field.
 func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
 	uuo.mutation.SetEmail(s)
+	return uuo
+}
+
+// SetPasshash sets the "passhash" field.
+func (uuo *UserUpdateOne) SetPasshash(s string) *UserUpdateOne {
+	uuo.mutation.SetPasshash(s)
 	return uuo
 }
 
@@ -533,6 +552,13 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: user.FieldEmail,
+		})
+	}
+	if value, ok := uuo.mutation.Passhash(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldPasshash,
 		})
 	}
 	if value, ok := uuo.mutation.Status(); ok {

@@ -69,6 +69,12 @@ func (uc *UserCreate) SetEmail(s string) *UserCreate {
 	return uc
 }
 
+// SetPasshash sets the "passhash" field.
+func (uc *UserCreate) SetPasshash(s string) *UserCreate {
+	uc.mutation.SetPasshash(s)
+	return uc
+}
+
 // SetStatus sets the "status" field.
 func (uc *UserCreate) SetStatus(u user.Status) *UserCreate {
 	uc.mutation.SetStatus(u)
@@ -207,6 +213,9 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Email(); !ok {
 		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "User.email"`)}
 	}
+	if _, ok := uc.mutation.Passhash(); !ok {
+		return &ValidationError{Name: "passhash", err: errors.New(`ent: missing required field "User.passhash"`)}
+	}
 	if _, ok := uc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "User.status"`)}
 	}
@@ -273,6 +282,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldEmail,
 		})
 		_node.Email = value
+	}
+	if value, ok := uc.mutation.Passhash(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldPasshash,
+		})
+		_node.Passhash = value
 	}
 	if value, ok := uc.mutation.Status(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

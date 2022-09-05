@@ -20,6 +20,8 @@ const (
 	FieldVerifyExpiry = "verify_expiry"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
+	// FieldPasshash holds the string denoting the passhash field in the database.
+	FieldPasshash = "passhash"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// EdgeGame holds the string denoting the game edge name in mutations.
@@ -42,6 +44,7 @@ var Columns = []string{
 	FieldVerifyCode,
 	FieldVerifyExpiry,
 	FieldEmail,
+	FieldPasshash,
 	FieldStatus,
 }
 
