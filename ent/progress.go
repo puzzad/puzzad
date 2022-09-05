@@ -9,7 +9,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/progress"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 )
 
 // Progress is the model entity for the Progress schema.
@@ -21,7 +21,7 @@ type Progress struct {
 	// The values are being populated by the ProgressQuery when eager-loading is set.
 	Edges              ProgressEdges `json:"edges"`
 	progress_adventure *int
-	progress_question  *int
+	progress_puzzle    *int
 }
 
 // ProgressEdges holds the relations/edges for other nodes in the graph.
@@ -30,8 +30,8 @@ type ProgressEdges struct {
 	User []*User `json:"user,omitempty"`
 	// Adventure holds the value of the adventure edge.
 	Adventure *Adventure `json:"adventure,omitempty"`
-	// Question holds the value of the question edge.
-	Question *Question `json:"question,omitempty"`
+	// Puzzle holds the value of the puzzle edge.
+	Puzzle *Puzzle `json:"puzzle,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [3]bool
@@ -59,17 +59,17 @@ func (e ProgressEdges) AdventureOrErr() (*Adventure, error) {
 	return nil, &NotLoadedError{edge: "adventure"}
 }
 
-// QuestionOrErr returns the Question value or an error if the edge
+// PuzzleOrErr returns the Puzzle value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e ProgressEdges) QuestionOrErr() (*Question, error) {
+func (e ProgressEdges) PuzzleOrErr() (*Puzzle, error) {
 	if e.loadedTypes[2] {
-		if e.Question == nil {
+		if e.Puzzle == nil {
 			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: question.Label}
+			return nil, &NotFoundError{label: puzzle.Label}
 		}
-		return e.Question, nil
+		return e.Puzzle, nil
 	}
-	return nil, &NotLoadedError{edge: "question"}
+	return nil, &NotLoadedError{edge: "puzzle"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -81,7 +81,7 @@ func (*Progress) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullInt64)
 		case progress.ForeignKeys[0]: // progress_adventure
 			values[i] = new(sql.NullInt64)
-		case progress.ForeignKeys[1]: // progress_question
+		case progress.ForeignKeys[1]: // progress_puzzle
 			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Progress", columns[i])
@@ -113,10 +113,10 @@ func (pr *Progress) assignValues(columns []string, values []interface{}) error {
 			}
 		case progress.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field progress_question", value)
+				return fmt.Errorf("unexpected type %T for edge-field progress_puzzle", value)
 			} else if value.Valid {
-				pr.progress_question = new(int)
-				*pr.progress_question = int(value.Int64)
+				pr.progress_puzzle = new(int)
+				*pr.progress_puzzle = int(value.Int64)
 			}
 		}
 	}
@@ -133,9 +133,9 @@ func (pr *Progress) QueryAdventure() *AdventureQuery {
 	return (&ProgressClient{config: pr.config}).QueryAdventure(pr)
 }
 
-// QueryQuestion queries the "question" edge of the Progress entity.
-func (pr *Progress) QueryQuestion() *QuestionQuery {
-	return (&ProgressClient{config: pr.config}).QueryQuestion(pr)
+// QueryPuzzle queries the "puzzle" edge of the Progress entity.
+func (pr *Progress) QueryPuzzle() *PuzzleQuery {
+	return (&ProgressClient{config: pr.config}).QueryPuzzle(pr)
 }
 
 // Update returns a builder for updating this Progress.

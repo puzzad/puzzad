@@ -213,25 +213,25 @@ func HasUserWith(preds ...predicate.User) predicate.Adventure {
 	})
 }
 
-// HasQuestions applies the HasEdge predicate on the "questions" edge.
-func HasQuestions() predicate.Adventure {
+// HasPuzzles applies the HasEdge predicate on the "puzzles" edge.
+func HasPuzzles() predicate.Adventure {
 	return predicate.Adventure(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(QuestionsTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, QuestionsTable, QuestionsColumn),
+			sqlgraph.To(PuzzlesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PuzzlesTable, PuzzlesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasQuestionsWith applies the HasEdge predicate on the "questions" edge with a given conditions (other predicates).
-func HasQuestionsWith(preds ...predicate.Question) predicate.Adventure {
+// HasPuzzlesWith applies the HasEdge predicate on the "puzzles" edge with a given conditions (other predicates).
+func HasPuzzlesWith(preds ...predicate.Puzzle) predicate.Adventure {
 	return predicate.Adventure(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(QuestionsInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, QuestionsTable, QuestionsColumn),
+			sqlgraph.To(PuzzlesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PuzzlesTable, PuzzlesColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
@@ -241,25 +241,25 @@ func HasQuestionsWith(preds ...predicate.Question) predicate.Adventure {
 	})
 }
 
-// HasAccess applies the HasEdge predicate on the "access" edge.
-func HasAccess() predicate.Adventure {
+// HasGame applies the HasEdge predicate on the "game" edge.
+func HasGame() predicate.Adventure {
 	return predicate.Adventure(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(AccessTable, AccessColumn),
-			sqlgraph.Edge(sqlgraph.O2M, true, AccessTable, AccessColumn),
+			sqlgraph.To(GameTable, GameColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, GameTable, GameColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasAccessWith applies the HasEdge predicate on the "access" edge with a given conditions (other predicates).
-func HasAccessWith(preds ...predicate.Access) predicate.Adventure {
+// HasGameWith applies the HasEdge predicate on the "game" edge with a given conditions (other predicates).
+func HasGameWith(preds ...predicate.Game) predicate.Adventure {
 	return predicate.Adventure(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(AccessInverseTable, AccessColumn),
-			sqlgraph.Edge(sqlgraph.O2M, true, AccessTable, AccessColumn),
+			sqlgraph.To(GameInverseTable, GameColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, GameTable, GameColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

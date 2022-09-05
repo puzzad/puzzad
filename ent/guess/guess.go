@@ -15,19 +15,19 @@ const (
 	FieldCreateTime = "create_time"
 	// FieldContent holds the string denoting the content field in the database.
 	FieldContent = "content"
-	// EdgeQuestion holds the string denoting the question edge name in mutations.
-	EdgeQuestion = "question"
+	// EdgePuzzle holds the string denoting the puzzle edge name in mutations.
+	EdgePuzzle = "puzzle"
 	// EdgeTeam holds the string denoting the team edge name in mutations.
 	EdgeTeam = "team"
 	// Table holds the table name of the guess in the database.
 	Table = "guesses"
-	// QuestionTable is the table that holds the question relation/edge.
-	QuestionTable = "questions"
-	// QuestionInverseTable is the table name for the Question entity.
-	// It exists in this package in order to avoid circular dependency with the "question" package.
-	QuestionInverseTable = "questions"
-	// QuestionColumn is the table column denoting the question relation/edge.
-	QuestionColumn = "guess_question"
+	// PuzzleTable is the table that holds the puzzle relation/edge.
+	PuzzleTable = "puzzles"
+	// PuzzleInverseTable is the table name for the Puzzle entity.
+	// It exists in this package in order to avoid circular dependency with the "puzzle" package.
+	PuzzleInverseTable = "puzzles"
+	// PuzzleColumn is the table column denoting the puzzle relation/edge.
+	PuzzleColumn = "guess_puzzle"
 	// TeamTable is the table that holds the team relation/edge.
 	TeamTable = "users"
 	// TeamInverseTable is the table name for the User entity.

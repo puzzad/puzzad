@@ -285,7 +285,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				},
 			},
 		}
-		createE := &AccessCreate{config: uu.config, mutation: newAccessMutation(uu.config, OpCreate)}
+		createE := &GameCreate{config: uu.config, mutation: newGameMutation(uu.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
@@ -308,7 +308,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		createE := &AccessCreate{config: uu.config, mutation: newAccessMutation(uu.config, OpCreate)}
+		createE := &GameCreate{config: uu.config, mutation: newGameMutation(uu.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
@@ -331,7 +331,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		createE := &AccessCreate{config: uu.config, mutation: newAccessMutation(uu.config, OpCreate)}
+		createE := &GameCreate{config: uu.config, mutation: newGameMutation(uu.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
@@ -695,7 +695,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 				},
 			},
 		}
-		createE := &AccessCreate{config: uuo.config, mutation: newAccessMutation(uuo.config, OpCreate)}
+		createE := &GameCreate{config: uuo.config, mutation: newGameMutation(uuo.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
@@ -718,7 +718,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		createE := &AccessCreate{config: uuo.config, mutation: newAccessMutation(uuo.config, OpCreate)}
+		createE := &GameCreate{config: uuo.config, mutation: newGameMutation(uuo.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
@@ -741,7 +741,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		createE := &AccessCreate{config: uuo.config, mutation: newAccessMutation(uuo.config, OpCreate)}
+		createE := &GameCreate{config: uuo.config, mutation: newGameMutation(uuo.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields

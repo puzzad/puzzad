@@ -10,65 +10,57 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/adventure"
-	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/puzzle"
-	"github.com/greboid/puzzad/ent/user"
 )
 
-// ProgressCreate is the builder for creating a Progress entity.
-type ProgressCreate struct {
+// PuzzleCreate is the builder for creating a Puzzle entity.
+type PuzzleCreate struct {
 	config
-	mutation *ProgressMutation
+	mutation *PuzzleMutation
 	hooks    []Hook
 }
 
-// AddUserIDs adds the "user" edge to the User entity by IDs.
-func (pc *ProgressCreate) AddUserIDs(ids ...int) *ProgressCreate {
-	pc.mutation.AddUserIDs(ids...)
+// SetTitle sets the "title" field.
+func (pc *PuzzleCreate) SetTitle(s string) *PuzzleCreate {
+	pc.mutation.SetTitle(s)
 	return pc
 }
 
-// AddUser adds the "user" edges to the User entity.
-func (pc *ProgressCreate) AddUser(u ...*User) *ProgressCreate {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return pc.AddUserIDs(ids...)
+// SetAnswer sets the "answer" field.
+func (pc *PuzzleCreate) SetAnswer(s string) *PuzzleCreate {
+	pc.mutation.SetAnswer(s)
+	return pc
 }
 
 // SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
-func (pc *ProgressCreate) SetAdventureID(id int) *ProgressCreate {
+func (pc *PuzzleCreate) SetAdventureID(id int) *PuzzleCreate {
 	pc.mutation.SetAdventureID(id)
 	return pc
 }
 
-// SetAdventure sets the "adventure" edge to the Adventure entity.
-func (pc *ProgressCreate) SetAdventure(a *Adventure) *ProgressCreate {
-	return pc.SetAdventureID(a.ID)
-}
-
-// SetPuzzleID sets the "puzzle" edge to the Puzzle entity by ID.
-func (pc *ProgressCreate) SetPuzzleID(id int) *ProgressCreate {
-	pc.mutation.SetPuzzleID(id)
+// SetNillableAdventureID sets the "adventure" edge to the Adventure entity by ID if the given value is not nil.
+func (pc *PuzzleCreate) SetNillableAdventureID(id *int) *PuzzleCreate {
+	if id != nil {
+		pc = pc.SetAdventureID(*id)
+	}
 	return pc
 }
 
-// SetPuzzle sets the "puzzle" edge to the Puzzle entity.
-func (pc *ProgressCreate) SetPuzzle(p *Puzzle) *ProgressCreate {
-	return pc.SetPuzzleID(p.ID)
+// SetAdventure sets the "adventure" edge to the Adventure entity.
+func (pc *PuzzleCreate) SetAdventure(a *Adventure) *PuzzleCreate {
+	return pc.SetAdventureID(a.ID)
 }
 
-// Mutation returns the ProgressMutation object of the builder.
-func (pc *ProgressCreate) Mutation() *ProgressMutation {
+// Mutation returns the PuzzleMutation object of the builder.
+func (pc *PuzzleCreate) Mutation() *PuzzleMutation {
 	return pc.mutation
 }
 
-// Save creates the Progress in the database.
-func (pc *ProgressCreate) Save(ctx context.Context) (*Progress, error) {
+// Save creates the Puzzle in the database.
+func (pc *PuzzleCreate) Save(ctx context.Context) (*Puzzle, error) {
 	var (
 		err  error
-		node *Progress
+		node *Puzzle
 	)
 	if len(pc.hooks) == 0 {
 		if err = pc.check(); err != nil {
@@ -77,7 +69,7 @@ func (pc *ProgressCreate) Save(ctx context.Context) (*Progress, error) {
 		node, err = pc.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*ProgressMutation)
+			mutation, ok := m.(*PuzzleMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
 			}
@@ -102,9 +94,9 @@ func (pc *ProgressCreate) Save(ctx context.Context) (*Progress, error) {
 		if err != nil {
 			return nil, err
 		}
-		nv, ok := v.(*Progress)
+		nv, ok := v.(*Puzzle)
 		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from ProgressMutation", v)
+			return nil, fmt.Errorf("unexpected node type %T returned from PuzzleMutation", v)
 		}
 		node = nv
 	}
@@ -112,7 +104,7 @@ func (pc *ProgressCreate) Save(ctx context.Context) (*Progress, error) {
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (pc *ProgressCreate) SaveX(ctx context.Context) *Progress {
+func (pc *PuzzleCreate) SaveX(ctx context.Context) *Puzzle {
 	v, err := pc.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -121,33 +113,30 @@ func (pc *ProgressCreate) SaveX(ctx context.Context) *Progress {
 }
 
 // Exec executes the query.
-func (pc *ProgressCreate) Exec(ctx context.Context) error {
+func (pc *PuzzleCreate) Exec(ctx context.Context) error {
 	_, err := pc.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pc *ProgressCreate) ExecX(ctx context.Context) {
+func (pc *PuzzleCreate) ExecX(ctx context.Context) {
 	if err := pc.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (pc *ProgressCreate) check() error {
-	if len(pc.mutation.UserIDs()) == 0 {
-		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Progress.user"`)}
+func (pc *PuzzleCreate) check() error {
+	if _, ok := pc.mutation.Title(); !ok {
+		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Puzzle.title"`)}
 	}
-	if _, ok := pc.mutation.AdventureID(); !ok {
-		return &ValidationError{Name: "adventure", err: errors.New(`ent: missing required edge "Progress.adventure"`)}
-	}
-	if _, ok := pc.mutation.PuzzleID(); !ok {
-		return &ValidationError{Name: "puzzle", err: errors.New(`ent: missing required edge "Progress.puzzle"`)}
+	if _, ok := pc.mutation.Answer(); !ok {
+		return &ValidationError{Name: "answer", err: errors.New(`ent: missing required field "Puzzle.answer"`)}
 	}
 	return nil
 }
 
-func (pc *ProgressCreate) sqlSave(ctx context.Context) (*Progress, error) {
+func (pc *PuzzleCreate) sqlSave(ctx context.Context) (*Puzzle, error) {
 	_node, _spec := pc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, pc.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
@@ -160,42 +149,39 @@ func (pc *ProgressCreate) sqlSave(ctx context.Context) (*Progress, error) {
 	return _node, nil
 }
 
-func (pc *ProgressCreate) createSpec() (*Progress, *sqlgraph.CreateSpec) {
+func (pc *PuzzleCreate) createSpec() (*Puzzle, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Progress{config: pc.config}
+		_node = &Puzzle{config: pc.config}
 		_spec = &sqlgraph.CreateSpec{
-			Table: progress.Table,
+			Table: puzzle.Table,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: progress.FieldID,
+				Column: puzzle.FieldID,
 			},
 		}
 	)
-	if nodes := pc.mutation.UserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   progress.UserTable,
-			Columns: progress.UserPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: user.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
+	if value, ok := pc.mutation.Title(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: puzzle.FieldTitle,
+		})
+		_node.Title = value
+	}
+	if value, ok := pc.mutation.Answer(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: puzzle.FieldAnswer,
+		})
+		_node.Answer = value
 	}
 	if nodes := pc.mutation.AdventureIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   progress.AdventureTable,
-			Columns: []string{progress.AdventureColumn},
+			Inverse: true,
+			Table:   puzzle.AdventureTable,
+			Columns: []string{puzzle.AdventureColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -207,48 +193,28 @@ func (pc *ProgressCreate) createSpec() (*Progress, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.progress_adventure = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := pc.mutation.PuzzleIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   progress.PuzzleTable,
-			Columns: []string{progress.PuzzleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: puzzle.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.progress_puzzle = &nodes[0]
+		_node.adventure_puzzles = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
 
-// ProgressCreateBulk is the builder for creating many Progress entities in bulk.
-type ProgressCreateBulk struct {
+// PuzzleCreateBulk is the builder for creating many Puzzle entities in bulk.
+type PuzzleCreateBulk struct {
 	config
-	builders []*ProgressCreate
+	builders []*PuzzleCreate
 }
 
-// Save creates the Progress entities in the database.
-func (pcb *ProgressCreateBulk) Save(ctx context.Context) ([]*Progress, error) {
+// Save creates the Puzzle entities in the database.
+func (pcb *PuzzleCreateBulk) Save(ctx context.Context) ([]*Puzzle, error) {
 	specs := make([]*sqlgraph.CreateSpec, len(pcb.builders))
-	nodes := make([]*Progress, len(pcb.builders))
+	nodes := make([]*Puzzle, len(pcb.builders))
 	mutators := make([]Mutator, len(pcb.builders))
 	for i := range pcb.builders {
 		func(i int, root context.Context) {
 			builder := pcb.builders[i]
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-				mutation, ok := m.(*ProgressMutation)
+				mutation, ok := m.(*PuzzleMutation)
 				if !ok {
 					return nil, fmt.Errorf("unexpected mutation type %T", m)
 				}
@@ -295,7 +261,7 @@ func (pcb *ProgressCreateBulk) Save(ctx context.Context) ([]*Progress, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (pcb *ProgressCreateBulk) SaveX(ctx context.Context) []*Progress {
+func (pcb *PuzzleCreateBulk) SaveX(ctx context.Context) []*Puzzle {
 	v, err := pcb.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -304,13 +270,13 @@ func (pcb *ProgressCreateBulk) SaveX(ctx context.Context) []*Progress {
 }
 
 // Exec executes the query.
-func (pcb *ProgressCreateBulk) Exec(ctx context.Context) error {
+func (pcb *PuzzleCreateBulk) Exec(ctx context.Context) error {
 	_, err := pcb.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pcb *ProgressCreateBulk) ExecX(ctx context.Context) {
+func (pcb *PuzzleCreateBulk) ExecX(ctx context.Context) {
 	if err := pcb.Exec(ctx); err != nil {
 		panic(err)
 	}

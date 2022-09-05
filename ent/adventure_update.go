@@ -12,7 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/predicate"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
 
@@ -50,19 +50,19 @@ func (au *AdventureUpdate) AddUser(u ...*User) *AdventureUpdate {
 	return au.AddUserIDs(ids...)
 }
 
-// AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
-func (au *AdventureUpdate) AddQuestionIDs(ids ...int) *AdventureUpdate {
-	au.mutation.AddQuestionIDs(ids...)
+// AddPuzzleIDs adds the "puzzles" edge to the Puzzle entity by IDs.
+func (au *AdventureUpdate) AddPuzzleIDs(ids ...int) *AdventureUpdate {
+	au.mutation.AddPuzzleIDs(ids...)
 	return au
 }
 
-// AddQuestions adds the "questions" edges to the Question entity.
-func (au *AdventureUpdate) AddQuestions(q ...*Question) *AdventureUpdate {
-	ids := make([]int, len(q))
-	for i := range q {
-		ids[i] = q[i].ID
+// AddPuzzles adds the "puzzles" edges to the Puzzle entity.
+func (au *AdventureUpdate) AddPuzzles(p ...*Puzzle) *AdventureUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return au.AddQuestionIDs(ids...)
+	return au.AddPuzzleIDs(ids...)
 }
 
 // Mutation returns the AdventureMutation object of the builder.
@@ -91,25 +91,25 @@ func (au *AdventureUpdate) RemoveUser(u ...*User) *AdventureUpdate {
 	return au.RemoveUserIDs(ids...)
 }
 
-// ClearQuestions clears all "questions" edges to the Question entity.
-func (au *AdventureUpdate) ClearQuestions() *AdventureUpdate {
-	au.mutation.ClearQuestions()
+// ClearPuzzles clears all "puzzles" edges to the Puzzle entity.
+func (au *AdventureUpdate) ClearPuzzles() *AdventureUpdate {
+	au.mutation.ClearPuzzles()
 	return au
 }
 
-// RemoveQuestionIDs removes the "questions" edge to Question entities by IDs.
-func (au *AdventureUpdate) RemoveQuestionIDs(ids ...int) *AdventureUpdate {
-	au.mutation.RemoveQuestionIDs(ids...)
+// RemovePuzzleIDs removes the "puzzles" edge to Puzzle entities by IDs.
+func (au *AdventureUpdate) RemovePuzzleIDs(ids ...int) *AdventureUpdate {
+	au.mutation.RemovePuzzleIDs(ids...)
 	return au
 }
 
-// RemoveQuestions removes "questions" edges to Question entities.
-func (au *AdventureUpdate) RemoveQuestions(q ...*Question) *AdventureUpdate {
-	ids := make([]int, len(q))
-	for i := range q {
-		ids[i] = q[i].ID
+// RemovePuzzles removes "puzzles" edges to Puzzle entities.
+func (au *AdventureUpdate) RemovePuzzles(p ...*Puzzle) *AdventureUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return au.RemoveQuestionIDs(ids...)
+	return au.RemovePuzzleIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -205,7 +205,7 @@ func (au *AdventureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				},
 			},
 		}
-		createE := &AccessCreate{config: au.config, mutation: newAccessMutation(au.config, OpCreate)}
+		createE := &GameCreate{config: au.config, mutation: newGameMutation(au.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
@@ -228,7 +228,7 @@ func (au *AdventureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		createE := &AccessCreate{config: au.config, mutation: newAccessMutation(au.config, OpCreate)}
+		createE := &GameCreate{config: au.config, mutation: newGameMutation(au.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
@@ -251,39 +251,39 @@ func (au *AdventureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		createE := &AccessCreate{config: au.config, mutation: newAccessMutation(au.config, OpCreate)}
+		createE := &GameCreate{config: au.config, mutation: newGameMutation(au.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if au.mutation.QuestionsCleared() {
+	if au.mutation.PuzzlesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   adventure.QuestionsTable,
-			Columns: []string{adventure.QuestionsColumn},
+			Table:   adventure.PuzzlesTable,
+			Columns: []string{adventure.PuzzlesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.RemovedQuestionsIDs(); len(nodes) > 0 && !au.mutation.QuestionsCleared() {
+	if nodes := au.mutation.RemovedPuzzlesIDs(); len(nodes) > 0 && !au.mutation.PuzzlesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   adventure.QuestionsTable,
-			Columns: []string{adventure.QuestionsColumn},
+			Table:   adventure.PuzzlesTable,
+			Columns: []string{adventure.PuzzlesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
@@ -292,17 +292,17 @@ func (au *AdventureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.QuestionsIDs(); len(nodes) > 0 {
+	if nodes := au.mutation.PuzzlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   adventure.QuestionsTable,
-			Columns: []string{adventure.QuestionsColumn},
+			Table:   adventure.PuzzlesTable,
+			Columns: []string{adventure.PuzzlesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
@@ -351,19 +351,19 @@ func (auo *AdventureUpdateOne) AddUser(u ...*User) *AdventureUpdateOne {
 	return auo.AddUserIDs(ids...)
 }
 
-// AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
-func (auo *AdventureUpdateOne) AddQuestionIDs(ids ...int) *AdventureUpdateOne {
-	auo.mutation.AddQuestionIDs(ids...)
+// AddPuzzleIDs adds the "puzzles" edge to the Puzzle entity by IDs.
+func (auo *AdventureUpdateOne) AddPuzzleIDs(ids ...int) *AdventureUpdateOne {
+	auo.mutation.AddPuzzleIDs(ids...)
 	return auo
 }
 
-// AddQuestions adds the "questions" edges to the Question entity.
-func (auo *AdventureUpdateOne) AddQuestions(q ...*Question) *AdventureUpdateOne {
-	ids := make([]int, len(q))
-	for i := range q {
-		ids[i] = q[i].ID
+// AddPuzzles adds the "puzzles" edges to the Puzzle entity.
+func (auo *AdventureUpdateOne) AddPuzzles(p ...*Puzzle) *AdventureUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return auo.AddQuestionIDs(ids...)
+	return auo.AddPuzzleIDs(ids...)
 }
 
 // Mutation returns the AdventureMutation object of the builder.
@@ -392,25 +392,25 @@ func (auo *AdventureUpdateOne) RemoveUser(u ...*User) *AdventureUpdateOne {
 	return auo.RemoveUserIDs(ids...)
 }
 
-// ClearQuestions clears all "questions" edges to the Question entity.
-func (auo *AdventureUpdateOne) ClearQuestions() *AdventureUpdateOne {
-	auo.mutation.ClearQuestions()
+// ClearPuzzles clears all "puzzles" edges to the Puzzle entity.
+func (auo *AdventureUpdateOne) ClearPuzzles() *AdventureUpdateOne {
+	auo.mutation.ClearPuzzles()
 	return auo
 }
 
-// RemoveQuestionIDs removes the "questions" edge to Question entities by IDs.
-func (auo *AdventureUpdateOne) RemoveQuestionIDs(ids ...int) *AdventureUpdateOne {
-	auo.mutation.RemoveQuestionIDs(ids...)
+// RemovePuzzleIDs removes the "puzzles" edge to Puzzle entities by IDs.
+func (auo *AdventureUpdateOne) RemovePuzzleIDs(ids ...int) *AdventureUpdateOne {
+	auo.mutation.RemovePuzzleIDs(ids...)
 	return auo
 }
 
-// RemoveQuestions removes "questions" edges to Question entities.
-func (auo *AdventureUpdateOne) RemoveQuestions(q ...*Question) *AdventureUpdateOne {
-	ids := make([]int, len(q))
-	for i := range q {
-		ids[i] = q[i].ID
+// RemovePuzzles removes "puzzles" edges to Puzzle entities.
+func (auo *AdventureUpdateOne) RemovePuzzles(p ...*Puzzle) *AdventureUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return auo.RemoveQuestionIDs(ids...)
+	return auo.RemovePuzzleIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -536,7 +536,7 @@ func (auo *AdventureUpdateOne) sqlSave(ctx context.Context) (_node *Adventure, e
 				},
 			},
 		}
-		createE := &AccessCreate{config: auo.config, mutation: newAccessMutation(auo.config, OpCreate)}
+		createE := &GameCreate{config: auo.config, mutation: newGameMutation(auo.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
@@ -559,7 +559,7 @@ func (auo *AdventureUpdateOne) sqlSave(ctx context.Context) (_node *Adventure, e
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		createE := &AccessCreate{config: auo.config, mutation: newAccessMutation(auo.config, OpCreate)}
+		createE := &GameCreate{config: auo.config, mutation: newGameMutation(auo.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
@@ -582,39 +582,39 @@ func (auo *AdventureUpdateOne) sqlSave(ctx context.Context) (_node *Adventure, e
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		createE := &AccessCreate{config: auo.config, mutation: newAccessMutation(auo.config, OpCreate)}
+		createE := &GameCreate{config: auo.config, mutation: newGameMutation(auo.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if auo.mutation.QuestionsCleared() {
+	if auo.mutation.PuzzlesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   adventure.QuestionsTable,
-			Columns: []string{adventure.QuestionsColumn},
+			Table:   adventure.PuzzlesTable,
+			Columns: []string{adventure.PuzzlesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.RemovedQuestionsIDs(); len(nodes) > 0 && !auo.mutation.QuestionsCleared() {
+	if nodes := auo.mutation.RemovedPuzzlesIDs(); len(nodes) > 0 && !auo.mutation.PuzzlesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   adventure.QuestionsTable,
-			Columns: []string{adventure.QuestionsColumn},
+			Table:   adventure.PuzzlesTable,
+			Columns: []string{adventure.PuzzlesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
@@ -623,17 +623,17 @@ func (auo *AdventureUpdateOne) sqlSave(ctx context.Context) (_node *Adventure, e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.QuestionsIDs(); len(nodes) > 0 {
+	if nodes := auo.mutation.PuzzlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   adventure.QuestionsTable,
-			Columns: []string{adventure.QuestionsColumn},
+			Table:   adventure.PuzzlesTable,
+			Columns: []string{adventure.PuzzlesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}

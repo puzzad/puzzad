@@ -2,19 +2,19 @@ package puzzad
 
 import (
 	"context"
+	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/user"
 
 	"github.com/greboid/puzzad/ent"
-	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
 )
 
 func (db *DBClient) GetPaidAdventuresForUser(ctx context.Context, u *ent.User) ([]*ent.Adventure, error) {
-	return db.GetAdventuresForUser(ctx, u, access.StatusPaid)
+	return db.GetAdventuresForUser(ctx, u, game.StatusPaid)
 }
 
-func (db *DBClient) GetAdventuresForUser(ctx context.Context, u *ent.User, status access.Status) ([]*ent.Adventure, error) {
-	return u.QueryAccess().Where(access.StatusEQ(status)).QueryAdventures().All(ctx)
+func (db *DBClient) GetAdventuresForUser(ctx context.Context, u *ent.User, status game.Status) ([]*ent.Adventure, error) {
+	return u.QueryGame().Where(game.StatusEQ(status)).QueryAdventures().All(ctx)
 }
 
 func (db *DBClient) CreateAdventure(ctx context.Context, name string) (*ent.Adventure, error) {
@@ -36,20 +36,22 @@ func (db *DBClient) AddAdventureForUser(ctx context.Context, a *ent.Adventure, u
 	return nil
 }
 
-func (db *DBClient) GetAdventureAccessForUser(ctx context.Context, a *ent.Adventure, u *ent.User) (*ent.Access, error) {
-	return u.QueryAccess().Where(access.And(access.UserID(u.ID), access.AdventureID(a.ID))).Only(ctx)
+func (db *DBClient) GetGameForUser(ctx context.Context, a *ent.Adventure, u *ent.User) (*ent.Game, error) {
+	// TODO: This won't work if a user has multiple games of the same adventure
+	return u.QueryGame().Where(game.And(game.UserID(u.ID), game.AdventureID(a.ID))).Only(ctx)
 }
 
-func (db *DBClient) GetUserStatusForAdventure(ctx context.Context, a *ent.Adventure, u *ent.User) (access.Status, error) {
-	ac, err := db.GetAdventureAccessForUser(ctx, a, u)
+func (db *DBClient) GetUserStatusForAdventure(ctx context.Context, a *ent.Adventure, u *ent.User) (game.Status, error) {
+	// TODO: This won't work if a user has multiple games of the same adventure
+	ac, err := db.GetGameForUser(ctx, a, u)
 	if err != nil {
-		return access.StatusUnpaid, err
+		return game.StatusUnpaid, err
 	}
 	return ac.Status, err
 }
 
-func (db *DBClient) SetUserStatusForAdventure(ctx context.Context, a *ent.Adventure, u *ent.User, status access.Status) error {
-	ac, err := db.GetAdventureAccessForUser(ctx, a, u)
+func (db *DBClient) SetUserStatusForAdventure(ctx context.Context, a *ent.Adventure, u *ent.User, status game.Status) error {
+	ac, err := db.GetGameForUser(ctx, a, u)
 	if err != nil {
 		return err
 	}
@@ -61,6 +63,6 @@ func (db *DBClient) SetUserStatusForAdventure(ctx context.Context, a *ent.Advent
 }
 
 func (db *DBClient) VerifyAdventureCode(ctx context.Context, code string) error {
-	_, err := db.entclient.Access.Query().Where(access.Code(code)).Only(ctx)
+	_, err := db.entclient.Game.Query().Where(game.Code(code)).Only(ctx)
 	return err
 }

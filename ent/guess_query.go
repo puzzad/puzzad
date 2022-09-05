@@ -13,21 +13,21 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/predicate"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
 
 // GuessQuery is the builder for querying Guess entities.
 type GuessQuery struct {
 	config
-	limit        *int
-	offset       *int
-	unique       *bool
-	order        []OrderFunc
-	fields       []string
-	predicates   []predicate.Guess
-	withQuestion *QuestionQuery
-	withTeam     *UserQuery
+	limit      *int
+	offset     *int
+	unique     *bool
+	order      []OrderFunc
+	fields     []string
+	predicates []predicate.Guess
+	withPuzzle *PuzzleQuery
+	withTeam   *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -64,9 +64,9 @@ func (gq *GuessQuery) Order(o ...OrderFunc) *GuessQuery {
 	return gq
 }
 
-// QueryQuestion chains the current query on the "question" edge.
-func (gq *GuessQuery) QueryQuestion() *QuestionQuery {
-	query := &QuestionQuery{config: gq.config}
+// QueryPuzzle chains the current query on the "puzzle" edge.
+func (gq *GuessQuery) QueryPuzzle() *PuzzleQuery {
+	query := &PuzzleQuery{config: gq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := gq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -77,8 +77,8 @@ func (gq *GuessQuery) QueryQuestion() *QuestionQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(guess.Table, guess.FieldID, selector),
-			sqlgraph.To(question.Table, question.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, guess.QuestionTable, guess.QuestionColumn),
+			sqlgraph.To(puzzle.Table, puzzle.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, guess.PuzzleTable, guess.PuzzleColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
 		return fromU, nil
@@ -284,13 +284,13 @@ func (gq *GuessQuery) Clone() *GuessQuery {
 		return nil
 	}
 	return &GuessQuery{
-		config:       gq.config,
-		limit:        gq.limit,
-		offset:       gq.offset,
-		order:        append([]OrderFunc{}, gq.order...),
-		predicates:   append([]predicate.Guess{}, gq.predicates...),
-		withQuestion: gq.withQuestion.Clone(),
-		withTeam:     gq.withTeam.Clone(),
+		config:     gq.config,
+		limit:      gq.limit,
+		offset:     gq.offset,
+		order:      append([]OrderFunc{}, gq.order...),
+		predicates: append([]predicate.Guess{}, gq.predicates...),
+		withPuzzle: gq.withPuzzle.Clone(),
+		withTeam:   gq.withTeam.Clone(),
 		// clone intermediate query.
 		sql:    gq.sql.Clone(),
 		path:   gq.path,
@@ -298,14 +298,14 @@ func (gq *GuessQuery) Clone() *GuessQuery {
 	}
 }
 
-// WithQuestion tells the query-builder to eager-load the nodes that are connected to
-// the "question" edge. The optional arguments are used to configure the query builder of the edge.
-func (gq *GuessQuery) WithQuestion(opts ...func(*QuestionQuery)) *GuessQuery {
-	query := &QuestionQuery{config: gq.config}
+// WithPuzzle tells the query-builder to eager-load the nodes that are connected to
+// the "puzzle" edge. The optional arguments are used to configure the query builder of the edge.
+func (gq *GuessQuery) WithPuzzle(opts ...func(*PuzzleQuery)) *GuessQuery {
+	query := &PuzzleQuery{config: gq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	gq.withQuestion = query
+	gq.withPuzzle = query
 	return gq
 }
 
@@ -389,7 +389,7 @@ func (gq *GuessQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Guess,
 		nodes       = []*Guess{}
 		_spec       = gq.querySpec()
 		loadedTypes = [2]bool{
-			gq.withQuestion != nil,
+			gq.withPuzzle != nil,
 			gq.withTeam != nil,
 		}
 	)
@@ -411,10 +411,10 @@ func (gq *GuessQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Guess,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := gq.withQuestion; query != nil {
-		if err := gq.loadQuestion(ctx, query, nodes,
-			func(n *Guess) { n.Edges.Question = []*Question{} },
-			func(n *Guess, e *Question) { n.Edges.Question = append(n.Edges.Question, e) }); err != nil {
+	if query := gq.withPuzzle; query != nil {
+		if err := gq.loadPuzzle(ctx, query, nodes,
+			func(n *Guess) { n.Edges.Puzzle = []*Puzzle{} },
+			func(n *Guess, e *Puzzle) { n.Edges.Puzzle = append(n.Edges.Puzzle, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -428,7 +428,7 @@ func (gq *GuessQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Guess,
 	return nodes, nil
 }
 
-func (gq *GuessQuery) loadQuestion(ctx context.Context, query *QuestionQuery, nodes []*Guess, init func(*Guess), assign func(*Guess, *Question)) error {
+func (gq *GuessQuery) loadPuzzle(ctx context.Context, query *PuzzleQuery, nodes []*Guess, init func(*Guess), assign func(*Guess, *Puzzle)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Guess)
 	for i := range nodes {
@@ -439,21 +439,21 @@ func (gq *GuessQuery) loadQuestion(ctx context.Context, query *QuestionQuery, no
 		}
 	}
 	query.withFKs = true
-	query.Where(predicate.Question(func(s *sql.Selector) {
-		s.Where(sql.InValues(guess.QuestionColumn, fks...))
+	query.Where(predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.InValues(guess.PuzzleColumn, fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.guess_question
+		fk := n.guess_puzzle
 		if fk == nil {
-			return fmt.Errorf(`foreign-key "guess_question" is nil for node %v`, n.ID)
+			return fmt.Errorf(`foreign-key "guess_puzzle" is nil for node %v`, n.ID)
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "guess_question" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "guess_puzzle" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

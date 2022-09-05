@@ -11,8 +11,8 @@ const (
 	EdgeUser = "user"
 	// EdgeAdventure holds the string denoting the adventure edge name in mutations.
 	EdgeAdventure = "adventure"
-	// EdgeQuestion holds the string denoting the question edge name in mutations.
-	EdgeQuestion = "question"
+	// EdgePuzzle holds the string denoting the puzzle edge name in mutations.
+	EdgePuzzle = "puzzle"
 	// Table holds the table name of the progress in the database.
 	Table = "progresses"
 	// UserTable is the table that holds the user relation/edge. The primary key declared below.
@@ -27,13 +27,13 @@ const (
 	AdventureInverseTable = "adventures"
 	// AdventureColumn is the table column denoting the adventure relation/edge.
 	AdventureColumn = "progress_adventure"
-	// QuestionTable is the table that holds the question relation/edge.
-	QuestionTable = "progresses"
-	// QuestionInverseTable is the table name for the Question entity.
-	// It exists in this package in order to avoid circular dependency with the "question" package.
-	QuestionInverseTable = "questions"
-	// QuestionColumn is the table column denoting the question relation/edge.
-	QuestionColumn = "progress_question"
+	// PuzzleTable is the table that holds the puzzle relation/edge.
+	PuzzleTable = "progresses"
+	// PuzzleInverseTable is the table name for the Puzzle entity.
+	// It exists in this package in order to avoid circular dependency with the "puzzle" package.
+	PuzzleInverseTable = "puzzles"
+	// PuzzleColumn is the table column denoting the puzzle relation/edge.
+	PuzzleColumn = "progress_puzzle"
 )
 
 // Columns holds all SQL columns for progress fields.
@@ -45,7 +45,7 @@ var Columns = []string{
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
 	"progress_adventure",
-	"progress_question",
+	"progress_puzzle",
 }
 
 var (

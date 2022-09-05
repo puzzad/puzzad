@@ -12,90 +12,90 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/predicate"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 )
 
-// QuestionUpdate is the builder for updating Question entities.
-type QuestionUpdate struct {
+// PuzzleUpdate is the builder for updating Puzzle entities.
+type PuzzleUpdate struct {
 	config
 	hooks    []Hook
-	mutation *QuestionMutation
+	mutation *PuzzleMutation
 }
 
-// Where appends a list predicates to the QuestionUpdate builder.
-func (qu *QuestionUpdate) Where(ps ...predicate.Question) *QuestionUpdate {
-	qu.mutation.Where(ps...)
-	return qu
+// Where appends a list predicates to the PuzzleUpdate builder.
+func (pu *PuzzleUpdate) Where(ps ...predicate.Puzzle) *PuzzleUpdate {
+	pu.mutation.Where(ps...)
+	return pu
 }
 
 // SetTitle sets the "title" field.
-func (qu *QuestionUpdate) SetTitle(s string) *QuestionUpdate {
-	qu.mutation.SetTitle(s)
-	return qu
+func (pu *PuzzleUpdate) SetTitle(s string) *PuzzleUpdate {
+	pu.mutation.SetTitle(s)
+	return pu
 }
 
 // SetAnswer sets the "answer" field.
-func (qu *QuestionUpdate) SetAnswer(s string) *QuestionUpdate {
-	qu.mutation.SetAnswer(s)
-	return qu
+func (pu *PuzzleUpdate) SetAnswer(s string) *PuzzleUpdate {
+	pu.mutation.SetAnswer(s)
+	return pu
 }
 
 // SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
-func (qu *QuestionUpdate) SetAdventureID(id int) *QuestionUpdate {
-	qu.mutation.SetAdventureID(id)
-	return qu
+func (pu *PuzzleUpdate) SetAdventureID(id int) *PuzzleUpdate {
+	pu.mutation.SetAdventureID(id)
+	return pu
 }
 
 // SetNillableAdventureID sets the "adventure" edge to the Adventure entity by ID if the given value is not nil.
-func (qu *QuestionUpdate) SetNillableAdventureID(id *int) *QuestionUpdate {
+func (pu *PuzzleUpdate) SetNillableAdventureID(id *int) *PuzzleUpdate {
 	if id != nil {
-		qu = qu.SetAdventureID(*id)
+		pu = pu.SetAdventureID(*id)
 	}
-	return qu
+	return pu
 }
 
 // SetAdventure sets the "adventure" edge to the Adventure entity.
-func (qu *QuestionUpdate) SetAdventure(a *Adventure) *QuestionUpdate {
-	return qu.SetAdventureID(a.ID)
+func (pu *PuzzleUpdate) SetAdventure(a *Adventure) *PuzzleUpdate {
+	return pu.SetAdventureID(a.ID)
 }
 
-// Mutation returns the QuestionMutation object of the builder.
-func (qu *QuestionUpdate) Mutation() *QuestionMutation {
-	return qu.mutation
+// Mutation returns the PuzzleMutation object of the builder.
+func (pu *PuzzleUpdate) Mutation() *PuzzleMutation {
+	return pu.mutation
 }
 
 // ClearAdventure clears the "adventure" edge to the Adventure entity.
-func (qu *QuestionUpdate) ClearAdventure() *QuestionUpdate {
-	qu.mutation.ClearAdventure()
-	return qu
+func (pu *PuzzleUpdate) ClearAdventure() *PuzzleUpdate {
+	pu.mutation.ClearAdventure()
+	return pu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (qu *QuestionUpdate) Save(ctx context.Context) (int, error) {
+func (pu *PuzzleUpdate) Save(ctx context.Context) (int, error) {
 	var (
 		err      error
 		affected int
 	)
-	if len(qu.hooks) == 0 {
-		affected, err = qu.sqlSave(ctx)
+	if len(pu.hooks) == 0 {
+		affected, err = pu.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*QuestionMutation)
+			mutation, ok := m.(*PuzzleMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
 			}
-			qu.mutation = mutation
-			affected, err = qu.sqlSave(ctx)
+			pu.mutation = mutation
+			affected, err = pu.sqlSave(ctx)
 			mutation.done = true
 			return affected, err
 		})
-		for i := len(qu.hooks) - 1; i >= 0; i-- {
-			if qu.hooks[i] == nil {
+		for i := len(pu.hooks) - 1; i >= 0; i-- {
+			if pu.hooks[i] == nil {
 				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
 			}
-			mut = qu.hooks[i](mut)
+			mut = pu.hooks[i](mut)
 		}
-		if _, err := mut.Mutate(ctx, qu.mutation); err != nil {
+		if _, err := mut.Mutate(ctx, pu.mutation); err != nil {
 			return 0, err
 		}
 	}
@@ -103,8 +103,8 @@ func (qu *QuestionUpdate) Save(ctx context.Context) (int, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (qu *QuestionUpdate) SaveX(ctx context.Context) int {
-	affected, err := qu.Save(ctx)
+func (pu *PuzzleUpdate) SaveX(ctx context.Context) int {
+	affected, err := pu.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -112,56 +112,56 @@ func (qu *QuestionUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (qu *QuestionUpdate) Exec(ctx context.Context) error {
-	_, err := qu.Save(ctx)
+func (pu *PuzzleUpdate) Exec(ctx context.Context) error {
+	_, err := pu.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (qu *QuestionUpdate) ExecX(ctx context.Context) {
-	if err := qu.Exec(ctx); err != nil {
+func (pu *PuzzleUpdate) ExecX(ctx context.Context) {
+	if err := pu.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (pu *PuzzleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
-			Table:   question.Table,
-			Columns: question.Columns,
+			Table:   puzzle.Table,
+			Columns: puzzle.Columns,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: question.FieldID,
+				Column: puzzle.FieldID,
 			},
 		},
 	}
-	if ps := qu.mutation.predicates; len(ps) > 0 {
+	if ps := pu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := qu.mutation.Title(); ok {
+	if value, ok := pu.mutation.Title(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: question.FieldTitle,
+			Column: puzzle.FieldTitle,
 		})
 	}
-	if value, ok := qu.mutation.Answer(); ok {
+	if value, ok := pu.mutation.Answer(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: question.FieldAnswer,
+			Column: puzzle.FieldAnswer,
 		})
 	}
-	if qu.mutation.AdventureCleared() {
+	if pu.mutation.AdventureCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   question.AdventureTable,
-			Columns: []string{question.AdventureColumn},
+			Table:   puzzle.AdventureTable,
+			Columns: []string{puzzle.AdventureColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -172,12 +172,12 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := qu.mutation.AdventureIDs(); len(nodes) > 0 {
+	if nodes := pu.mutation.AdventureIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   question.AdventureTable,
-			Columns: []string{question.AdventureColumn},
+			Table:   puzzle.AdventureTable,
+			Columns: []string{puzzle.AdventureColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -191,9 +191,9 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, qu.driver, _spec); err != nil {
+	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{question.Label}
+			err = &NotFoundError{puzzle.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -202,95 +202,95 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	return n, nil
 }
 
-// QuestionUpdateOne is the builder for updating a single Question entity.
-type QuestionUpdateOne struct {
+// PuzzleUpdateOne is the builder for updating a single Puzzle entity.
+type PuzzleUpdateOne struct {
 	config
 	fields   []string
 	hooks    []Hook
-	mutation *QuestionMutation
+	mutation *PuzzleMutation
 }
 
 // SetTitle sets the "title" field.
-func (quo *QuestionUpdateOne) SetTitle(s string) *QuestionUpdateOne {
-	quo.mutation.SetTitle(s)
-	return quo
+func (puo *PuzzleUpdateOne) SetTitle(s string) *PuzzleUpdateOne {
+	puo.mutation.SetTitle(s)
+	return puo
 }
 
 // SetAnswer sets the "answer" field.
-func (quo *QuestionUpdateOne) SetAnswer(s string) *QuestionUpdateOne {
-	quo.mutation.SetAnswer(s)
-	return quo
+func (puo *PuzzleUpdateOne) SetAnswer(s string) *PuzzleUpdateOne {
+	puo.mutation.SetAnswer(s)
+	return puo
 }
 
 // SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
-func (quo *QuestionUpdateOne) SetAdventureID(id int) *QuestionUpdateOne {
-	quo.mutation.SetAdventureID(id)
-	return quo
+func (puo *PuzzleUpdateOne) SetAdventureID(id int) *PuzzleUpdateOne {
+	puo.mutation.SetAdventureID(id)
+	return puo
 }
 
 // SetNillableAdventureID sets the "adventure" edge to the Adventure entity by ID if the given value is not nil.
-func (quo *QuestionUpdateOne) SetNillableAdventureID(id *int) *QuestionUpdateOne {
+func (puo *PuzzleUpdateOne) SetNillableAdventureID(id *int) *PuzzleUpdateOne {
 	if id != nil {
-		quo = quo.SetAdventureID(*id)
+		puo = puo.SetAdventureID(*id)
 	}
-	return quo
+	return puo
 }
 
 // SetAdventure sets the "adventure" edge to the Adventure entity.
-func (quo *QuestionUpdateOne) SetAdventure(a *Adventure) *QuestionUpdateOne {
-	return quo.SetAdventureID(a.ID)
+func (puo *PuzzleUpdateOne) SetAdventure(a *Adventure) *PuzzleUpdateOne {
+	return puo.SetAdventureID(a.ID)
 }
 
-// Mutation returns the QuestionMutation object of the builder.
-func (quo *QuestionUpdateOne) Mutation() *QuestionMutation {
-	return quo.mutation
+// Mutation returns the PuzzleMutation object of the builder.
+func (puo *PuzzleUpdateOne) Mutation() *PuzzleMutation {
+	return puo.mutation
 }
 
 // ClearAdventure clears the "adventure" edge to the Adventure entity.
-func (quo *QuestionUpdateOne) ClearAdventure() *QuestionUpdateOne {
-	quo.mutation.ClearAdventure()
-	return quo
+func (puo *PuzzleUpdateOne) ClearAdventure() *PuzzleUpdateOne {
+	puo.mutation.ClearAdventure()
+	return puo
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (quo *QuestionUpdateOne) Select(field string, fields ...string) *QuestionUpdateOne {
-	quo.fields = append([]string{field}, fields...)
-	return quo
+func (puo *PuzzleUpdateOne) Select(field string, fields ...string) *PuzzleUpdateOne {
+	puo.fields = append([]string{field}, fields...)
+	return puo
 }
 
-// Save executes the query and returns the updated Question entity.
-func (quo *QuestionUpdateOne) Save(ctx context.Context) (*Question, error) {
+// Save executes the query and returns the updated Puzzle entity.
+func (puo *PuzzleUpdateOne) Save(ctx context.Context) (*Puzzle, error) {
 	var (
 		err  error
-		node *Question
+		node *Puzzle
 	)
-	if len(quo.hooks) == 0 {
-		node, err = quo.sqlSave(ctx)
+	if len(puo.hooks) == 0 {
+		node, err = puo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*QuestionMutation)
+			mutation, ok := m.(*PuzzleMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
 			}
-			quo.mutation = mutation
-			node, err = quo.sqlSave(ctx)
+			puo.mutation = mutation
+			node, err = puo.sqlSave(ctx)
 			mutation.done = true
 			return node, err
 		})
-		for i := len(quo.hooks) - 1; i >= 0; i-- {
-			if quo.hooks[i] == nil {
+		for i := len(puo.hooks) - 1; i >= 0; i-- {
+			if puo.hooks[i] == nil {
 				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
 			}
-			mut = quo.hooks[i](mut)
+			mut = puo.hooks[i](mut)
 		}
-		v, err := mut.Mutate(ctx, quo.mutation)
+		v, err := mut.Mutate(ctx, puo.mutation)
 		if err != nil {
 			return nil, err
 		}
-		nv, ok := v.(*Question)
+		nv, ok := v.(*Puzzle)
 		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from QuestionMutation", v)
+			return nil, fmt.Errorf("unexpected node type %T returned from PuzzleMutation", v)
 		}
 		node = nv
 	}
@@ -298,8 +298,8 @@ func (quo *QuestionUpdateOne) Save(ctx context.Context) (*Question, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (quo *QuestionUpdateOne) SaveX(ctx context.Context) *Question {
-	node, err := quo.Save(ctx)
+func (puo *PuzzleUpdateOne) SaveX(ctx context.Context) *Puzzle {
+	node, err := puo.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -307,73 +307,73 @@ func (quo *QuestionUpdateOne) SaveX(ctx context.Context) *Question {
 }
 
 // Exec executes the query on the entity.
-func (quo *QuestionUpdateOne) Exec(ctx context.Context) error {
-	_, err := quo.Save(ctx)
+func (puo *PuzzleUpdateOne) Exec(ctx context.Context) error {
+	_, err := puo.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (quo *QuestionUpdateOne) ExecX(ctx context.Context) {
-	if err := quo.Exec(ctx); err != nil {
+func (puo *PuzzleUpdateOne) ExecX(ctx context.Context) {
+	if err := puo.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err error) {
+func (puo *PuzzleUpdateOne) sqlSave(ctx context.Context) (_node *Puzzle, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
-			Table:   question.Table,
-			Columns: question.Columns,
+			Table:   puzzle.Table,
+			Columns: puzzle.Columns,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: question.FieldID,
+				Column: puzzle.FieldID,
 			},
 		},
 	}
-	id, ok := quo.mutation.ID()
+	id, ok := puo.mutation.ID()
 	if !ok {
-		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Question.id" for update`)}
+		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Puzzle.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := quo.fields; len(fields) > 0 {
+	if fields := puo.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, question.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, puzzle.FieldID)
 		for _, f := range fields {
-			if !question.ValidColumn(f) {
+			if !puzzle.ValidColumn(f) {
 				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 			}
-			if f != question.FieldID {
+			if f != puzzle.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, f)
 			}
 		}
 	}
-	if ps := quo.mutation.predicates; len(ps) > 0 {
+	if ps := puo.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := quo.mutation.Title(); ok {
+	if value, ok := puo.mutation.Title(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: question.FieldTitle,
+			Column: puzzle.FieldTitle,
 		})
 	}
-	if value, ok := quo.mutation.Answer(); ok {
+	if value, ok := puo.mutation.Answer(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: question.FieldAnswer,
+			Column: puzzle.FieldAnswer,
 		})
 	}
-	if quo.mutation.AdventureCleared() {
+	if puo.mutation.AdventureCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   question.AdventureTable,
-			Columns: []string{question.AdventureColumn},
+			Table:   puzzle.AdventureTable,
+			Columns: []string{puzzle.AdventureColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -384,12 +384,12 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := quo.mutation.AdventureIDs(); len(nodes) > 0 {
+	if nodes := puo.mutation.AdventureIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   question.AdventureTable,
-			Columns: []string{question.AdventureColumn},
+			Table:   puzzle.AdventureTable,
+			Columns: []string{puzzle.AdventureColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -403,12 +403,12 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &Question{config: quo.config}
+	_node = &Puzzle{config: puo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, quo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, puo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{question.Label}
+			err = &NotFoundError{puzzle.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}

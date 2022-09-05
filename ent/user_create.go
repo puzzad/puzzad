@@ -315,7 +315,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		createE := &AccessCreate{config: uc.config, mutation: newAccessMutation(uc.config, OpCreate)}
+		createE := &GameCreate{config: uc.config, mutation: newGameMutation(uc.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields

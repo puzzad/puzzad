@@ -21,7 +21,7 @@ func (Adventure) Fields() []ent.Field {
 // Edges of the Adventure.
 func (Adventure) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("user", User.Type).Ref("adventures").Through("access", Access.Type),
-		edge.To("questions", Question.Type),
+		edge.From("user", User.Type).Ref("adventures").Through("game", Game.Type),
+		edge.To("puzzles", Puzzle.Type),
 	}
 }

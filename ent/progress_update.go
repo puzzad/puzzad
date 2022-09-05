@@ -13,7 +13,7 @@ import (
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/predicate"
 	"github.com/greboid/puzzad/ent/progress"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
 
@@ -56,15 +56,15 @@ func (pu *ProgressUpdate) SetAdventure(a *Adventure) *ProgressUpdate {
 	return pu.SetAdventureID(a.ID)
 }
 
-// SetQuestionID sets the "question" edge to the Question entity by ID.
-func (pu *ProgressUpdate) SetQuestionID(id int) *ProgressUpdate {
-	pu.mutation.SetQuestionID(id)
+// SetPuzzleID sets the "puzzle" edge to the Puzzle entity by ID.
+func (pu *ProgressUpdate) SetPuzzleID(id int) *ProgressUpdate {
+	pu.mutation.SetPuzzleID(id)
 	return pu
 }
 
-// SetQuestion sets the "question" edge to the Question entity.
-func (pu *ProgressUpdate) SetQuestion(q *Question) *ProgressUpdate {
-	return pu.SetQuestionID(q.ID)
+// SetPuzzle sets the "puzzle" edge to the Puzzle entity.
+func (pu *ProgressUpdate) SetPuzzle(p *Puzzle) *ProgressUpdate {
+	return pu.SetPuzzleID(p.ID)
 }
 
 // Mutation returns the ProgressMutation object of the builder.
@@ -99,9 +99,9 @@ func (pu *ProgressUpdate) ClearAdventure() *ProgressUpdate {
 	return pu
 }
 
-// ClearQuestion clears the "question" edge to the Question entity.
-func (pu *ProgressUpdate) ClearQuestion() *ProgressUpdate {
-	pu.mutation.ClearQuestion()
+// ClearPuzzle clears the "puzzle" edge to the Puzzle entity.
+func (pu *ProgressUpdate) ClearPuzzle() *ProgressUpdate {
+	pu.mutation.ClearPuzzle()
 	return pu
 }
 
@@ -170,8 +170,8 @@ func (pu *ProgressUpdate) check() error {
 	if _, ok := pu.mutation.AdventureID(); pu.mutation.AdventureCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Progress.adventure"`)
 	}
-	if _, ok := pu.mutation.QuestionID(); pu.mutation.QuestionCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Progress.question"`)
+	if _, ok := pu.mutation.PuzzleID(); pu.mutation.PuzzleCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Progress.puzzle"`)
 	}
 	return nil
 }
@@ -283,33 +283,33 @@ func (pu *ProgressUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if pu.mutation.QuestionCleared() {
+	if pu.mutation.PuzzleCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   progress.QuestionTable,
-			Columns: []string{progress.QuestionColumn},
+			Table:   progress.PuzzleTable,
+			Columns: []string{progress.PuzzleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pu.mutation.QuestionIDs(); len(nodes) > 0 {
+	if nodes := pu.mutation.PuzzleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   progress.QuestionTable,
-			Columns: []string{progress.QuestionColumn},
+			Table:   progress.PuzzleTable,
+			Columns: []string{progress.PuzzleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
@@ -363,15 +363,15 @@ func (puo *ProgressUpdateOne) SetAdventure(a *Adventure) *ProgressUpdateOne {
 	return puo.SetAdventureID(a.ID)
 }
 
-// SetQuestionID sets the "question" edge to the Question entity by ID.
-func (puo *ProgressUpdateOne) SetQuestionID(id int) *ProgressUpdateOne {
-	puo.mutation.SetQuestionID(id)
+// SetPuzzleID sets the "puzzle" edge to the Puzzle entity by ID.
+func (puo *ProgressUpdateOne) SetPuzzleID(id int) *ProgressUpdateOne {
+	puo.mutation.SetPuzzleID(id)
 	return puo
 }
 
-// SetQuestion sets the "question" edge to the Question entity.
-func (puo *ProgressUpdateOne) SetQuestion(q *Question) *ProgressUpdateOne {
-	return puo.SetQuestionID(q.ID)
+// SetPuzzle sets the "puzzle" edge to the Puzzle entity.
+func (puo *ProgressUpdateOne) SetPuzzle(p *Puzzle) *ProgressUpdateOne {
+	return puo.SetPuzzleID(p.ID)
 }
 
 // Mutation returns the ProgressMutation object of the builder.
@@ -406,9 +406,9 @@ func (puo *ProgressUpdateOne) ClearAdventure() *ProgressUpdateOne {
 	return puo
 }
 
-// ClearQuestion clears the "question" edge to the Question entity.
-func (puo *ProgressUpdateOne) ClearQuestion() *ProgressUpdateOne {
-	puo.mutation.ClearQuestion()
+// ClearPuzzle clears the "puzzle" edge to the Puzzle entity.
+func (puo *ProgressUpdateOne) ClearPuzzle() *ProgressUpdateOne {
+	puo.mutation.ClearPuzzle()
 	return puo
 }
 
@@ -490,8 +490,8 @@ func (puo *ProgressUpdateOne) check() error {
 	if _, ok := puo.mutation.AdventureID(); puo.mutation.AdventureCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Progress.adventure"`)
 	}
-	if _, ok := puo.mutation.QuestionID(); puo.mutation.QuestionCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Progress.question"`)
+	if _, ok := puo.mutation.PuzzleID(); puo.mutation.PuzzleCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Progress.puzzle"`)
 	}
 	return nil
 }
@@ -620,33 +620,33 @@ func (puo *ProgressUpdateOne) sqlSave(ctx context.Context) (_node *Progress, err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if puo.mutation.QuestionCleared() {
+	if puo.mutation.PuzzleCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   progress.QuestionTable,
-			Columns: []string{progress.QuestionColumn},
+			Table:   progress.PuzzleTable,
+			Columns: []string{progress.PuzzleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := puo.mutation.QuestionIDs(); len(nodes) > 0 {
+	if nodes := puo.mutation.PuzzleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   progress.QuestionTable,
-			Columns: []string{progress.QuestionColumn},
+			Table:   progress.PuzzleTable,
+			Columns: []string{progress.PuzzleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}

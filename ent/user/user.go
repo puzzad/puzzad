@@ -26,12 +26,12 @@ const (
 	EdgeAdventures = "adventures"
 	// EdgeProgress holds the string denoting the progress edge name in mutations.
 	EdgeProgress = "progress"
-	// EdgeAccess holds the string denoting the access edge name in mutations.
-	EdgeAccess = "access"
+	// EdgeGame holds the string denoting the game edge name in mutations.
+	EdgeGame = "game"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// AdventuresTable is the table that holds the adventures relation/edge. The primary key declared below.
-	AdventuresTable = "accesses"
+	AdventuresTable = "games"
 	// AdventuresInverseTable is the table name for the Adventure entity.
 	// It exists in this package in order to avoid circular dependency with the "adventure" package.
 	AdventuresInverseTable = "adventures"
@@ -40,13 +40,13 @@ const (
 	// ProgressInverseTable is the table name for the Progress entity.
 	// It exists in this package in order to avoid circular dependency with the "progress" package.
 	ProgressInverseTable = "progresses"
-	// AccessTable is the table that holds the access relation/edge.
-	AccessTable = "accesses"
-	// AccessInverseTable is the table name for the Access entity.
-	// It exists in this package in order to avoid circular dependency with the "access" package.
-	AccessInverseTable = "accesses"
-	// AccessColumn is the table column denoting the access relation/edge.
-	AccessColumn = "user_id"
+	// GameTable is the table that holds the game relation/edge.
+	GameTable = "games"
+	// GameInverseTable is the table name for the Game entity.
+	// It exists in this package in order to avoid circular dependency with the "game" package.
+	GameInverseTable = "games"
+	// GameColumn is the table column denoting the game relation/edge.
+	GameColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.

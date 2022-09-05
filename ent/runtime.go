@@ -5,7 +5,7 @@ package ent
 import (
 	"time"
 
-	"github.com/greboid/puzzad/ent/access"
+	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/user"
 	"github.com/greboid/puzzad/schema"
@@ -15,14 +15,14 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	accessFields := schema.Access{}.Fields()
-	_ = accessFields
-	// accessDescCode is the schema descriptor for code field.
-	accessDescCode := accessFields[1].Descriptor()
-	// access.DefaultCode holds the default value on creation for the code field.
-	access.DefaultCode = accessDescCode.Default.(func() string)
-	// access.CodeValidator is a validator for the "code" field. It is called by the builders before save.
-	access.CodeValidator = accessDescCode.Validators[0].(func(string) error)
+	gameFields := schema.Game{}.Fields()
+	_ = gameFields
+	// gameDescCode is the schema descriptor for code field.
+	gameDescCode := gameFields[1].Descriptor()
+	// game.DefaultCode holds the default value on creation for the code field.
+	game.DefaultCode = gameDescCode.Default.(func() string)
+	// game.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	game.CodeValidator = gameDescCode.Validators[0].(func(string) error)
 	guessMixin := schema.Guess{}.Mixin()
 	guessMixinFields0 := guessMixin[0].Fields()
 	_ = guessMixinFields0

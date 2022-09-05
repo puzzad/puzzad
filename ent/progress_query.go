@@ -14,7 +14,7 @@ import (
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/predicate"
 	"github.com/greboid/puzzad/ent/progress"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
 
@@ -29,7 +29,7 @@ type ProgressQuery struct {
 	predicates    []predicate.Progress
 	withUser      *UserQuery
 	withAdventure *AdventureQuery
-	withQuestion  *QuestionQuery
+	withPuzzle    *PuzzleQuery
 	withFKs       bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -111,9 +111,9 @@ func (pq *ProgressQuery) QueryAdventure() *AdventureQuery {
 	return query
 }
 
-// QueryQuestion chains the current query on the "question" edge.
-func (pq *ProgressQuery) QueryQuestion() *QuestionQuery {
-	query := &QuestionQuery{config: pq.config}
+// QueryPuzzle chains the current query on the "puzzle" edge.
+func (pq *ProgressQuery) QueryPuzzle() *PuzzleQuery {
+	query := &PuzzleQuery{config: pq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -124,8 +124,8 @@ func (pq *ProgressQuery) QueryQuestion() *QuestionQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(progress.Table, progress.FieldID, selector),
-			sqlgraph.To(question.Table, question.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, progress.QuestionTable, progress.QuestionColumn),
+			sqlgraph.To(puzzle.Table, puzzle.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, progress.PuzzleTable, progress.PuzzleColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -316,7 +316,7 @@ func (pq *ProgressQuery) Clone() *ProgressQuery {
 		predicates:    append([]predicate.Progress{}, pq.predicates...),
 		withUser:      pq.withUser.Clone(),
 		withAdventure: pq.withAdventure.Clone(),
-		withQuestion:  pq.withQuestion.Clone(),
+		withPuzzle:    pq.withPuzzle.Clone(),
 		// clone intermediate query.
 		sql:    pq.sql.Clone(),
 		path:   pq.path,
@@ -346,14 +346,14 @@ func (pq *ProgressQuery) WithAdventure(opts ...func(*AdventureQuery)) *ProgressQ
 	return pq
 }
 
-// WithQuestion tells the query-builder to eager-load the nodes that are connected to
-// the "question" edge. The optional arguments are used to configure the query builder of the edge.
-func (pq *ProgressQuery) WithQuestion(opts ...func(*QuestionQuery)) *ProgressQuery {
-	query := &QuestionQuery{config: pq.config}
+// WithPuzzle tells the query-builder to eager-load the nodes that are connected to
+// the "puzzle" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProgressQuery) WithPuzzle(opts ...func(*PuzzleQuery)) *ProgressQuery {
+	query := &PuzzleQuery{config: pq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	pq.withQuestion = query
+	pq.withPuzzle = query
 	return pq
 }
 
@@ -407,10 +407,10 @@ func (pq *ProgressQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pro
 		loadedTypes = [3]bool{
 			pq.withUser != nil,
 			pq.withAdventure != nil,
-			pq.withQuestion != nil,
+			pq.withPuzzle != nil,
 		}
 	)
-	if pq.withAdventure != nil || pq.withQuestion != nil {
+	if pq.withAdventure != nil || pq.withPuzzle != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -447,9 +447,9 @@ func (pq *ProgressQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pro
 			return nil, err
 		}
 	}
-	if query := pq.withQuestion; query != nil {
-		if err := pq.loadQuestion(ctx, query, nodes, nil,
-			func(n *Progress, e *Question) { n.Edges.Question = e }); err != nil {
+	if query := pq.withPuzzle; query != nil {
+		if err := pq.loadPuzzle(ctx, query, nodes, nil,
+			func(n *Progress, e *Puzzle) { n.Edges.Puzzle = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -543,20 +543,20 @@ func (pq *ProgressQuery) loadAdventure(ctx context.Context, query *AdventureQuer
 	}
 	return nil
 }
-func (pq *ProgressQuery) loadQuestion(ctx context.Context, query *QuestionQuery, nodes []*Progress, init func(*Progress), assign func(*Progress, *Question)) error {
+func (pq *ProgressQuery) loadPuzzle(ctx context.Context, query *PuzzleQuery, nodes []*Progress, init func(*Progress), assign func(*Progress, *Puzzle)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Progress)
 	for i := range nodes {
-		if nodes[i].progress_question == nil {
+		if nodes[i].progress_puzzle == nil {
 			continue
 		}
-		fk := *nodes[i].progress_question
+		fk := *nodes[i].progress_puzzle
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
 		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	query.Where(question.IDIn(ids...))
+	query.Where(puzzle.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -564,7 +564,7 @@ func (pq *ProgressQuery) loadQuestion(ctx context.Context, query *QuestionQuery,
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "progress_question" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "progress_puzzle" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

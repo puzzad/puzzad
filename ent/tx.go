@@ -12,16 +12,16 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
-	// Access is the client for interacting with the Access builders.
-	Access *AccessClient
 	// Adventure is the client for interacting with the Adventure builders.
 	Adventure *AdventureClient
+	// Game is the client for interacting with the Game builders.
+	Game *GameClient
 	// Guess is the client for interacting with the Guess builders.
 	Guess *GuessClient
 	// Progress is the client for interacting with the Progress builders.
 	Progress *ProgressClient
-	// Question is the client for interacting with the Question builders.
-	Question *QuestionClient
+	// Puzzle is the client for interacting with the Puzzle builders.
+	Puzzle *PuzzleClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -159,11 +159,11 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
-	tx.Access = NewAccessClient(tx.config)
 	tx.Adventure = NewAdventureClient(tx.config)
+	tx.Game = NewGameClient(tx.config)
 	tx.Guess = NewGuessClient(tx.config)
 	tx.Progress = NewProgressClient(tx.config)
-	tx.Question = NewQuestionClient(tx.config)
+	tx.Puzzle = NewPuzzleClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 
@@ -174,7 +174,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Access.QueryXXX(), the query will be executed
+// applies a query, for example: Adventure.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

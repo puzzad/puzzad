@@ -20,6 +20,6 @@ func (Progress) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("user", User.Type).Ref("progress").Required(),
 		edge.To("adventure", Adventure.Type).Unique().Required(),
-		edge.To("question", Question.Type).Unique().Required(),
+		edge.To("puzzle", Puzzle.Type).Unique().Required(),
 	}
 }
