@@ -13,6 +13,7 @@ import (
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/predicate"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
 
@@ -57,15 +58,9 @@ func (gu *GameUpdate) SetNillableCode(s *string) *GameUpdate {
 	return gu
 }
 
-// SetUserID sets the "user_id" field.
-func (gu *GameUpdate) SetUserID(i int) *GameUpdate {
-	gu.mutation.SetUserID(i)
-	return gu
-}
-
-// SetAdventureID sets the "adventure_id" field.
-func (gu *GameUpdate) SetAdventureID(i int) *GameUpdate {
-	gu.mutation.SetAdventureID(i)
+// SetUserID sets the "user" edge to the User entity by ID.
+func (gu *GameUpdate) SetUserID(id int) *GameUpdate {
+	gu.mutation.SetUserID(id)
 	return gu
 }
 
@@ -74,15 +69,26 @@ func (gu *GameUpdate) SetUser(u *User) *GameUpdate {
 	return gu.SetUserID(u.ID)
 }
 
-// SetAdventuresID sets the "adventures" edge to the Adventure entity by ID.
-func (gu *GameUpdate) SetAdventuresID(id int) *GameUpdate {
-	gu.mutation.SetAdventuresID(id)
+// SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
+func (gu *GameUpdate) SetAdventureID(id int) *GameUpdate {
+	gu.mutation.SetAdventureID(id)
 	return gu
 }
 
-// SetAdventures sets the "adventures" edge to the Adventure entity.
-func (gu *GameUpdate) SetAdventures(a *Adventure) *GameUpdate {
-	return gu.SetAdventuresID(a.ID)
+// SetAdventure sets the "adventure" edge to the Adventure entity.
+func (gu *GameUpdate) SetAdventure(a *Adventure) *GameUpdate {
+	return gu.SetAdventureID(a.ID)
+}
+
+// SetCurrentPuzzleID sets the "current_puzzle" edge to the Puzzle entity by ID.
+func (gu *GameUpdate) SetCurrentPuzzleID(id int) *GameUpdate {
+	gu.mutation.SetCurrentPuzzleID(id)
+	return gu
+}
+
+// SetCurrentPuzzle sets the "current_puzzle" edge to the Puzzle entity.
+func (gu *GameUpdate) SetCurrentPuzzle(p *Puzzle) *GameUpdate {
+	return gu.SetCurrentPuzzleID(p.ID)
 }
 
 // Mutation returns the GameMutation object of the builder.
@@ -96,9 +102,15 @@ func (gu *GameUpdate) ClearUser() *GameUpdate {
 	return gu
 }
 
-// ClearAdventures clears the "adventures" edge to the Adventure entity.
-func (gu *GameUpdate) ClearAdventures() *GameUpdate {
-	gu.mutation.ClearAdventures()
+// ClearAdventure clears the "adventure" edge to the Adventure entity.
+func (gu *GameUpdate) ClearAdventure() *GameUpdate {
+	gu.mutation.ClearAdventure()
+	return gu
+}
+
+// ClearCurrentPuzzle clears the "current_puzzle" edge to the Puzzle entity.
+func (gu *GameUpdate) ClearCurrentPuzzle() *GameUpdate {
+	gu.mutation.ClearCurrentPuzzle()
 	return gu
 }
 
@@ -177,8 +189,11 @@ func (gu *GameUpdate) check() error {
 	if _, ok := gu.mutation.UserID(); gu.mutation.UserCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Game.user"`)
 	}
-	if _, ok := gu.mutation.AdventuresID(); gu.mutation.AdventuresCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Game.adventures"`)
+	if _, ok := gu.mutation.AdventureID(); gu.mutation.AdventureCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Game.adventure"`)
+	}
+	if _, ok := gu.mutation.CurrentPuzzleID(); gu.mutation.CurrentPuzzleCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Game.current_puzzle"`)
 	}
 	return nil
 }
@@ -188,15 +203,9 @@ func (gu *GameUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		Node: &sqlgraph.NodeSpec{
 			Table:   game.Table,
 			Columns: game.Columns,
-			CompositeID: []*sqlgraph.FieldSpec{
-				{
-					Type:   field.TypeInt,
-					Column: game.FieldUserID,
-				},
-				{
-					Type:   field.TypeInt,
-					Column: game.FieldAdventureID,
-				},
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeInt,
+				Column: game.FieldID,
 			},
 		},
 	}
@@ -224,7 +233,7 @@ func (gu *GameUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if gu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   game.UserTable,
 			Columns: []string{game.UserColumn},
 			Bidi:    false,
@@ -240,7 +249,7 @@ func (gu *GameUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if nodes := gu.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   game.UserTable,
 			Columns: []string{game.UserColumn},
 			Bidi:    false,
@@ -256,12 +265,12 @@ func (gu *GameUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if gu.mutation.AdventuresCleared() {
+	if gu.mutation.AdventureCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   game.AdventuresTable,
-			Columns: []string{game.AdventuresColumn},
+			Table:   game.AdventureTable,
+			Columns: []string{game.AdventureColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -272,17 +281,52 @@ func (gu *GameUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := gu.mutation.AdventuresIDs(); len(nodes) > 0 {
+	if nodes := gu.mutation.AdventureIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   game.AdventuresTable,
-			Columns: []string{game.AdventuresColumn},
+			Table:   game.AdventureTable,
+			Columns: []string{game.AdventureColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: adventure.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if gu.mutation.CurrentPuzzleCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   game.CurrentPuzzleTable,
+			Columns: []string{game.CurrentPuzzleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: puzzle.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := gu.mutation.CurrentPuzzleIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   game.CurrentPuzzleTable,
+			Columns: []string{game.CurrentPuzzleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
@@ -338,15 +382,9 @@ func (guo *GameUpdateOne) SetNillableCode(s *string) *GameUpdateOne {
 	return guo
 }
 
-// SetUserID sets the "user_id" field.
-func (guo *GameUpdateOne) SetUserID(i int) *GameUpdateOne {
-	guo.mutation.SetUserID(i)
-	return guo
-}
-
-// SetAdventureID sets the "adventure_id" field.
-func (guo *GameUpdateOne) SetAdventureID(i int) *GameUpdateOne {
-	guo.mutation.SetAdventureID(i)
+// SetUserID sets the "user" edge to the User entity by ID.
+func (guo *GameUpdateOne) SetUserID(id int) *GameUpdateOne {
+	guo.mutation.SetUserID(id)
 	return guo
 }
 
@@ -355,15 +393,26 @@ func (guo *GameUpdateOne) SetUser(u *User) *GameUpdateOne {
 	return guo.SetUserID(u.ID)
 }
 
-// SetAdventuresID sets the "adventures" edge to the Adventure entity by ID.
-func (guo *GameUpdateOne) SetAdventuresID(id int) *GameUpdateOne {
-	guo.mutation.SetAdventuresID(id)
+// SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
+func (guo *GameUpdateOne) SetAdventureID(id int) *GameUpdateOne {
+	guo.mutation.SetAdventureID(id)
 	return guo
 }
 
-// SetAdventures sets the "adventures" edge to the Adventure entity.
-func (guo *GameUpdateOne) SetAdventures(a *Adventure) *GameUpdateOne {
-	return guo.SetAdventuresID(a.ID)
+// SetAdventure sets the "adventure" edge to the Adventure entity.
+func (guo *GameUpdateOne) SetAdventure(a *Adventure) *GameUpdateOne {
+	return guo.SetAdventureID(a.ID)
+}
+
+// SetCurrentPuzzleID sets the "current_puzzle" edge to the Puzzle entity by ID.
+func (guo *GameUpdateOne) SetCurrentPuzzleID(id int) *GameUpdateOne {
+	guo.mutation.SetCurrentPuzzleID(id)
+	return guo
+}
+
+// SetCurrentPuzzle sets the "current_puzzle" edge to the Puzzle entity.
+func (guo *GameUpdateOne) SetCurrentPuzzle(p *Puzzle) *GameUpdateOne {
+	return guo.SetCurrentPuzzleID(p.ID)
 }
 
 // Mutation returns the GameMutation object of the builder.
@@ -377,9 +426,15 @@ func (guo *GameUpdateOne) ClearUser() *GameUpdateOne {
 	return guo
 }
 
-// ClearAdventures clears the "adventures" edge to the Adventure entity.
-func (guo *GameUpdateOne) ClearAdventures() *GameUpdateOne {
-	guo.mutation.ClearAdventures()
+// ClearAdventure clears the "adventure" edge to the Adventure entity.
+func (guo *GameUpdateOne) ClearAdventure() *GameUpdateOne {
+	guo.mutation.ClearAdventure()
+	return guo
+}
+
+// ClearCurrentPuzzle clears the "current_puzzle" edge to the Puzzle entity.
+func (guo *GameUpdateOne) ClearCurrentPuzzle() *GameUpdateOne {
+	guo.mutation.ClearCurrentPuzzle()
 	return guo
 }
 
@@ -471,8 +526,11 @@ func (guo *GameUpdateOne) check() error {
 	if _, ok := guo.mutation.UserID(); guo.mutation.UserCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Game.user"`)
 	}
-	if _, ok := guo.mutation.AdventuresID(); guo.mutation.AdventuresCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Game.adventures"`)
+	if _, ok := guo.mutation.AdventureID(); guo.mutation.AdventureCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Game.adventure"`)
+	}
+	if _, ok := guo.mutation.CurrentPuzzleID(); guo.mutation.CurrentPuzzleCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Game.current_puzzle"`)
 	}
 	return nil
 }
@@ -482,35 +540,27 @@ func (guo *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) 
 		Node: &sqlgraph.NodeSpec{
 			Table:   game.Table,
 			Columns: game.Columns,
-			CompositeID: []*sqlgraph.FieldSpec{
-				{
-					Type:   field.TypeInt,
-					Column: game.FieldUserID,
-				},
-				{
-					Type:   field.TypeInt,
-					Column: game.FieldAdventureID,
-				},
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeInt,
+				Column: game.FieldID,
 			},
 		},
 	}
-	if id, ok := guo.mutation.UserID(); !ok {
-		return nil, &ValidationError{Name: "user_id", err: errors.New(`ent: missing "Game.user_id" for update`)}
-	} else {
-		_spec.Node.CompositeID[0].Value = id
+	id, ok := guo.mutation.ID()
+	if !ok {
+		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Game.id" for update`)}
 	}
-	if id, ok := guo.mutation.AdventureID(); !ok {
-		return nil, &ValidationError{Name: "adventure_id", err: errors.New(`ent: missing "Game.adventure_id" for update`)}
-	} else {
-		_spec.Node.CompositeID[1].Value = id
-	}
+	_spec.Node.ID.Value = id
 	if fields := guo.fields; len(fields) > 0 {
-		_spec.Node.Columns = make([]string, len(fields))
-		for i, f := range fields {
+		_spec.Node.Columns = make([]string, 0, len(fields))
+		_spec.Node.Columns = append(_spec.Node.Columns, game.FieldID)
+		for _, f := range fields {
 			if !game.ValidColumn(f) {
 				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 			}
-			_spec.Node.Columns[i] = f
+			if f != game.FieldID {
+				_spec.Node.Columns = append(_spec.Node.Columns, f)
+			}
 		}
 	}
 	if ps := guo.mutation.predicates; len(ps) > 0 {
@@ -537,7 +587,7 @@ func (guo *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) 
 	if guo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   game.UserTable,
 			Columns: []string{game.UserColumn},
 			Bidi:    false,
@@ -553,7 +603,7 @@ func (guo *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) 
 	if nodes := guo.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   game.UserTable,
 			Columns: []string{game.UserColumn},
 			Bidi:    false,
@@ -569,12 +619,12 @@ func (guo *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if guo.mutation.AdventuresCleared() {
+	if guo.mutation.AdventureCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   game.AdventuresTable,
-			Columns: []string{game.AdventuresColumn},
+			Table:   game.AdventureTable,
+			Columns: []string{game.AdventureColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -585,17 +635,52 @@ func (guo *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := guo.mutation.AdventuresIDs(); len(nodes) > 0 {
+	if nodes := guo.mutation.AdventureIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   game.AdventuresTable,
-			Columns: []string{game.AdventuresColumn},
+			Table:   game.AdventureTable,
+			Columns: []string{game.AdventureColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: adventure.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if guo.mutation.CurrentPuzzleCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   game.CurrentPuzzleTable,
+			Columns: []string{game.CurrentPuzzleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: puzzle.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := guo.mutation.CurrentPuzzleIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   game.CurrentPuzzleTable,
+			Columns: []string{game.CurrentPuzzleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: puzzle.FieldID,
 				},
 			},
 		}

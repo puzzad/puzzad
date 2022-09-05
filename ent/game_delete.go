@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/predicate"
 )
@@ -70,6 +71,10 @@ func (gd *GameDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := &sqlgraph.DeleteSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table: game.Table,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeInt,
+				Column: game.FieldID,
+			},
 		},
 	}
 	if ps := gd.mutation.predicates; len(ps) > 0 {

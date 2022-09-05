@@ -40,6 +40,19 @@ func (pu *PuzzleUpdate) SetAnswer(s string) *PuzzleUpdate {
 	return pu
 }
 
+// SetOrder sets the "order" field.
+func (pu *PuzzleUpdate) SetOrder(i int) *PuzzleUpdate {
+	pu.mutation.ResetOrder()
+	pu.mutation.SetOrder(i)
+	return pu
+}
+
+// AddOrder adds i to the "order" field.
+func (pu *PuzzleUpdate) AddOrder(i int) *PuzzleUpdate {
+	pu.mutation.AddOrder(i)
+	return pu
+}
+
 // SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
 func (pu *PuzzleUpdate) SetAdventureID(id int) *PuzzleUpdate {
 	pu.mutation.SetAdventureID(id)
@@ -156,6 +169,20 @@ func (pu *PuzzleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: puzzle.FieldAnswer,
 		})
 	}
+	if value, ok := pu.mutation.Order(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: puzzle.FieldOrder,
+		})
+	}
+	if value, ok := pu.mutation.AddedOrder(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: puzzle.FieldOrder,
+		})
+	}
 	if pu.mutation.AdventureCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -219,6 +246,19 @@ func (puo *PuzzleUpdateOne) SetTitle(s string) *PuzzleUpdateOne {
 // SetAnswer sets the "answer" field.
 func (puo *PuzzleUpdateOne) SetAnswer(s string) *PuzzleUpdateOne {
 	puo.mutation.SetAnswer(s)
+	return puo
+}
+
+// SetOrder sets the "order" field.
+func (puo *PuzzleUpdateOne) SetOrder(i int) *PuzzleUpdateOne {
+	puo.mutation.ResetOrder()
+	puo.mutation.SetOrder(i)
+	return puo
+}
+
+// AddOrder adds i to the "order" field.
+func (puo *PuzzleUpdateOne) AddOrder(i int) *PuzzleUpdateOne {
+	puo.mutation.AddOrder(i)
 	return puo
 }
 
@@ -366,6 +406,20 @@ func (puo *PuzzleUpdateOne) sqlSave(ctx context.Context) (_node *Puzzle, err err
 			Type:   field.TypeString,
 			Value:  value,
 			Column: puzzle.FieldAnswer,
+		})
+	}
+	if value, ok := puo.mutation.Order(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: puzzle.FieldOrder,
+		})
+	}
+	if value, ok := puo.mutation.AddedOrder(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: puzzle.FieldOrder,
 		})
 	}
 	if puo.mutation.AdventureCleared() {

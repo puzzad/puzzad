@@ -20,6 +20,8 @@ type Puzzle struct {
 	Title string `json:"title,omitempty"`
 	// Answer holds the value of the "answer" field.
 	Answer string `json:"answer,omitempty"`
+	// Order holds the value of the "order" field.
+	Order int `json:"order,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PuzzleQuery when eager-loading is set.
 	Edges             PuzzleEdges `json:"edges"`
@@ -54,7 +56,7 @@ func (*Puzzle) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case puzzle.FieldID:
+		case puzzle.FieldID, puzzle.FieldOrder:
 			values[i] = new(sql.NullInt64)
 		case puzzle.FieldTitle, puzzle.FieldAnswer:
 			values[i] = new(sql.NullString)
@@ -94,6 +96,12 @@ func (pu *Puzzle) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field answer", values[i])
 			} else if value.Valid {
 				pu.Answer = value.String
+			}
+		case puzzle.FieldOrder:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field order", values[i])
+			} else if value.Valid {
+				pu.Order = int(value.Int64)
 			}
 		case puzzle.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -147,6 +155,9 @@ func (pu *Puzzle) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("answer=")
 	builder.WriteString(pu.Answer)
+	builder.WriteString(", ")
+	builder.WriteString("order=")
+	builder.WriteString(fmt.Sprintf("%v", pu.Order))
 	builder.WriteByte(')')
 	return builder.String()
 }

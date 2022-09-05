@@ -32,6 +32,12 @@ func (pc *PuzzleCreate) SetAnswer(s string) *PuzzleCreate {
 	return pc
 }
 
+// SetOrder sets the "order" field.
+func (pc *PuzzleCreate) SetOrder(i int) *PuzzleCreate {
+	pc.mutation.SetOrder(i)
+	return pc
+}
+
 // SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
 func (pc *PuzzleCreate) SetAdventureID(id int) *PuzzleCreate {
 	pc.mutation.SetAdventureID(id)
@@ -133,6 +139,9 @@ func (pc *PuzzleCreate) check() error {
 	if _, ok := pc.mutation.Answer(); !ok {
 		return &ValidationError{Name: "answer", err: errors.New(`ent: missing required field "Puzzle.answer"`)}
 	}
+	if _, ok := pc.mutation.Order(); !ok {
+		return &ValidationError{Name: "order", err: errors.New(`ent: missing required field "Puzzle.order"`)}
+	}
 	return nil
 }
 
@@ -175,6 +184,14 @@ func (pc *PuzzleCreate) createSpec() (*Puzzle, *sqlgraph.CreateSpec) {
 			Column: puzzle.FieldAnswer,
 		})
 		_node.Answer = value
+	}
+	if value, ok := pc.mutation.Order(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: puzzle.FieldOrder,
+		})
+		_node.Order = value
 	}
 	if nodes := pc.mutation.AdventureIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

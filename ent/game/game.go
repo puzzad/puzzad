@@ -9,22 +9,18 @@ import (
 const (
 	// Label holds the string label denoting the game type in the database.
 	Label = "game"
+	// FieldID holds the string denoting the id field in the database.
+	FieldID = "id"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldCode holds the string denoting the code field in the database.
 	FieldCode = "code"
-	// FieldUserID holds the string denoting the user_id field in the database.
-	FieldUserID = "user_id"
-	// FieldAdventureID holds the string denoting the adventure_id field in the database.
-	FieldAdventureID = "adventure_id"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
-	// EdgeAdventures holds the string denoting the adventures edge name in mutations.
-	EdgeAdventures = "adventures"
-	// UserFieldID holds the string denoting the ID field of the User.
-	UserFieldID = "id"
-	// AdventureFieldID holds the string denoting the ID field of the Adventure.
-	AdventureFieldID = "id"
+	// EdgeAdventure holds the string denoting the adventure edge name in mutations.
+	EdgeAdventure = "adventure"
+	// EdgeCurrentPuzzle holds the string denoting the current_puzzle edge name in mutations.
+	EdgeCurrentPuzzle = "current_puzzle"
 	// Table holds the table name of the game in the database.
 	Table = "games"
 	// UserTable is the table that holds the user relation/edge.
@@ -33,28 +29,47 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
-	UserColumn = "user_id"
-	// AdventuresTable is the table that holds the adventures relation/edge.
-	AdventuresTable = "games"
-	// AdventuresInverseTable is the table name for the Adventure entity.
+	UserColumn = "user_game"
+	// AdventureTable is the table that holds the adventure relation/edge.
+	AdventureTable = "games"
+	// AdventureInverseTable is the table name for the Adventure entity.
 	// It exists in this package in order to avoid circular dependency with the "adventure" package.
-	AdventuresInverseTable = "adventures"
-	// AdventuresColumn is the table column denoting the adventures relation/edge.
-	AdventuresColumn = "adventure_id"
+	AdventureInverseTable = "adventures"
+	// AdventureColumn is the table column denoting the adventure relation/edge.
+	AdventureColumn = "game_adventure"
+	// CurrentPuzzleTable is the table that holds the current_puzzle relation/edge.
+	CurrentPuzzleTable = "games"
+	// CurrentPuzzleInverseTable is the table name for the Puzzle entity.
+	// It exists in this package in order to avoid circular dependency with the "puzzle" package.
+	CurrentPuzzleInverseTable = "puzzles"
+	// CurrentPuzzleColumn is the table column denoting the current_puzzle relation/edge.
+	CurrentPuzzleColumn = "game_current_puzzle"
 )
 
 // Columns holds all SQL columns for game fields.
 var Columns = []string{
+	FieldID,
 	FieldStatus,
 	FieldCode,
-	FieldUserID,
-	FieldAdventureID,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "games"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"game_adventure",
+	"game_current_puzzle",
+	"user_game",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}

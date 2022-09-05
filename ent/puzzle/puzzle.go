@@ -11,6 +11,8 @@ const (
 	FieldTitle = "title"
 	// FieldAnswer holds the string denoting the answer field in the database.
 	FieldAnswer = "answer"
+	// FieldOrder holds the string denoting the order field in the database.
+	FieldOrder = "order"
 	// EdgeAdventure holds the string denoting the adventure edge name in mutations.
 	EdgeAdventure = "adventure"
 	// Table holds the table name of the puzzle in the database.
@@ -29,6 +31,7 @@ var Columns = []string{
 	FieldID,
 	FieldTitle,
 	FieldAnswer,
+	FieldOrder,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "puzzles"

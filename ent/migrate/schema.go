@@ -21,27 +21,35 @@ var (
 	}
 	// GamesColumns holds the columns for the "games" table.
 	GamesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"Paid", "Unpaid", "Expired"}, Default: "Unpaid"},
 		{Name: "code", Type: field.TypeString, Unique: true, Size: 40},
-		{Name: "user_id", Type: field.TypeInt},
-		{Name: "adventure_id", Type: field.TypeInt},
+		{Name: "game_adventure", Type: field.TypeInt},
+		{Name: "game_current_puzzle", Type: field.TypeInt},
+		{Name: "user_game", Type: field.TypeInt},
 	}
 	// GamesTable holds the schema information for the "games" table.
 	GamesTable = &schema.Table{
 		Name:       "games",
 		Columns:    GamesColumns,
-		PrimaryKey: []*schema.Column{GamesColumns[2], GamesColumns[3]},
+		PrimaryKey: []*schema.Column{GamesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "games_users_user",
-				Columns:    []*schema.Column{GamesColumns[2]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
+				Symbol:     "games_adventures_adventure",
+				Columns:    []*schema.Column{GamesColumns[3]},
+				RefColumns: []*schema.Column{AdventuresColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
-				Symbol:     "games_adventures_adventures",
-				Columns:    []*schema.Column{GamesColumns[3]},
-				RefColumns: []*schema.Column{AdventuresColumns[0]},
+				Symbol:     "games_puzzles_current_puzzle",
+				Columns:    []*schema.Column{GamesColumns[4]},
+				RefColumns: []*schema.Column{PuzzlesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "games_users_game",
+				Columns:    []*schema.Column{GamesColumns[5]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
@@ -58,37 +66,12 @@ var (
 		Columns:    GuessesColumns,
 		PrimaryKey: []*schema.Column{GuessesColumns[0]},
 	}
-	// ProgressesColumns holds the columns for the "progresses" table.
-	ProgressesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "progress_adventure", Type: field.TypeInt},
-		{Name: "progress_puzzle", Type: field.TypeInt},
-	}
-	// ProgressesTable holds the schema information for the "progresses" table.
-	ProgressesTable = &schema.Table{
-		Name:       "progresses",
-		Columns:    ProgressesColumns,
-		PrimaryKey: []*schema.Column{ProgressesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "progresses_adventures_adventure",
-				Columns:    []*schema.Column{ProgressesColumns[1]},
-				RefColumns: []*schema.Column{AdventuresColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "progresses_puzzles_puzzle",
-				Columns:    []*schema.Column{ProgressesColumns[2]},
-				RefColumns: []*schema.Column{PuzzlesColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-	}
 	// PuzzlesColumns holds the columns for the "puzzles" table.
 	PuzzlesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "title", Type: field.TypeString},
 		{Name: "answer", Type: field.TypeString},
+		{Name: "order", Type: field.TypeInt},
 		{Name: "adventure_puzzles", Type: field.TypeInt, Nullable: true},
 		{Name: "guess_puzzle", Type: field.TypeInt, Nullable: true},
 	}
@@ -100,13 +83,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "puzzles_adventures_puzzles",
-				Columns:    []*schema.Column{PuzzlesColumns[3]},
+				Columns:    []*schema.Column{PuzzlesColumns[4]},
 				RefColumns: []*schema.Column{AdventuresColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "puzzles_guesses_puzzle",
-				Columns:    []*schema.Column{PuzzlesColumns[4]},
+				Columns:    []*schema.Column{PuzzlesColumns[5]},
 				RefColumns: []*schema.Column{GuessesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -136,51 +119,21 @@ var (
 			},
 		},
 	}
-	// UserProgressColumns holds the columns for the "user_progress" table.
-	UserProgressColumns = []*schema.Column{
-		{Name: "user_id", Type: field.TypeInt},
-		{Name: "progress_id", Type: field.TypeInt},
-	}
-	// UserProgressTable holds the schema information for the "user_progress" table.
-	UserProgressTable = &schema.Table{
-		Name:       "user_progress",
-		Columns:    UserProgressColumns,
-		PrimaryKey: []*schema.Column{UserProgressColumns[0], UserProgressColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "user_progress_user_id",
-				Columns:    []*schema.Column{UserProgressColumns[0]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "user_progress_progress_id",
-				Columns:    []*schema.Column{UserProgressColumns[1]},
-				RefColumns: []*schema.Column{ProgressesColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AdventuresTable,
 		GamesTable,
 		GuessesTable,
-		ProgressesTable,
 		PuzzlesTable,
 		UsersTable,
-		UserProgressTable,
 	}
 )
 
 func init() {
-	GamesTable.ForeignKeys[0].RefTable = UsersTable
-	GamesTable.ForeignKeys[1].RefTable = AdventuresTable
-	ProgressesTable.ForeignKeys[0].RefTable = AdventuresTable
-	ProgressesTable.ForeignKeys[1].RefTable = PuzzlesTable
+	GamesTable.ForeignKeys[0].RefTable = AdventuresTable
+	GamesTable.ForeignKeys[1].RefTable = PuzzlesTable
+	GamesTable.ForeignKeys[2].RefTable = UsersTable
 	PuzzlesTable.ForeignKeys[0].RefTable = AdventuresTable
 	PuzzlesTable.ForeignKeys[1].RefTable = GuessesTable
 	UsersTable.ForeignKeys[0].RefTable = GuessesTable
-	UserProgressTable.ForeignKeys[0].RefTable = UsersTable
-	UserProgressTable.ForeignKeys[1].RefTable = ProgressesTable
 }

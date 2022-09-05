@@ -11,9 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/greboid/puzzad/ent/adventure"
+	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/predicate"
-	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/user"
 )
 
@@ -78,34 +77,19 @@ func (uu *UserUpdate) SetNillableStatus(u *user.Status) *UserUpdate {
 	return uu
 }
 
-// AddAdventureIDs adds the "adventures" edge to the Adventure entity by IDs.
-func (uu *UserUpdate) AddAdventureIDs(ids ...int) *UserUpdate {
-	uu.mutation.AddAdventureIDs(ids...)
+// AddGameIDs adds the "game" edge to the Game entity by IDs.
+func (uu *UserUpdate) AddGameIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddGameIDs(ids...)
 	return uu
 }
 
-// AddAdventures adds the "adventures" edges to the Adventure entity.
-func (uu *UserUpdate) AddAdventures(a ...*Adventure) *UserUpdate {
-	ids := make([]int, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+// AddGame adds the "game" edges to the Game entity.
+func (uu *UserUpdate) AddGame(g ...*Game) *UserUpdate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
 	}
-	return uu.AddAdventureIDs(ids...)
-}
-
-// AddProgresIDs adds the "progress" edge to the Progress entity by IDs.
-func (uu *UserUpdate) AddProgresIDs(ids ...int) *UserUpdate {
-	uu.mutation.AddProgresIDs(ids...)
-	return uu
-}
-
-// AddProgress adds the "progress" edges to the Progress entity.
-func (uu *UserUpdate) AddProgress(p ...*Progress) *UserUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return uu.AddProgresIDs(ids...)
+	return uu.AddGameIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -113,46 +97,25 @@ func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
 }
 
-// ClearAdventures clears all "adventures" edges to the Adventure entity.
-func (uu *UserUpdate) ClearAdventures() *UserUpdate {
-	uu.mutation.ClearAdventures()
+// ClearGame clears all "game" edges to the Game entity.
+func (uu *UserUpdate) ClearGame() *UserUpdate {
+	uu.mutation.ClearGame()
 	return uu
 }
 
-// RemoveAdventureIDs removes the "adventures" edge to Adventure entities by IDs.
-func (uu *UserUpdate) RemoveAdventureIDs(ids ...int) *UserUpdate {
-	uu.mutation.RemoveAdventureIDs(ids...)
+// RemoveGameIDs removes the "game" edge to Game entities by IDs.
+func (uu *UserUpdate) RemoveGameIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveGameIDs(ids...)
 	return uu
 }
 
-// RemoveAdventures removes "adventures" edges to Adventure entities.
-func (uu *UserUpdate) RemoveAdventures(a ...*Adventure) *UserUpdate {
-	ids := make([]int, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+// RemoveGame removes "game" edges to Game entities.
+func (uu *UserUpdate) RemoveGame(g ...*Game) *UserUpdate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
 	}
-	return uu.RemoveAdventureIDs(ids...)
-}
-
-// ClearProgress clears all "progress" edges to the Progress entity.
-func (uu *UserUpdate) ClearProgress() *UserUpdate {
-	uu.mutation.ClearProgress()
-	return uu
-}
-
-// RemoveProgresIDs removes the "progress" edge to Progress entities by IDs.
-func (uu *UserUpdate) RemoveProgresIDs(ids ...int) *UserUpdate {
-	uu.mutation.RemoveProgresIDs(ids...)
-	return uu
-}
-
-// RemoveProgress removes "progress" edges to Progress entities.
-func (uu *UserUpdate) RemoveProgress(p ...*Progress) *UserUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return uu.RemoveProgresIDs(ids...)
+	return uu.RemoveGameIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -271,99 +234,33 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldStatus,
 		})
 	}
-	if uu.mutation.AdventuresCleared() {
+	if uu.mutation.GameCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.AdventuresTable,
-			Columns: user.AdventuresPrimaryKey,
+			Table:   user.GameTable,
+			Columns: []string{user.GameColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: adventure.FieldID,
-				},
-			},
-		}
-		createE := &GameCreate{config: uu.config, mutation: newGameMutation(uu.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.RemovedAdventuresIDs(); len(nodes) > 0 && !uu.mutation.AdventuresCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.AdventuresTable,
-			Columns: user.AdventuresPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: adventure.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		createE := &GameCreate{config: uu.config, mutation: newGameMutation(uu.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.AdventuresIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.AdventuresTable,
-			Columns: user.AdventuresPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: adventure.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		createE := &GameCreate{config: uu.config, mutation: newGameMutation(uu.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uu.mutation.ProgressCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.ProgressTable,
-			Columns: user.ProgressPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: progress.FieldID,
+					Column: game.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.RemovedProgressIDs(); len(nodes) > 0 && !uu.mutation.ProgressCleared() {
+	if nodes := uu.mutation.RemovedGameIDs(); len(nodes) > 0 && !uu.mutation.GameCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.ProgressTable,
-			Columns: user.ProgressPrimaryKey,
+			Table:   user.GameTable,
+			Columns: []string{user.GameColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: progress.FieldID,
+					Column: game.FieldID,
 				},
 			},
 		}
@@ -372,17 +269,17 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.ProgressIDs(); len(nodes) > 0 {
+	if nodes := uu.mutation.GameIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.ProgressTable,
-			Columns: user.ProgressPrimaryKey,
+			Table:   user.GameTable,
+			Columns: []string{user.GameColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: progress.FieldID,
+					Column: game.FieldID,
 				},
 			},
 		}
@@ -458,34 +355,19 @@ func (uuo *UserUpdateOne) SetNillableStatus(u *user.Status) *UserUpdateOne {
 	return uuo
 }
 
-// AddAdventureIDs adds the "adventures" edge to the Adventure entity by IDs.
-func (uuo *UserUpdateOne) AddAdventureIDs(ids ...int) *UserUpdateOne {
-	uuo.mutation.AddAdventureIDs(ids...)
+// AddGameIDs adds the "game" edge to the Game entity by IDs.
+func (uuo *UserUpdateOne) AddGameIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddGameIDs(ids...)
 	return uuo
 }
 
-// AddAdventures adds the "adventures" edges to the Adventure entity.
-func (uuo *UserUpdateOne) AddAdventures(a ...*Adventure) *UserUpdateOne {
-	ids := make([]int, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+// AddGame adds the "game" edges to the Game entity.
+func (uuo *UserUpdateOne) AddGame(g ...*Game) *UserUpdateOne {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
 	}
-	return uuo.AddAdventureIDs(ids...)
-}
-
-// AddProgresIDs adds the "progress" edge to the Progress entity by IDs.
-func (uuo *UserUpdateOne) AddProgresIDs(ids ...int) *UserUpdateOne {
-	uuo.mutation.AddProgresIDs(ids...)
-	return uuo
-}
-
-// AddProgress adds the "progress" edges to the Progress entity.
-func (uuo *UserUpdateOne) AddProgress(p ...*Progress) *UserUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return uuo.AddProgresIDs(ids...)
+	return uuo.AddGameIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -493,46 +375,25 @@ func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
 }
 
-// ClearAdventures clears all "adventures" edges to the Adventure entity.
-func (uuo *UserUpdateOne) ClearAdventures() *UserUpdateOne {
-	uuo.mutation.ClearAdventures()
+// ClearGame clears all "game" edges to the Game entity.
+func (uuo *UserUpdateOne) ClearGame() *UserUpdateOne {
+	uuo.mutation.ClearGame()
 	return uuo
 }
 
-// RemoveAdventureIDs removes the "adventures" edge to Adventure entities by IDs.
-func (uuo *UserUpdateOne) RemoveAdventureIDs(ids ...int) *UserUpdateOne {
-	uuo.mutation.RemoveAdventureIDs(ids...)
+// RemoveGameIDs removes the "game" edge to Game entities by IDs.
+func (uuo *UserUpdateOne) RemoveGameIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveGameIDs(ids...)
 	return uuo
 }
 
-// RemoveAdventures removes "adventures" edges to Adventure entities.
-func (uuo *UserUpdateOne) RemoveAdventures(a ...*Adventure) *UserUpdateOne {
-	ids := make([]int, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+// RemoveGame removes "game" edges to Game entities.
+func (uuo *UserUpdateOne) RemoveGame(g ...*Game) *UserUpdateOne {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
 	}
-	return uuo.RemoveAdventureIDs(ids...)
-}
-
-// ClearProgress clears all "progress" edges to the Progress entity.
-func (uuo *UserUpdateOne) ClearProgress() *UserUpdateOne {
-	uuo.mutation.ClearProgress()
-	return uuo
-}
-
-// RemoveProgresIDs removes the "progress" edge to Progress entities by IDs.
-func (uuo *UserUpdateOne) RemoveProgresIDs(ids ...int) *UserUpdateOne {
-	uuo.mutation.RemoveProgresIDs(ids...)
-	return uuo
-}
-
-// RemoveProgress removes "progress" edges to Progress entities.
-func (uuo *UserUpdateOne) RemoveProgress(p ...*Progress) *UserUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return uuo.RemoveProgresIDs(ids...)
+	return uuo.RemoveGameIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -681,99 +542,33 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Column: user.FieldStatus,
 		})
 	}
-	if uuo.mutation.AdventuresCleared() {
+	if uuo.mutation.GameCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.AdventuresTable,
-			Columns: user.AdventuresPrimaryKey,
+			Table:   user.GameTable,
+			Columns: []string{user.GameColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: adventure.FieldID,
-				},
-			},
-		}
-		createE := &GameCreate{config: uuo.config, mutation: newGameMutation(uuo.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.RemovedAdventuresIDs(); len(nodes) > 0 && !uuo.mutation.AdventuresCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.AdventuresTable,
-			Columns: user.AdventuresPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: adventure.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		createE := &GameCreate{config: uuo.config, mutation: newGameMutation(uuo.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.AdventuresIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.AdventuresTable,
-			Columns: user.AdventuresPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: adventure.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		createE := &GameCreate{config: uuo.config, mutation: newGameMutation(uuo.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uuo.mutation.ProgressCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.ProgressTable,
-			Columns: user.ProgressPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: progress.FieldID,
+					Column: game.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.RemovedProgressIDs(); len(nodes) > 0 && !uuo.mutation.ProgressCleared() {
+	if nodes := uuo.mutation.RemovedGameIDs(); len(nodes) > 0 && !uuo.mutation.GameCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.ProgressTable,
-			Columns: user.ProgressPrimaryKey,
+			Table:   user.GameTable,
+			Columns: []string{user.GameColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: progress.FieldID,
+					Column: game.FieldID,
 				},
 			},
 		}
@@ -782,17 +577,17 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.ProgressIDs(); len(nodes) > 0 {
+	if nodes := uuo.mutation.GameIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.ProgressTable,
-			Columns: user.ProgressPrimaryKey,
+			Table:   user.GameTable,
+			Columns: []string{user.GameColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: progress.FieldID,
+					Column: game.FieldID,
 				},
 			},
 		}

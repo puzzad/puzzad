@@ -2,7 +2,6 @@ package schema
 
 import (
 	"entgo.io/ent"
-	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/csmith/aca"
@@ -25,13 +24,6 @@ type Game struct {
 	ent.Schema
 }
 
-func (Game) Annotations() []schema.Annotation {
-	return []schema.Annotation{
-		//This crashes the ent schema description command, but its written as per the docs
-		field.ID("user_id", "adventure_id"),
-	}
-}
-
 // Fields of the Game.
 func (Game) Fields() []ent.Field {
 	return []ent.Field{
@@ -42,15 +34,14 @@ func (Game) Fields() []ent.Field {
 			}).
 			MaxLen(40).
 			Unique(),
-		field.Int("user_id"),
-		field.Int("adventure_id"),
 	}
 }
 
 // Edges of the Game.
 func (Game) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("user", User.Type).Unique().Required().Field("user_id"),
-		edge.To("adventures", Adventure.Type).Unique().Required().Field("adventure_id"),
+		edge.From("user", User.Type).Ref("game").Unique().Required(),
+		edge.To("adventure", Adventure.Type).Unique().Required(),
+		edge.To("current_puzzle", Puzzle.Type).Unique().Required(),
 	}
 }

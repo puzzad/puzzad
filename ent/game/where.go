@@ -8,24 +8,81 @@ import (
 	"github.com/greboid/puzzad/ent/predicate"
 )
 
+// ID filters vertices based on their ID field.
+func ID(id int) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldID), id))
+	})
+}
+
+// IDEQ applies the EQ predicate on the ID field.
+func IDEQ(id int) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldID), id))
+	})
+}
+
+// IDNEQ applies the NEQ predicate on the ID field.
+func IDNEQ(id int) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldID), id))
+	})
+}
+
+// IDIn applies the In predicate on the ID field.
+func IDIn(ids ...int) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		v := make([]interface{}, len(ids))
+		for i := range v {
+			v[i] = ids[i]
+		}
+		s.Where(sql.In(s.C(FieldID), v...))
+	})
+}
+
+// IDNotIn applies the NotIn predicate on the ID field.
+func IDNotIn(ids ...int) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		v := make([]interface{}, len(ids))
+		for i := range v {
+			v[i] = ids[i]
+		}
+		s.Where(sql.NotIn(s.C(FieldID), v...))
+	})
+}
+
+// IDGT applies the GT predicate on the ID field.
+func IDGT(id int) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldID), id))
+	})
+}
+
+// IDGTE applies the GTE predicate on the ID field.
+func IDGTE(id int) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldID), id))
+	})
+}
+
+// IDLT applies the LT predicate on the ID field.
+func IDLT(id int) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldID), id))
+	})
+}
+
+// IDLTE applies the LTE predicate on the ID field.
+func IDLTE(id int) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldID), id))
+	})
+}
+
 // Code applies equality check predicate on the "code" field. It's identical to CodeEQ.
 func Code(v string) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldCode), v))
-	})
-}
-
-// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int) predicate.Game {
-	return predicate.Game(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUserID), v))
-	})
-}
-
-// AdventureID applies equality check predicate on the "adventure_id" field. It's identical to AdventureIDEQ.
-func AdventureID(v int) predicate.Game {
-	return predicate.Game(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldAdventureID), v))
 	})
 }
 
@@ -164,85 +221,13 @@ func CodeContainsFold(v string) predicate.Game {
 	})
 }
 
-// UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int) predicate.Game {
-	return predicate.Game(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUserID), v))
-	})
-}
-
-// UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int) predicate.Game {
-	return predicate.Game(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUserID), v))
-	})
-}
-
-// UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int) predicate.Game {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Game(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldUserID), v...))
-	})
-}
-
-// UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int) predicate.Game {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Game(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldUserID), v...))
-	})
-}
-
-// AdventureIDEQ applies the EQ predicate on the "adventure_id" field.
-func AdventureIDEQ(v int) predicate.Game {
-	return predicate.Game(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldAdventureID), v))
-	})
-}
-
-// AdventureIDNEQ applies the NEQ predicate on the "adventure_id" field.
-func AdventureIDNEQ(v int) predicate.Game {
-	return predicate.Game(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldAdventureID), v))
-	})
-}
-
-// AdventureIDIn applies the In predicate on the "adventure_id" field.
-func AdventureIDIn(vs ...int) predicate.Game {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Game(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldAdventureID), v...))
-	})
-}
-
-// AdventureIDNotIn applies the NotIn predicate on the "adventure_id" field.
-func AdventureIDNotIn(vs ...int) predicate.Game {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Game(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldAdventureID), v...))
-	})
-}
-
 // HasUser applies the HasEdge predicate on the "user" edge.
 func HasUser() predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, UserColumn),
-			sqlgraph.To(UserInverseTable, UserFieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, UserTable, UserColumn),
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(UserTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -252,9 +237,9 @@ func HasUser() predicate.Game {
 func HasUserWith(preds ...predicate.User) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, UserColumn),
-			sqlgraph.To(UserInverseTable, UserFieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, UserTable, UserColumn),
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(UserInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
@@ -264,25 +249,53 @@ func HasUserWith(preds ...predicate.User) predicate.Game {
 	})
 }
 
-// HasAdventures applies the HasEdge predicate on the "adventures" edge.
-func HasAdventures() predicate.Game {
+// HasAdventure applies the HasEdge predicate on the "adventure" edge.
+func HasAdventure() predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, AdventuresColumn),
-			sqlgraph.To(AdventuresInverseTable, AdventureFieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, AdventuresTable, AdventuresColumn),
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(AdventureTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, AdventureTable, AdventureColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasAdventuresWith applies the HasEdge predicate on the "adventures" edge with a given conditions (other predicates).
-func HasAdventuresWith(preds ...predicate.Adventure) predicate.Game {
+// HasAdventureWith applies the HasEdge predicate on the "adventure" edge with a given conditions (other predicates).
+func HasAdventureWith(preds ...predicate.Adventure) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, AdventuresColumn),
-			sqlgraph.To(AdventuresInverseTable, AdventureFieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, AdventuresTable, AdventuresColumn),
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(AdventureInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, AdventureTable, AdventureColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasCurrentPuzzle applies the HasEdge predicate on the "current_puzzle" edge.
+func HasCurrentPuzzle() predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(CurrentPuzzleTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, CurrentPuzzleTable, CurrentPuzzleColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCurrentPuzzleWith applies the HasEdge predicate on the "current_puzzle" edge with a given conditions (other predicates).
+func HasCurrentPuzzleWith(preds ...predicate.Puzzle) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(CurrentPuzzleInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, CurrentPuzzleTable, CurrentPuzzleColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

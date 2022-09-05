@@ -18,8 +18,6 @@ type Tx struct {
 	Game *GameClient
 	// Guess is the client for interacting with the Guess builders.
 	Guess *GuessClient
-	// Progress is the client for interacting with the Progress builders.
-	Progress *ProgressClient
 	// Puzzle is the client for interacting with the Puzzle builders.
 	Puzzle *PuzzleClient
 	// User is the client for interacting with the User builders.
@@ -162,7 +160,6 @@ func (tx *Tx) init() {
 	tx.Adventure = NewAdventureClient(tx.config)
 	tx.Game = NewGameClient(tx.config)
 	tx.Guess = NewGuessClient(tx.config)
-	tx.Progress = NewProgressClient(tx.config)
 	tx.Puzzle = NewPuzzleClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
