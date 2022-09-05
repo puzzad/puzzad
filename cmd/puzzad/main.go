@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/greboid/puzzad/ent/game"
 	"os"
+
+	"github.com/greboid/puzzad/ent/game"
 
 	"github.com/csmith/envflag"
 	"github.com/greboid/puzzad/puzzad"
@@ -31,8 +32,7 @@ func main() {
 	}()
 	go func() {
 		ctx := context.Background()
-		u, _ := client.CreateUser(ctx, "test@test.test")
-		u, _ = client.GetUser(ctx, "test@test.test")
+		u, _ := client.GetOrCreateUser(ctx, "test@test.test")
 		log.Printf("Verify Code: %s", u.VerifyCode)
 		ad, _ := client.CreateAdventure(ctx, "Test Adventure")
 		ad, _ = client.GetAdventure(ctx, "Test Adventure")
