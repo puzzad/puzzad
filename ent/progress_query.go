@@ -15,7 +15,7 @@ import (
 	"github.com/greboid/puzzad/ent/predicate"
 	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/question"
-	"github.com/greboid/puzzad/ent/team"
+	"github.com/greboid/puzzad/ent/user"
 )
 
 // ProgressQuery is the builder for querying Progress entities.
@@ -27,7 +27,7 @@ type ProgressQuery struct {
 	order         []OrderFunc
 	fields        []string
 	predicates    []predicate.Progress
-	withTeam      *TeamQuery
+	withUser      *UserQuery
 	withAdventure *AdventureQuery
 	withQuestion  *QuestionQuery
 	withFKs       bool
@@ -67,9 +67,9 @@ func (pq *ProgressQuery) Order(o ...OrderFunc) *ProgressQuery {
 	return pq
 }
 
-// QueryTeam chains the current query on the "team" edge.
-func (pq *ProgressQuery) QueryTeam() *TeamQuery {
-	query := &TeamQuery{config: pq.config}
+// QueryUser chains the current query on the "user" edge.
+func (pq *ProgressQuery) QueryUser() *UserQuery {
+	query := &UserQuery{config: pq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -80,8 +80,8 @@ func (pq *ProgressQuery) QueryTeam() *TeamQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(progress.Table, progress.FieldID, selector),
-			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, progress.TeamTable, progress.TeamPrimaryKey...),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, progress.UserTable, progress.UserPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -314,7 +314,7 @@ func (pq *ProgressQuery) Clone() *ProgressQuery {
 		offset:        pq.offset,
 		order:         append([]OrderFunc{}, pq.order...),
 		predicates:    append([]predicate.Progress{}, pq.predicates...),
-		withTeam:      pq.withTeam.Clone(),
+		withUser:      pq.withUser.Clone(),
 		withAdventure: pq.withAdventure.Clone(),
 		withQuestion:  pq.withQuestion.Clone(),
 		// clone intermediate query.
@@ -324,14 +324,14 @@ func (pq *ProgressQuery) Clone() *ProgressQuery {
 	}
 }
 
-// WithTeam tells the query-builder to eager-load the nodes that are connected to
-// the "team" edge. The optional arguments are used to configure the query builder of the edge.
-func (pq *ProgressQuery) WithTeam(opts ...func(*TeamQuery)) *ProgressQuery {
-	query := &TeamQuery{config: pq.config}
+// WithUser tells the query-builder to eager-load the nodes that are connected to
+// the "user" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProgressQuery) WithUser(opts ...func(*UserQuery)) *ProgressQuery {
+	query := &UserQuery{config: pq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	pq.withTeam = query
+	pq.withUser = query
 	return pq
 }
 
@@ -405,7 +405,7 @@ func (pq *ProgressQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pro
 		withFKs     = pq.withFKs
 		_spec       = pq.querySpec()
 		loadedTypes = [3]bool{
-			pq.withTeam != nil,
+			pq.withUser != nil,
 			pq.withAdventure != nil,
 			pq.withQuestion != nil,
 		}
@@ -434,10 +434,10 @@ func (pq *ProgressQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pro
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := pq.withTeam; query != nil {
-		if err := pq.loadTeam(ctx, query, nodes,
-			func(n *Progress) { n.Edges.Team = []*Team{} },
-			func(n *Progress, e *Team) { n.Edges.Team = append(n.Edges.Team, e) }); err != nil {
+	if query := pq.withUser; query != nil {
+		if err := pq.loadUser(ctx, query, nodes,
+			func(n *Progress) { n.Edges.User = []*User{} },
+			func(n *Progress, e *User) { n.Edges.User = append(n.Edges.User, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -456,7 +456,7 @@ func (pq *ProgressQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pro
 	return nodes, nil
 }
 
-func (pq *ProgressQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Progress, init func(*Progress), assign func(*Progress, *Team)) error {
+func (pq *ProgressQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Progress, init func(*Progress), assign func(*Progress, *User)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[int]*Progress)
 	nids := make(map[int]map[*Progress]struct{})
@@ -468,11 +468,11 @@ func (pq *ProgressQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes [
 		}
 	}
 	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(progress.TeamTable)
-		s.Join(joinT).On(s.C(team.FieldID), joinT.C(progress.TeamPrimaryKey[0]))
-		s.Where(sql.InValues(joinT.C(progress.TeamPrimaryKey[1]), edgeIDs...))
+		joinT := sql.Table(progress.UserTable)
+		s.Join(joinT).On(s.C(user.FieldID), joinT.C(progress.UserPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(progress.UserPrimaryKey[1]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(progress.TeamPrimaryKey[1]))
+		s.Select(joinT.C(progress.UserPrimaryKey[1]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -506,7 +506,7 @@ func (pq *ProgressQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes [
 	for _, n := range neighbors {
 		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "team" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "user" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)

@@ -12,7 +12,7 @@ import (
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/question"
-	"github.com/greboid/puzzad/ent/team"
+	"github.com/greboid/puzzad/ent/user"
 )
 
 // ProgressCreate is the builder for creating a Progress entity.
@@ -22,19 +22,19 @@ type ProgressCreate struct {
 	hooks    []Hook
 }
 
-// AddTeamIDs adds the "team" edge to the Team entity by IDs.
-func (pc *ProgressCreate) AddTeamIDs(ids ...int) *ProgressCreate {
-	pc.mutation.AddTeamIDs(ids...)
+// AddUserIDs adds the "user" edge to the User entity by IDs.
+func (pc *ProgressCreate) AddUserIDs(ids ...int) *ProgressCreate {
+	pc.mutation.AddUserIDs(ids...)
 	return pc
 }
 
-// AddTeam adds the "team" edges to the Team entity.
-func (pc *ProgressCreate) AddTeam(t ...*Team) *ProgressCreate {
-	ids := make([]int, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
+// AddUser adds the "user" edges to the User entity.
+func (pc *ProgressCreate) AddUser(u ...*User) *ProgressCreate {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
 	}
-	return pc.AddTeamIDs(ids...)
+	return pc.AddUserIDs(ids...)
 }
 
 // SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
@@ -135,8 +135,8 @@ func (pc *ProgressCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (pc *ProgressCreate) check() error {
-	if len(pc.mutation.TeamIDs()) == 0 {
-		return &ValidationError{Name: "team", err: errors.New(`ent: missing required edge "Progress.team"`)}
+	if len(pc.mutation.UserIDs()) == 0 {
+		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Progress.user"`)}
 	}
 	if _, ok := pc.mutation.AdventureID(); !ok {
 		return &ValidationError{Name: "adventure", err: errors.New(`ent: missing required edge "Progress.adventure"`)}
@@ -171,17 +171,17 @@ func (pc *ProgressCreate) createSpec() (*Progress, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
-	if nodes := pc.mutation.TeamIDs(); len(nodes) > 0 {
+	if nodes := pc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   progress.TeamTable,
-			Columns: progress.TeamPrimaryKey,
+			Table:   progress.UserTable,
+			Columns: progress.UserPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: team.FieldID,
+					Column: user.FieldID,
 				},
 			},
 		}

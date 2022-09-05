@@ -15,7 +15,7 @@ import (
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/question"
-	"github.com/greboid/puzzad/ent/team"
+	"github.com/greboid/puzzad/ent/user"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -41,7 +41,7 @@ func columnChecker(table string) func(string) error {
 		guess.Table:     guess.ValidColumn,
 		progress.Table:  progress.ValidColumn,
 		question.Table:  question.ValidColumn,
-		team.Table:      team.ValidColumn,
+		user.Table:      user.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

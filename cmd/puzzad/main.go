@@ -31,16 +31,16 @@ func main() {
 	}()
 	go func() {
 		ctx := context.Background()
-		t, _ := client.CreateTeam(ctx, "Test Team", "test@test.test")
-		t, _ = client.GetTeam(ctx, "Test Team")
-		log.Printf("Team Code: %s", t.Code)
+		u, _ := client.CreateUser(ctx, "test@test.test")
+		u, _ = client.GetUser(ctx, "test@test.test")
+		log.Printf("Verify Code: %s", u.VerifyCode)
 		ad, _ := client.CreateAdventure(ctx, "Test Adventure")
 		ad, _ = client.GetAdventure(ctx, "Test Adventure")
-		_ = client.AddAdventureToTeam(ctx, ad, t)
-		_ = client.SetTeamAdventureStatus(ctx, ad, t, access.StatusPaid)
-		adventures, _ := client.GetTeamPaidAdventures(ctx, t)
+		_ = client.AddAdventureForUser(ctx, ad, u)
+		_ = client.SetUserStatusForAdventure(ctx, ad, u, access.StatusPaid)
+		adventures, _ := client.GetPaidAdventuresForUser(ctx, u)
 		for index := range adventures {
-			ac, _ := adventures[index].QueryAccess().Where(access.TeamID(t.ID)).Only(ctx)
+			ac, _ := adventures[index].QueryAccess().Where(access.UserID(u.ID)).Only(ctx)
 			log.Printf("Adventure codes: %s: %s", adventures[index].Name, ac.Code)
 		}
 	}()

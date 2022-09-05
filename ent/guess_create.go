@@ -12,7 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/question"
-	"github.com/greboid/puzzad/ent/team"
+	"github.com/greboid/puzzad/ent/user"
 )
 
 // GuessCreate is the builder for creating a Guess entity.
@@ -57,17 +57,17 @@ func (gc *GuessCreate) AddQuestion(q ...*Question) *GuessCreate {
 	return gc.AddQuestionIDs(ids...)
 }
 
-// AddTeamIDs adds the "team" edge to the Team entity by IDs.
+// AddTeamIDs adds the "team" edge to the User entity by IDs.
 func (gc *GuessCreate) AddTeamIDs(ids ...int) *GuessCreate {
 	gc.mutation.AddTeamIDs(ids...)
 	return gc
 }
 
-// AddTeam adds the "team" edges to the Team entity.
-func (gc *GuessCreate) AddTeam(t ...*Team) *GuessCreate {
-	ids := make([]int, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
+// AddTeam adds the "team" edges to the User entity.
+func (gc *GuessCreate) AddTeam(u ...*User) *GuessCreate {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
 	}
 	return gc.AddTeamIDs(ids...)
 }
@@ -235,7 +235,7 @@ func (gc *GuessCreate) createSpec() (*Guess, *sqlgraph.CreateSpec) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: team.FieldID,
+					Column: user.FieldID,
 				},
 			},
 		}

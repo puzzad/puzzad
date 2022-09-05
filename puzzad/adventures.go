@@ -2,19 +2,19 @@ package puzzad
 
 import (
 	"context"
+	"github.com/greboid/puzzad/ent/user"
 
 	"github.com/greboid/puzzad/ent"
 	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
-	"github.com/greboid/puzzad/ent/team"
 )
 
-func (db *DBClient) GetTeamPaidAdventures(ctx context.Context, team *ent.Team) ([]*ent.Adventure, error) {
-	return db.GetTeamdAventures(ctx, team, access.StatusPaid)
+func (db *DBClient) GetPaidAdventuresForUser(ctx context.Context, u *ent.User) ([]*ent.Adventure, error) {
+	return db.GetAdventuresForUser(ctx, u, access.StatusPaid)
 }
 
-func (db *DBClient) GetTeamdAventures(ctx context.Context, team *ent.Team, status access.Status) ([]*ent.Adventure, error) {
-	return team.QueryAccess().Where(access.StatusEQ(status)).QueryAdventures().All(ctx)
+func (db *DBClient) GetAdventuresForUser(ctx context.Context, u *ent.User, status access.Status) ([]*ent.Adventure, error) {
+	return u.QueryAccess().Where(access.StatusEQ(status)).QueryAdventures().All(ctx)
 }
 
 func (db *DBClient) CreateAdventure(ctx context.Context, name string) (*ent.Adventure, error) {
@@ -25,10 +25,10 @@ func (db *DBClient) GetAdventure(ctx context.Context, name string) (*ent.Adventu
 	return db.entclient.Adventure.Query().Where(adventure.Name(name)).Only(ctx)
 }
 
-func (db *DBClient) AddAdventureToTeam(ctx context.Context, a *ent.Adventure, t *ent.Team) error {
-	_, err := a.QueryTeam().Where(team.ID(t.ID)).Only(ctx)
+func (db *DBClient) AddAdventureForUser(ctx context.Context, a *ent.Adventure, u *ent.User) error {
+	_, err := a.QueryUser().Where(user.ID(u.ID)).Only(ctx)
 	if err != nil {
-		_, err = t.Update().AddAdventures(a).Save(ctx)
+		_, err = u.Update().AddAdventures(a).Save(ctx)
 		if err != nil {
 			return err
 		}
@@ -36,20 +36,20 @@ func (db *DBClient) AddAdventureToTeam(ctx context.Context, a *ent.Adventure, t 
 	return nil
 }
 
-func (db *DBClient) GetTeamAdventureAccess(ctx context.Context, a *ent.Adventure, t *ent.Team) (*ent.Access, error) {
-	return t.QueryAccess().Where(access.And(access.TeamID(t.ID), access.AdventureID(a.ID))).Only(ctx)
+func (db *DBClient) GetAdventureAccessForUser(ctx context.Context, a *ent.Adventure, u *ent.User) (*ent.Access, error) {
+	return u.QueryAccess().Where(access.And(access.UserID(u.ID), access.AdventureID(a.ID))).Only(ctx)
 }
 
-func (db *DBClient) CheckTeamAdventureStatus(ctx context.Context, a *ent.Adventure, t *ent.Team) (access.Status, error) {
-	ac, err := db.GetTeamAdventureAccess(ctx, a, t)
+func (db *DBClient) GetUserStatusForAdventure(ctx context.Context, a *ent.Adventure, u *ent.User) (access.Status, error) {
+	ac, err := db.GetAdventureAccessForUser(ctx, a, u)
 	if err != nil {
 		return access.StatusUnpaid, err
 	}
 	return ac.Status, err
 }
 
-func (db *DBClient) SetTeamAdventureStatus(ctx context.Context, a *ent.Adventure, t *ent.Team, status access.Status) error {
-	ac, err := db.GetTeamAdventureAccess(ctx, a, t)
+func (db *DBClient) SetUserStatusForAdventure(ctx context.Context, a *ent.Adventure, u *ent.User, status access.Status) error {
+	ac, err := db.GetAdventureAccessForUser(ctx, a, u)
 	if err != nil {
 		return err
 	}

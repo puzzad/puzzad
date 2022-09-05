@@ -7,19 +7,19 @@ const (
 	Label = "progress"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// EdgeTeam holds the string denoting the team edge name in mutations.
-	EdgeTeam = "team"
+	// EdgeUser holds the string denoting the user edge name in mutations.
+	EdgeUser = "user"
 	// EdgeAdventure holds the string denoting the adventure edge name in mutations.
 	EdgeAdventure = "adventure"
 	// EdgeQuestion holds the string denoting the question edge name in mutations.
 	EdgeQuestion = "question"
 	// Table holds the table name of the progress in the database.
 	Table = "progresses"
-	// TeamTable is the table that holds the team relation/edge. The primary key declared below.
-	TeamTable = "team_progress"
-	// TeamInverseTable is the table name for the Team entity.
-	// It exists in this package in order to avoid circular dependency with the "team" package.
-	TeamInverseTable = "teams"
+	// UserTable is the table that holds the user relation/edge. The primary key declared below.
+	UserTable = "user_progress"
+	// UserInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	UserInverseTable = "users"
 	// AdventureTable is the table that holds the adventure relation/edge.
 	AdventureTable = "progresses"
 	// AdventureInverseTable is the table name for the Adventure entity.
@@ -49,9 +49,9 @@ var ForeignKeys = []string{
 }
 
 var (
-	// TeamPrimaryKey and TeamColumn2 are the table columns denoting the
-	// primary key for the team relation (M2M).
-	TeamPrimaryKey = []string{"team_id", "progress_id"}
+	// UserPrimaryKey and UserColumn2 are the table columns denoting the
+	// primary key for the user relation (M2M).
+	UserPrimaryKey = []string{"user_id", "progress_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).

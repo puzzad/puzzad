@@ -21,5 +21,5 @@ type Progress func(*sql.Selector)
 // Question is the predicate function for question builders.
 type Question func(*sql.Selector)
 
-// Team is the predicate function for team builders.
-type Team func(*sql.Selector)
+// User is the predicate function for user builders.
+type User func(*sql.Selector)

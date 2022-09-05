@@ -9,19 +9,19 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// EdgeTeam holds the string denoting the team edge name in mutations.
-	EdgeTeam = "team"
+	// EdgeUser holds the string denoting the user edge name in mutations.
+	EdgeUser = "user"
 	// EdgeQuestions holds the string denoting the questions edge name in mutations.
 	EdgeQuestions = "questions"
 	// EdgeAccess holds the string denoting the access edge name in mutations.
 	EdgeAccess = "access"
 	// Table holds the table name of the adventure in the database.
 	Table = "adventures"
-	// TeamTable is the table that holds the team relation/edge. The primary key declared below.
-	TeamTable = "accesses"
-	// TeamInverseTable is the table name for the Team entity.
-	// It exists in this package in order to avoid circular dependency with the "team" package.
-	TeamInverseTable = "teams"
+	// UserTable is the table that holds the user relation/edge. The primary key declared below.
+	UserTable = "accesses"
+	// UserInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	UserInverseTable = "users"
 	// QuestionsTable is the table that holds the questions relation/edge.
 	QuestionsTable = "questions"
 	// QuestionsInverseTable is the table name for the Question entity.
@@ -45,9 +45,9 @@ var Columns = []string{
 }
 
 var (
-	// TeamPrimaryKey and TeamColumn2 are the table columns denoting the
-	// primary key for the team relation (M2M).
-	TeamPrimaryKey = []string{"team_id", "adventure_id"}
+	// UserPrimaryKey and UserColumn2 are the table columns denoting the
+	// primary key for the user relation (M2M).
+	UserPrimaryKey = []string{"user_id", "adventure_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).

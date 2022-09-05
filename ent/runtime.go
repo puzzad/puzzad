@@ -8,7 +8,7 @@ import (
 	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/schema"
-	"github.com/greboid/puzzad/ent/team"
+	"github.com/greboid/puzzad/ent/user"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -21,6 +21,8 @@ func init() {
 	accessDescCode := accessFields[1].Descriptor()
 	// access.DefaultCode holds the default value on creation for the code field.
 	access.DefaultCode = accessDescCode.Default.(func() string)
+	// access.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	access.CodeValidator = accessDescCode.Validators[0].(func(string) error)
 	guessMixin := schema.Guess{}.Mixin()
 	guessMixinFields0 := guessMixin[0].Fields()
 	_ = guessMixinFields0
@@ -30,39 +32,21 @@ func init() {
 	guessDescCreateTime := guessMixinFields0[0].Descriptor()
 	// guess.DefaultCreateTime holds the default value on creation for the create_time field.
 	guess.DefaultCreateTime = guessDescCreateTime.Default.(func() time.Time)
-	teamMixin := schema.Team{}.Mixin()
-	teamMixinFields0 := teamMixin[0].Fields()
-	_ = teamMixinFields0
-	teamFields := schema.Team{}.Fields()
-	_ = teamFields
-	// teamDescCreateTime is the schema descriptor for create_time field.
-	teamDescCreateTime := teamMixinFields0[0].Descriptor()
-	// team.DefaultCreateTime holds the default value on creation for the create_time field.
-	team.DefaultCreateTime = teamDescCreateTime.Default.(func() time.Time)
-	// teamDescName is the schema descriptor for name field.
-	teamDescName := teamFields[0].Descriptor()
-	// team.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	team.NameValidator = func() func(string) error {
-		validators := teamDescName.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(name string) error {
-			for _, fn := range fns {
-				if err := fn(name); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// teamDescCode is the schema descriptor for code field.
-	teamDescCode := teamFields[1].Descriptor()
-	// team.DefaultCode holds the default value on creation for the code field.
-	team.DefaultCode = teamDescCode.Default.(func() string)
-	// teamDescVerifyCode is the schema descriptor for verifyCode field.
-	teamDescVerifyCode := teamFields[2].Descriptor()
-	// team.DefaultVerifyCode holds the default value on creation for the verifyCode field.
-	team.DefaultVerifyCode = teamDescVerifyCode.Default.(func() string)
+	userMixin := schema.User{}.Mixin()
+	userMixinFields0 := userMixin[0].Fields()
+	_ = userMixinFields0
+	userFields := schema.User{}.Fields()
+	_ = userFields
+	// userDescCreateTime is the schema descriptor for create_time field.
+	userDescCreateTime := userMixinFields0[0].Descriptor()
+	// user.DefaultCreateTime holds the default value on creation for the create_time field.
+	user.DefaultCreateTime = userDescCreateTime.Default.(func() time.Time)
+	// userDescVerifyCode is the schema descriptor for verifyCode field.
+	userDescVerifyCode := userFields[0].Descriptor()
+	// user.DefaultVerifyCode holds the default value on creation for the verifyCode field.
+	user.DefaultVerifyCode = userDescVerifyCode.Default.(func() string)
+	// userDescVerifyExpiry is the schema descriptor for verifyExpiry field.
+	userDescVerifyExpiry := userFields[1].Descriptor()
+	// user.DefaultVerifyExpiry holds the default value on creation for the verifyExpiry field.
+	user.DefaultVerifyExpiry = userDescVerifyExpiry.Default.(func() time.Time)
 }

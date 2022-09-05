@@ -22,8 +22,8 @@ type Tx struct {
 	Progress *ProgressClient
 	// Question is the client for interacting with the Question builders.
 	Question *QuestionClient
-	// Team is the client for interacting with the Team builders.
-	Team *TeamClient
+	// User is the client for interacting with the User builders.
+	User *UserClient
 
 	// lazily loaded.
 	client     *Client
@@ -164,7 +164,7 @@ func (tx *Tx) init() {
 	tx.Guess = NewGuessClient(tx.config)
 	tx.Progress = NewProgressClient(tx.config)
 	tx.Question = NewQuestionClient(tx.config)
-	tx.Team = NewTeamClient(tx.config)
+	tx.User = NewUserClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

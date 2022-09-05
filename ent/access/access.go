@@ -13,27 +13,27 @@ const (
 	FieldStatus = "status"
 	// FieldCode holds the string denoting the code field in the database.
 	FieldCode = "code"
-	// FieldTeamID holds the string denoting the team_id field in the database.
-	FieldTeamID = "team_id"
+	// FieldUserID holds the string denoting the user_id field in the database.
+	FieldUserID = "user_id"
 	// FieldAdventureID holds the string denoting the adventure_id field in the database.
 	FieldAdventureID = "adventure_id"
-	// EdgeTeam holds the string denoting the team edge name in mutations.
-	EdgeTeam = "team"
+	// EdgeUser holds the string denoting the user edge name in mutations.
+	EdgeUser = "user"
 	// EdgeAdventures holds the string denoting the adventures edge name in mutations.
 	EdgeAdventures = "adventures"
-	// TeamFieldID holds the string denoting the ID field of the Team.
-	TeamFieldID = "id"
+	// UserFieldID holds the string denoting the ID field of the User.
+	UserFieldID = "id"
 	// AdventureFieldID holds the string denoting the ID field of the Adventure.
 	AdventureFieldID = "id"
 	// Table holds the table name of the access in the database.
 	Table = "accesses"
-	// TeamTable is the table that holds the team relation/edge.
-	TeamTable = "accesses"
-	// TeamInverseTable is the table name for the Team entity.
-	// It exists in this package in order to avoid circular dependency with the "team" package.
-	TeamInverseTable = "teams"
-	// TeamColumn is the table column denoting the team relation/edge.
-	TeamColumn = "team_id"
+	// UserTable is the table that holds the user relation/edge.
+	UserTable = "accesses"
+	// UserInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	UserInverseTable = "users"
+	// UserColumn is the table column denoting the user relation/edge.
+	UserColumn = "user_id"
 	// AdventuresTable is the table that holds the adventures relation/edge.
 	AdventuresTable = "accesses"
 	// AdventuresInverseTable is the table name for the Adventure entity.
@@ -47,7 +47,7 @@ const (
 var Columns = []string{
 	FieldStatus,
 	FieldCode,
-	FieldTeamID,
+	FieldUserID,
 	FieldAdventureID,
 }
 
@@ -64,6 +64,8 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultCode holds the default value on creation for the "code" field.
 	DefaultCode func() string
+	// CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	CodeValidator func(string) error
 )
 
 // Status defines the type for the "status" enum field.

@@ -12,7 +12,7 @@ import (
 	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/predicate"
-	"github.com/greboid/puzzad/ent/team"
+	"github.com/greboid/puzzad/ent/user"
 )
 
 // AccessQuery is the builder for querying Access entities.
@@ -24,7 +24,7 @@ type AccessQuery struct {
 	order          []OrderFunc
 	fields         []string
 	predicates     []predicate.Access
-	withTeam       *TeamQuery
+	withUser       *UserQuery
 	withAdventures *AdventureQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -62,9 +62,9 @@ func (aq *AccessQuery) Order(o ...OrderFunc) *AccessQuery {
 	return aq
 }
 
-// QueryTeam chains the current query on the "team" edge.
-func (aq *AccessQuery) QueryTeam() *TeamQuery {
-	query := &TeamQuery{config: aq.config}
+// QueryUser chains the current query on the "user" edge.
+func (aq *AccessQuery) QueryUser() *UserQuery {
+	query := &UserQuery{config: aq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := aq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -74,9 +74,9 @@ func (aq *AccessQuery) QueryTeam() *TeamQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(access.Table, access.TeamColumn, selector),
-			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, access.TeamTable, access.TeamColumn),
+			sqlgraph.From(access.Table, access.UserColumn, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, access.UserTable, access.UserColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
 		return fromU, nil
@@ -218,7 +218,7 @@ func (aq *AccessQuery) Clone() *AccessQuery {
 		offset:         aq.offset,
 		order:          append([]OrderFunc{}, aq.order...),
 		predicates:     append([]predicate.Access{}, aq.predicates...),
-		withTeam:       aq.withTeam.Clone(),
+		withUser:       aq.withUser.Clone(),
 		withAdventures: aq.withAdventures.Clone(),
 		// clone intermediate query.
 		sql:    aq.sql.Clone(),
@@ -227,14 +227,14 @@ func (aq *AccessQuery) Clone() *AccessQuery {
 	}
 }
 
-// WithTeam tells the query-builder to eager-load the nodes that are connected to
-// the "team" edge. The optional arguments are used to configure the query builder of the edge.
-func (aq *AccessQuery) WithTeam(opts ...func(*TeamQuery)) *AccessQuery {
-	query := &TeamQuery{config: aq.config}
+// WithUser tells the query-builder to eager-load the nodes that are connected to
+// the "user" edge. The optional arguments are used to configure the query builder of the edge.
+func (aq *AccessQuery) WithUser(opts ...func(*UserQuery)) *AccessQuery {
+	query := &UserQuery{config: aq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	aq.withTeam = query
+	aq.withUser = query
 	return aq
 }
 
@@ -318,7 +318,7 @@ func (aq *AccessQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Acces
 		nodes       = []*Access{}
 		_spec       = aq.querySpec()
 		loadedTypes = [2]bool{
-			aq.withTeam != nil,
+			aq.withUser != nil,
 			aq.withAdventures != nil,
 		}
 	)
@@ -340,9 +340,9 @@ func (aq *AccessQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Acces
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := aq.withTeam; query != nil {
-		if err := aq.loadTeam(ctx, query, nodes, nil,
-			func(n *Access, e *Team) { n.Edges.Team = e }); err != nil {
+	if query := aq.withUser; query != nil {
+		if err := aq.loadUser(ctx, query, nodes, nil,
+			func(n *Access, e *User) { n.Edges.User = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -355,17 +355,17 @@ func (aq *AccessQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Acces
 	return nodes, nil
 }
 
-func (aq *AccessQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Access, init func(*Access), assign func(*Access, *Team)) error {
+func (aq *AccessQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Access, init func(*Access), assign func(*Access, *User)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Access)
 	for i := range nodes {
-		fk := nodes[i].TeamID
+		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
 		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	query.Where(team.IDIn(ids...))
+	query.Where(user.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -373,7 +373,7 @@ func (aq *AccessQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "team_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
