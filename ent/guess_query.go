@@ -14,7 +14,7 @@ import (
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/predicate"
 	"github.com/greboid/puzzad/ent/question"
-	"github.com/greboid/puzzad/ent/team"
+	"github.com/greboid/puzzad/ent/user"
 )
 
 // GuessQuery is the builder for querying Guess entities.
@@ -27,7 +27,7 @@ type GuessQuery struct {
 	fields       []string
 	predicates   []predicate.Guess
 	withQuestion *QuestionQuery
-	withTeam     *TeamQuery
+	withTeam     *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -87,8 +87,8 @@ func (gq *GuessQuery) QueryQuestion() *QuestionQuery {
 }
 
 // QueryTeam chains the current query on the "team" edge.
-func (gq *GuessQuery) QueryTeam() *TeamQuery {
-	query := &TeamQuery{config: gq.config}
+func (gq *GuessQuery) QueryTeam() *UserQuery {
+	query := &UserQuery{config: gq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := gq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -99,7 +99,7 @@ func (gq *GuessQuery) QueryTeam() *TeamQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(guess.Table, guess.FieldID, selector),
-			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, guess.TeamTable, guess.TeamColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
@@ -311,8 +311,8 @@ func (gq *GuessQuery) WithQuestion(opts ...func(*QuestionQuery)) *GuessQuery {
 
 // WithTeam tells the query-builder to eager-load the nodes that are connected to
 // the "team" edge. The optional arguments are used to configure the query builder of the edge.
-func (gq *GuessQuery) WithTeam(opts ...func(*TeamQuery)) *GuessQuery {
-	query := &TeamQuery{config: gq.config}
+func (gq *GuessQuery) WithTeam(opts ...func(*UserQuery)) *GuessQuery {
+	query := &UserQuery{config: gq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -420,8 +420,8 @@ func (gq *GuessQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Guess,
 	}
 	if query := gq.withTeam; query != nil {
 		if err := gq.loadTeam(ctx, query, nodes,
-			func(n *Guess) { n.Edges.Team = []*Team{} },
-			func(n *Guess, e *Team) { n.Edges.Team = append(n.Edges.Team, e) }); err != nil {
+			func(n *Guess) { n.Edges.Team = []*User{} },
+			func(n *Guess, e *User) { n.Edges.Team = append(n.Edges.Team, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -459,7 +459,7 @@ func (gq *GuessQuery) loadQuestion(ctx context.Context, query *QuestionQuery, no
 	}
 	return nil
 }
-func (gq *GuessQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Guess, init func(*Guess), assign func(*Guess, *Team)) error {
+func (gq *GuessQuery) loadTeam(ctx context.Context, query *UserQuery, nodes []*Guess, init func(*Guess), assign func(*Guess, *User)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Guess)
 	for i := range nodes {
@@ -470,7 +470,7 @@ func (gq *GuessQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*G
 		}
 	}
 	query.withFKs = true
-	query.Where(predicate.Team(func(s *sql.Selector) {
+	query.Where(predicate.User(func(s *sql.Selector) {
 		s.Where(sql.InValues(guess.TeamColumn, fks...))
 	}))
 	neighbors, err := query.All(ctx)

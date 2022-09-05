@@ -9,7 +9,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
-	"github.com/greboid/puzzad/ent/team"
+	"github.com/greboid/puzzad/ent/user"
 )
 
 // Access is the model entity for the Access schema.
@@ -19,8 +19,8 @@ type Access struct {
 	Status access.Status `json:"status,omitempty"`
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
-	// TeamID holds the value of the "team_id" field.
-	TeamID int `json:"team_id,omitempty"`
+	// UserID holds the value of the "user_id" field.
+	UserID int `json:"user_id,omitempty"`
 	// AdventureID holds the value of the "adventure_id" field.
 	AdventureID int `json:"adventure_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -30,8 +30,8 @@ type Access struct {
 
 // AccessEdges holds the relations/edges for other nodes in the graph.
 type AccessEdges struct {
-	// Team holds the value of the team edge.
-	Team *Team `json:"team,omitempty"`
+	// User holds the value of the user edge.
+	User *User `json:"user,omitempty"`
 	// Adventures holds the value of the adventures edge.
 	Adventures *Adventure `json:"adventures,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -39,17 +39,17 @@ type AccessEdges struct {
 	loadedTypes [2]bool
 }
 
-// TeamOrErr returns the Team value or an error if the edge
+// UserOrErr returns the User value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e AccessEdges) TeamOrErr() (*Team, error) {
+func (e AccessEdges) UserOrErr() (*User, error) {
 	if e.loadedTypes[0] {
-		if e.Team == nil {
+		if e.User == nil {
 			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: team.Label}
+			return nil, &NotFoundError{label: user.Label}
 		}
-		return e.Team, nil
+		return e.User, nil
 	}
-	return nil, &NotLoadedError{edge: "team"}
+	return nil, &NotLoadedError{edge: "user"}
 }
 
 // AdventuresOrErr returns the Adventures value or an error if the edge
@@ -70,7 +70,7 @@ func (*Access) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case access.FieldTeamID, access.FieldAdventureID:
+		case access.FieldUserID, access.FieldAdventureID:
 			values[i] = new(sql.NullInt64)
 		case access.FieldStatus, access.FieldCode:
 			values[i] = new(sql.NullString)
@@ -101,11 +101,11 @@ func (a *Access) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				a.Code = value.String
 			}
-		case access.FieldTeamID:
+		case access.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field team_id", values[i])
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				a.TeamID = int(value.Int64)
+				a.UserID = int(value.Int64)
 			}
 		case access.FieldAdventureID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -118,9 +118,9 @@ func (a *Access) assignValues(columns []string, values []interface{}) error {
 	return nil
 }
 
-// QueryTeam queries the "team" edge of the Access entity.
-func (a *Access) QueryTeam() *TeamQuery {
-	return (&AccessClient{config: a.config}).QueryTeam(a)
+// QueryUser queries the "user" edge of the Access entity.
+func (a *Access) QueryUser() *UserQuery {
+	return (&AccessClient{config: a.config}).QueryUser(a)
 }
 
 // QueryAdventures queries the "adventures" edge of the Access entity.
@@ -156,8 +156,8 @@ func (a *Access) String() string {
 	builder.WriteString("code=")
 	builder.WriteString(a.Code)
 	builder.WriteString(", ")
-	builder.WriteString("team_id=")
-	builder.WriteString(fmt.Sprintf("%v", a.TeamID))
+	builder.WriteString("user_id=")
+	builder.WriteString(fmt.Sprintf("%v", a.UserID))
 	builder.WriteString(", ")
 	builder.WriteString("adventure_id=")
 	builder.WriteString(fmt.Sprintf("%v", a.AdventureID))

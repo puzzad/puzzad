@@ -15,10 +15,10 @@ func Code(v string) predicate.Access {
 	})
 }
 
-// TeamID applies equality check predicate on the "team_id" field. It's identical to TeamIDEQ.
-func TeamID(v int) predicate.Access {
+// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
+func UserID(v int) predicate.Access {
 	return predicate.Access(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldTeamID), v))
+		s.Where(sql.EQ(s.C(FieldUserID), v))
 	})
 }
 
@@ -164,39 +164,39 @@ func CodeContainsFold(v string) predicate.Access {
 	})
 }
 
-// TeamIDEQ applies the EQ predicate on the "team_id" field.
-func TeamIDEQ(v int) predicate.Access {
+// UserIDEQ applies the EQ predicate on the "user_id" field.
+func UserIDEQ(v int) predicate.Access {
 	return predicate.Access(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldTeamID), v))
+		s.Where(sql.EQ(s.C(FieldUserID), v))
 	})
 }
 
-// TeamIDNEQ applies the NEQ predicate on the "team_id" field.
-func TeamIDNEQ(v int) predicate.Access {
+// UserIDNEQ applies the NEQ predicate on the "user_id" field.
+func UserIDNEQ(v int) predicate.Access {
 	return predicate.Access(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldTeamID), v))
+		s.Where(sql.NEQ(s.C(FieldUserID), v))
 	})
 }
 
-// TeamIDIn applies the In predicate on the "team_id" field.
-func TeamIDIn(vs ...int) predicate.Access {
+// UserIDIn applies the In predicate on the "user_id" field.
+func UserIDIn(vs ...int) predicate.Access {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
 	}
 	return predicate.Access(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldTeamID), v...))
+		s.Where(sql.In(s.C(FieldUserID), v...))
 	})
 }
 
-// TeamIDNotIn applies the NotIn predicate on the "team_id" field.
-func TeamIDNotIn(vs ...int) predicate.Access {
+// UserIDNotIn applies the NotIn predicate on the "user_id" field.
+func UserIDNotIn(vs ...int) predicate.Access {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
 	}
 	return predicate.Access(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldTeamID), v...))
+		s.Where(sql.NotIn(s.C(FieldUserID), v...))
 	})
 }
 
@@ -236,25 +236,25 @@ func AdventureIDNotIn(vs ...int) predicate.Access {
 	})
 }
 
-// HasTeam applies the HasEdge predicate on the "team" edge.
-func HasTeam() predicate.Access {
+// HasUser applies the HasEdge predicate on the "user" edge.
+func HasUser() predicate.Access {
 	return predicate.Access(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, TeamColumn),
-			sqlgraph.To(TeamInverseTable, TeamFieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, TeamTable, TeamColumn),
+			sqlgraph.From(Table, UserColumn),
+			sqlgraph.To(UserInverseTable, UserFieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, UserTable, UserColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasTeamWith applies the HasEdge predicate on the "team" edge with a given conditions (other predicates).
-func HasTeamWith(preds ...predicate.Team) predicate.Access {
+// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
+func HasUserWith(preds ...predicate.User) predicate.Access {
 	return predicate.Access(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, TeamColumn),
-			sqlgraph.To(TeamInverseTable, TeamFieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, TeamTable, TeamColumn),
+			sqlgraph.From(Table, UserColumn),
+			sqlgraph.To(UserInverseTable, UserFieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, UserTable, UserColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

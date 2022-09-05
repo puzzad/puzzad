@@ -30,7 +30,7 @@ type GuessEdges struct {
 	// Question holds the value of the question edge.
 	Question []*Question `json:"question,omitempty"`
 	// Team holds the value of the team edge.
-	Team []*Team `json:"team,omitempty"`
+	Team []*User `json:"team,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
@@ -47,7 +47,7 @@ func (e GuessEdges) QuestionOrErr() ([]*Question, error) {
 
 // TeamOrErr returns the Team value or an error if the edge
 // was not loaded in eager-loading.
-func (e GuessEdges) TeamOrErr() ([]*Team, error) {
+func (e GuessEdges) TeamOrErr() ([]*User, error) {
 	if e.loadedTypes[1] {
 		return e.Team, nil
 	}
@@ -109,7 +109,7 @@ func (gu *Guess) QueryQuestion() *QuestionQuery {
 }
 
 // QueryTeam queries the "team" edge of the Guess entity.
-func (gu *Guess) QueryTeam() *TeamQuery {
+func (gu *Guess) QueryTeam() *UserQuery {
 	return (&GuessClient{config: gu.config}).QueryTeam(gu)
 }
 

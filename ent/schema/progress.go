@@ -18,7 +18,7 @@ func (Progress) Fields() []ent.Field {
 // Edges of the Progress.
 func (Progress) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("team", Team.Type).Ref("progress").Required(),
+		edge.From("user", User.Type).Ref("progress").Required(),
 		edge.To("adventure", Adventure.Type).Unique().Required(),
 		edge.To("question", Question.Type).Unique().Required(),
 	}

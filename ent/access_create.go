@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
-	"github.com/greboid/puzzad/ent/team"
+	"github.com/greboid/puzzad/ent/user"
 )
 
 // AccessCreate is the builder for creating a Access entity.
@@ -49,9 +49,9 @@ func (ac *AccessCreate) SetNillableCode(s *string) *AccessCreate {
 	return ac
 }
 
-// SetTeamID sets the "team_id" field.
-func (ac *AccessCreate) SetTeamID(i int) *AccessCreate {
-	ac.mutation.SetTeamID(i)
+// SetUserID sets the "user_id" field.
+func (ac *AccessCreate) SetUserID(i int) *AccessCreate {
+	ac.mutation.SetUserID(i)
 	return ac
 }
 
@@ -61,9 +61,9 @@ func (ac *AccessCreate) SetAdventureID(i int) *AccessCreate {
 	return ac
 }
 
-// SetTeam sets the "team" edge to the Team entity.
-func (ac *AccessCreate) SetTeam(t *Team) *AccessCreate {
-	return ac.SetTeamID(t.ID)
+// SetUser sets the "user" edge to the User entity.
+func (ac *AccessCreate) SetUser(u *User) *AccessCreate {
+	return ac.SetUserID(u.ID)
 }
 
 // SetAdventuresID sets the "adventures" edge to the Adventure entity by ID.
@@ -175,14 +175,19 @@ func (ac *AccessCreate) check() error {
 	if _, ok := ac.mutation.Code(); !ok {
 		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Access.code"`)}
 	}
-	if _, ok := ac.mutation.TeamID(); !ok {
-		return &ValidationError{Name: "team_id", err: errors.New(`ent: missing required field "Access.team_id"`)}
+	if v, ok := ac.mutation.Code(); ok {
+		if err := access.CodeValidator(v); err != nil {
+			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "Access.code": %w`, err)}
+		}
+	}
+	if _, ok := ac.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Access.user_id"`)}
 	}
 	if _, ok := ac.mutation.AdventureID(); !ok {
 		return &ValidationError{Name: "adventure_id", err: errors.New(`ent: missing required field "Access.adventure_id"`)}
 	}
-	if _, ok := ac.mutation.TeamID(); !ok {
-		return &ValidationError{Name: "team", err: errors.New(`ent: missing required edge "Access.team"`)}
+	if _, ok := ac.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Access.user"`)}
 	}
 	if _, ok := ac.mutation.AdventuresID(); !ok {
 		return &ValidationError{Name: "adventures", err: errors.New(`ent: missing required edge "Access.adventures"`)}
@@ -224,24 +229,24 @@ func (ac *AccessCreate) createSpec() (*Access, *sqlgraph.CreateSpec) {
 		})
 		_node.Code = value
 	}
-	if nodes := ac.mutation.TeamIDs(); len(nodes) > 0 {
+	if nodes := ac.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   access.TeamTable,
-			Columns: []string{access.TeamColumn},
+			Table:   access.UserTable,
+			Columns: []string{access.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: team.FieldID,
+					Column: user.FieldID,
 				},
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.TeamID = nodes[0]
+		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := ac.mutation.AdventuresIDs(); len(nodes) > 0 {

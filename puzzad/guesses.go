@@ -2,23 +2,23 @@ package puzzad
 
 import (
 	"context"
+	"github.com/greboid/puzzad/ent/user"
 
 	"github.com/greboid/puzzad/ent"
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/question"
-	"github.com/greboid/puzzad/ent/team"
 )
 
-func (db *DBClient) addGuess(ctx context.Context, q *ent.Question, t *ent.Team, guess string) (*ent.Guess, error) {
+func (db *DBClient) addGuess(ctx context.Context, q *ent.Question, u *ent.User, guess string) (*ent.Guess, error) {
 	return db.entclient.Guess.Create().
 		SetContent(guess).
 		AddQuestion(q).
-		AddTeam(t).
+		AddTeam(u).
 		Save(ctx)
 }
 
-func (db *DBClient) getGuessesForQuestionAndTeam(ctx context.Context, q *ent.Question, t *ent.Team) ([]*ent.Guess, error) {
+func (db *DBClient) getGuessesForQuestion(ctx context.Context, q *ent.Question, u *ent.User) ([]*ent.Guess, error) {
 	return db.entclient.Guess.Query().
-		Where(guess.And(guess.HasTeamWith(team.ID(t.ID)), guess.HasQuestionWith(question.ID(q.ID)))).
+		Where(guess.And(guess.HasTeamWith(user.ID(u.ID)), guess.HasQuestionWith(question.ID(q.ID)))).
 		All(ctx)
 }

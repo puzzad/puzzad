@@ -26,8 +26,8 @@ type Progress struct {
 
 // ProgressEdges holds the relations/edges for other nodes in the graph.
 type ProgressEdges struct {
-	// Team holds the value of the team edge.
-	Team []*Team `json:"team,omitempty"`
+	// User holds the value of the user edge.
+	User []*User `json:"user,omitempty"`
 	// Adventure holds the value of the adventure edge.
 	Adventure *Adventure `json:"adventure,omitempty"`
 	// Question holds the value of the question edge.
@@ -37,13 +37,13 @@ type ProgressEdges struct {
 	loadedTypes [3]bool
 }
 
-// TeamOrErr returns the Team value or an error if the edge
+// UserOrErr returns the User value or an error if the edge
 // was not loaded in eager-loading.
-func (e ProgressEdges) TeamOrErr() ([]*Team, error) {
+func (e ProgressEdges) UserOrErr() ([]*User, error) {
 	if e.loadedTypes[0] {
-		return e.Team, nil
+		return e.User, nil
 	}
-	return nil, &NotLoadedError{edge: "team"}
+	return nil, &NotLoadedError{edge: "user"}
 }
 
 // AdventureOrErr returns the Adventure value or an error if the edge
@@ -123,9 +123,9 @@ func (pr *Progress) assignValues(columns []string, values []interface{}) error {
 	return nil
 }
 
-// QueryTeam queries the "team" edge of the Progress entity.
-func (pr *Progress) QueryTeam() *TeamQuery {
-	return (&ProgressClient{config: pr.config}).QueryTeam(pr)
+// QueryUser queries the "user" edge of the Progress entity.
+func (pr *Progress) QueryUser() *UserQuery {
+	return (&ProgressClient{config: pr.config}).QueryUser(pr)
 }
 
 // QueryAdventure queries the "adventure" edge of the Progress entity.

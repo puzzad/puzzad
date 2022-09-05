@@ -29,7 +29,7 @@ type hooks struct {
 	Guess     []ent.Hook
 	Progress  []ent.Hook
 	Question  []ent.Hook
-	Team      []ent.Hook
+	User      []ent.Hook
 }
 
 // Options applies the options on the config object.

@@ -299,7 +299,7 @@ func HasTeam() predicate.Guess {
 }
 
 // HasTeamWith applies the HasEdge predicate on the "team" edge with a given conditions (other predicates).
-func HasTeamWith(preds ...predicate.Team) predicate.Guess {
+func HasTeamWith(preds ...predicate.User) predicate.Guess {
 	return predicate.Guess(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),

@@ -15,7 +15,7 @@ import (
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/predicate"
 	"github.com/greboid/puzzad/ent/question"
-	"github.com/greboid/puzzad/ent/team"
+	"github.com/greboid/puzzad/ent/user"
 )
 
 // AdventureQuery is the builder for querying Adventure entities.
@@ -27,7 +27,7 @@ type AdventureQuery struct {
 	order         []OrderFunc
 	fields        []string
 	predicates    []predicate.Adventure
-	withTeam      *TeamQuery
+	withUser      *UserQuery
 	withQuestions *QuestionQuery
 	withAccess    *AccessQuery
 	// intermediate query (i.e. traversal path).
@@ -66,9 +66,9 @@ func (aq *AdventureQuery) Order(o ...OrderFunc) *AdventureQuery {
 	return aq
 }
 
-// QueryTeam chains the current query on the "team" edge.
-func (aq *AdventureQuery) QueryTeam() *TeamQuery {
-	query := &TeamQuery{config: aq.config}
+// QueryUser chains the current query on the "user" edge.
+func (aq *AdventureQuery) QueryUser() *UserQuery {
+	query := &UserQuery{config: aq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := aq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -79,8 +79,8 @@ func (aq *AdventureQuery) QueryTeam() *TeamQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(adventure.Table, adventure.FieldID, selector),
-			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, adventure.TeamTable, adventure.TeamPrimaryKey...),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, adventure.UserTable, adventure.UserPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
 		return fromU, nil
@@ -313,7 +313,7 @@ func (aq *AdventureQuery) Clone() *AdventureQuery {
 		offset:        aq.offset,
 		order:         append([]OrderFunc{}, aq.order...),
 		predicates:    append([]predicate.Adventure{}, aq.predicates...),
-		withTeam:      aq.withTeam.Clone(),
+		withUser:      aq.withUser.Clone(),
 		withQuestions: aq.withQuestions.Clone(),
 		withAccess:    aq.withAccess.Clone(),
 		// clone intermediate query.
@@ -323,14 +323,14 @@ func (aq *AdventureQuery) Clone() *AdventureQuery {
 	}
 }
 
-// WithTeam tells the query-builder to eager-load the nodes that are connected to
-// the "team" edge. The optional arguments are used to configure the query builder of the edge.
-func (aq *AdventureQuery) WithTeam(opts ...func(*TeamQuery)) *AdventureQuery {
-	query := &TeamQuery{config: aq.config}
+// WithUser tells the query-builder to eager-load the nodes that are connected to
+// the "user" edge. The optional arguments are used to configure the query builder of the edge.
+func (aq *AdventureQuery) WithUser(opts ...func(*UserQuery)) *AdventureQuery {
+	query := &UserQuery{config: aq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	aq.withTeam = query
+	aq.withUser = query
 	return aq
 }
 
@@ -425,7 +425,7 @@ func (aq *AdventureQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Ad
 		nodes       = []*Adventure{}
 		_spec       = aq.querySpec()
 		loadedTypes = [3]bool{
-			aq.withTeam != nil,
+			aq.withUser != nil,
 			aq.withQuestions != nil,
 			aq.withAccess != nil,
 		}
@@ -448,10 +448,10 @@ func (aq *AdventureQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Ad
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := aq.withTeam; query != nil {
-		if err := aq.loadTeam(ctx, query, nodes,
-			func(n *Adventure) { n.Edges.Team = []*Team{} },
-			func(n *Adventure, e *Team) { n.Edges.Team = append(n.Edges.Team, e) }); err != nil {
+	if query := aq.withUser; query != nil {
+		if err := aq.loadUser(ctx, query, nodes,
+			func(n *Adventure) { n.Edges.User = []*User{} },
+			func(n *Adventure, e *User) { n.Edges.User = append(n.Edges.User, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -472,7 +472,7 @@ func (aq *AdventureQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Ad
 	return nodes, nil
 }
 
-func (aq *AdventureQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Adventure, init func(*Adventure), assign func(*Adventure, *Team)) error {
+func (aq *AdventureQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Adventure, init func(*Adventure), assign func(*Adventure, *User)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[int]*Adventure)
 	nids := make(map[int]map[*Adventure]struct{})
@@ -484,11 +484,11 @@ func (aq *AdventureQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes 
 		}
 	}
 	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(adventure.TeamTable)
-		s.Join(joinT).On(s.C(team.FieldID), joinT.C(adventure.TeamPrimaryKey[0]))
-		s.Where(sql.InValues(joinT.C(adventure.TeamPrimaryKey[1]), edgeIDs...))
+		joinT := sql.Table(adventure.UserTable)
+		s.Join(joinT).On(s.C(user.FieldID), joinT.C(adventure.UserPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(adventure.UserPrimaryKey[1]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(adventure.TeamPrimaryKey[1]))
+		s.Select(joinT.C(adventure.UserPrimaryKey[1]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -522,7 +522,7 @@ func (aq *AdventureQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes 
 	for _, n := range neighbors {
 		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "team" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "user" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)

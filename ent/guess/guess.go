@@ -29,10 +29,10 @@ const (
 	// QuestionColumn is the table column denoting the question relation/edge.
 	QuestionColumn = "guess_question"
 	// TeamTable is the table that holds the team relation/edge.
-	TeamTable = "teams"
-	// TeamInverseTable is the table name for the Team entity.
-	// It exists in this package in order to avoid circular dependency with the "team" package.
-	TeamInverseTable = "teams"
+	TeamTable = "users"
+	// TeamInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	TeamInverseTable = "users"
 	// TeamColumn is the table column denoting the team relation/edge.
 	TeamColumn = "guess_team"
 )

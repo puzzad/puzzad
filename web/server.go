@@ -90,7 +90,7 @@ func (web *Webserver) handleValidate(writer http.ResponseWriter, request *http.R
 	}
 }
 func (web *Webserver) handleLoginGet(writer http.ResponseWriter, request *http.Request) {
-	web.handleLogin(writer, request, request.URL.Query().Get("code"))
+	web.handleStartAdventure(writer, request, request.URL.Query().Get("code"))
 }
 
 func (web *Webserver) handleLoginPost(writer http.ResponseWriter, request *http.Request) {
@@ -103,30 +103,16 @@ func (web *Webserver) handleLoginPost(writer http.ResponseWriter, request *http.
 	if err != nil {
 		return
 	}
-	web.handleLogin(writer, request, data.Code)
+	web.handleStartAdventure(writer, request, data.Code)
 }
 
-func (web *Webserver) handleLogin(writer http.ResponseWriter, request *http.Request, code string) {
+func (web *Webserver) handleStartAdventure(writer http.ResponseWriter, request *http.Request, code string) {
 	var redirect string
-	switch code[0] {
-	case 'a':
-		err := web.Client.VerifyAdventureCode(request.Context(), code)
-		if err != nil {
-			redirect = "login.html"
-			break
-		}
-		redirect = "adventure.html"
-		break
-	case 't':
-		err := web.Client.VerifyTeamCode(request.Context(), code)
-		if err != nil {
-			redirect = "login.html"
-			break
-		}
-		redirect = "team.html"
-		break
-	default:
+	err := web.Client.VerifyAdventureCode(request.Context(), code)
+	if err != nil {
 		redirect = "login.html"
+	} else {
+		redirect = "adventure.html"
 	}
 	if request.Header.Get("HX-Request") != "" {
 		writer.Header().Set("HX-Redirect", redirect)

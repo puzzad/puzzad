@@ -24,8 +24,8 @@ type Adventure struct {
 
 // AdventureEdges holds the relations/edges for other nodes in the graph.
 type AdventureEdges struct {
-	// Team holds the value of the team edge.
-	Team []*Team `json:"team,omitempty"`
+	// User holds the value of the user edge.
+	User []*User `json:"user,omitempty"`
 	// Questions holds the value of the questions edge.
 	Questions []*Question `json:"questions,omitempty"`
 	// Access holds the value of the access edge.
@@ -35,13 +35,13 @@ type AdventureEdges struct {
 	loadedTypes [3]bool
 }
 
-// TeamOrErr returns the Team value or an error if the edge
+// UserOrErr returns the User value or an error if the edge
 // was not loaded in eager-loading.
-func (e AdventureEdges) TeamOrErr() ([]*Team, error) {
+func (e AdventureEdges) UserOrErr() ([]*User, error) {
 	if e.loadedTypes[0] {
-		return e.Team, nil
+		return e.User, nil
 	}
-	return nil, &NotLoadedError{edge: "team"}
+	return nil, &NotLoadedError{edge: "user"}
 }
 
 // QuestionsOrErr returns the Questions value or an error if the edge
@@ -103,9 +103,9 @@ func (a *Adventure) assignValues(columns []string, values []interface{}) error {
 	return nil
 }
 
-// QueryTeam queries the "team" edge of the Adventure entity.
-func (a *Adventure) QueryTeam() *TeamQuery {
-	return (&AdventureClient{config: a.config}).QueryTeam(a)
+// QueryUser queries the "user" edge of the Adventure entity.
+func (a *Adventure) QueryUser() *UserQuery {
+	return (&AdventureClient{config: a.config}).QueryUser(a)
 }
 
 // QueryQuestions queries the "questions" edge of the Adventure entity.
