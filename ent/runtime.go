@@ -7,8 +7,8 @@ import (
 
 	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/guess"
-	"github.com/greboid/puzzad/ent/schema"
 	"github.com/greboid/puzzad/ent/user"
+	"github.com/greboid/puzzad/schema"
 )
 
 // The init function reads all schema descriptors with runtime code
