@@ -10,7 +10,7 @@ require (
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/httprate v0.7.0
 	github.com/google/uuid v1.3.0
-	github.com/mattn/go-sqlite3 v1.14.13
+	github.com/mattn/go-sqlite3 v1.14.15
 	github.com/rs/zerolog v1.28.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 )
