@@ -6,11 +6,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// Access is the predicate function for access builders.
-type Access func(*sql.Selector)
-
 // Adventure is the predicate function for adventure builders.
 type Adventure func(*sql.Selector)
+
+// Game is the predicate function for game builders.
+type Game func(*sql.Selector)
 
 // Guess is the predicate function for guess builders.
 type Guess func(*sql.Selector)
@@ -18,8 +18,8 @@ type Guess func(*sql.Selector)
 // Progress is the predicate function for progress builders.
 type Progress func(*sql.Selector)
 
-// Question is the predicate function for question builders.
-type Question func(*sql.Selector)
+// Puzzle is the predicate function for puzzle builders.
+type Puzzle func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

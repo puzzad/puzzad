@@ -10,48 +10,48 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/predicate"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 )
 
-// QuestionDelete is the builder for deleting a Question entity.
-type QuestionDelete struct {
+// PuzzleDelete is the builder for deleting a Puzzle entity.
+type PuzzleDelete struct {
 	config
 	hooks    []Hook
-	mutation *QuestionMutation
+	mutation *PuzzleMutation
 }
 
-// Where appends a list predicates to the QuestionDelete builder.
-func (qd *QuestionDelete) Where(ps ...predicate.Question) *QuestionDelete {
-	qd.mutation.Where(ps...)
-	return qd
+// Where appends a list predicates to the PuzzleDelete builder.
+func (pd *PuzzleDelete) Where(ps ...predicate.Puzzle) *PuzzleDelete {
+	pd.mutation.Where(ps...)
+	return pd
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (qd *QuestionDelete) Exec(ctx context.Context) (int, error) {
+func (pd *PuzzleDelete) Exec(ctx context.Context) (int, error) {
 	var (
 		err      error
 		affected int
 	)
-	if len(qd.hooks) == 0 {
-		affected, err = qd.sqlExec(ctx)
+	if len(pd.hooks) == 0 {
+		affected, err = pd.sqlExec(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*QuestionMutation)
+			mutation, ok := m.(*PuzzleMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
 			}
-			qd.mutation = mutation
-			affected, err = qd.sqlExec(ctx)
+			pd.mutation = mutation
+			affected, err = pd.sqlExec(ctx)
 			mutation.done = true
 			return affected, err
 		})
-		for i := len(qd.hooks) - 1; i >= 0; i-- {
-			if qd.hooks[i] == nil {
+		for i := len(pd.hooks) - 1; i >= 0; i-- {
+			if pd.hooks[i] == nil {
 				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
 			}
-			mut = qd.hooks[i](mut)
+			mut = pd.hooks[i](mut)
 		}
-		if _, err := mut.Mutate(ctx, qd.mutation); err != nil {
+		if _, err := mut.Mutate(ctx, pd.mutation); err != nil {
 			return 0, err
 		}
 	}
@@ -59,57 +59,57 @@ func (qd *QuestionDelete) Exec(ctx context.Context) (int, error) {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (qd *QuestionDelete) ExecX(ctx context.Context) int {
-	n, err := qd.Exec(ctx)
+func (pd *PuzzleDelete) ExecX(ctx context.Context) int {
+	n, err := pd.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (qd *QuestionDelete) sqlExec(ctx context.Context) (int, error) {
+func (pd *PuzzleDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := &sqlgraph.DeleteSpec{
 		Node: &sqlgraph.NodeSpec{
-			Table: question.Table,
+			Table: puzzle.Table,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: question.FieldID,
+				Column: puzzle.FieldID,
 			},
 		},
 	}
-	if ps := qd.mutation.predicates; len(ps) > 0 {
+	if ps := pd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, qd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, pd.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
 	return affected, err
 }
 
-// QuestionDeleteOne is the builder for deleting a single Question entity.
-type QuestionDeleteOne struct {
-	qd *QuestionDelete
+// PuzzleDeleteOne is the builder for deleting a single Puzzle entity.
+type PuzzleDeleteOne struct {
+	pd *PuzzleDelete
 }
 
 // Exec executes the deletion query.
-func (qdo *QuestionDeleteOne) Exec(ctx context.Context) error {
-	n, err := qdo.qd.Exec(ctx)
+func (pdo *PuzzleDeleteOne) Exec(ctx context.Context) error {
+	n, err := pdo.pd.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{question.Label}
+		return &NotFoundError{puzzle.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (qdo *QuestionDeleteOne) ExecX(ctx context.Context) {
-	qdo.qd.ExecX(ctx)
+func (pdo *PuzzleDeleteOne) ExecX(ctx context.Context) {
+	pdo.pd.ExecX(ctx)
 }

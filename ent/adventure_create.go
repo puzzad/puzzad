@@ -10,7 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/adventure"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
 
@@ -42,19 +42,19 @@ func (ac *AdventureCreate) AddUser(u ...*User) *AdventureCreate {
 	return ac.AddUserIDs(ids...)
 }
 
-// AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
-func (ac *AdventureCreate) AddQuestionIDs(ids ...int) *AdventureCreate {
-	ac.mutation.AddQuestionIDs(ids...)
+// AddPuzzleIDs adds the "puzzles" edge to the Puzzle entity by IDs.
+func (ac *AdventureCreate) AddPuzzleIDs(ids ...int) *AdventureCreate {
+	ac.mutation.AddPuzzleIDs(ids...)
 	return ac
 }
 
-// AddQuestions adds the "questions" edges to the Question entity.
-func (ac *AdventureCreate) AddQuestions(q ...*Question) *AdventureCreate {
-	ids := make([]int, len(q))
-	for i := range q {
-		ids[i] = q[i].ID
+// AddPuzzles adds the "puzzles" edges to the Puzzle entity.
+func (ac *AdventureCreate) AddPuzzles(p ...*Puzzle) *AdventureCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return ac.AddQuestionIDs(ids...)
+	return ac.AddPuzzleIDs(ids...)
 }
 
 // Mutation returns the AdventureMutation object of the builder.
@@ -188,23 +188,23 @@ func (ac *AdventureCreate) createSpec() (*Adventure, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		createE := &AccessCreate{config: ac.config, mutation: newAccessMutation(ac.config, OpCreate)}
+		createE := &GameCreate{config: ac.config, mutation: newGameMutation(ac.config, OpCreate)}
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := ac.mutation.QuestionsIDs(); len(nodes) > 0 {
+	if nodes := ac.mutation.PuzzlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   adventure.QuestionsTable,
-			Columns: []string{adventure.QuestionsColumn},
+			Table:   adventure.PuzzlesTable,
+			Columns: []string{adventure.PuzzlesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}

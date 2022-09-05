@@ -28,7 +28,7 @@ func (Guess) Mixin() []ent.Mixin {
 // Edges of the Guess.
 func (Guess) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("question", Question.Type),
+		edge.To("puzzle", Puzzle.Type),
 		edge.To("team", User.Type),
 	}
 }

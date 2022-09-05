@@ -10,11 +10,11 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
+	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/progress"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
 
@@ -36,11 +36,11 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		access.Table:    access.ValidColumn,
 		adventure.Table: adventure.ValidColumn,
+		game.Table:      game.ValidColumn,
 		guess.Table:     guess.ValidColumn,
 		progress.Table:  progress.ValidColumn,
-		question.Table:  question.ValidColumn,
+		puzzle.Table:    puzzle.ValidColumn,
 		user.Table:      user.ValidColumn,
 	}
 	check, ok := checks[table]

@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/guess"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
 
@@ -42,19 +42,19 @@ func (gc *GuessCreate) SetContent(s string) *GuessCreate {
 	return gc
 }
 
-// AddQuestionIDs adds the "question" edge to the Question entity by IDs.
-func (gc *GuessCreate) AddQuestionIDs(ids ...int) *GuessCreate {
-	gc.mutation.AddQuestionIDs(ids...)
+// AddPuzzleIDs adds the "puzzle" edge to the Puzzle entity by IDs.
+func (gc *GuessCreate) AddPuzzleIDs(ids ...int) *GuessCreate {
+	gc.mutation.AddPuzzleIDs(ids...)
 	return gc
 }
 
-// AddQuestion adds the "question" edges to the Question entity.
-func (gc *GuessCreate) AddQuestion(q ...*Question) *GuessCreate {
-	ids := make([]int, len(q))
-	for i := range q {
-		ids[i] = q[i].ID
+// AddPuzzle adds the "puzzle" edges to the Puzzle entity.
+func (gc *GuessCreate) AddPuzzle(p ...*Puzzle) *GuessCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return gc.AddQuestionIDs(ids...)
+	return gc.AddPuzzleIDs(ids...)
 }
 
 // AddTeamIDs adds the "team" edge to the User entity by IDs.
@@ -206,17 +206,17 @@ func (gc *GuessCreate) createSpec() (*Guess, *sqlgraph.CreateSpec) {
 		})
 		_node.Content = value
 	}
-	if nodes := gc.mutation.QuestionIDs(); len(nodes) > 0 {
+	if nodes := gc.mutation.PuzzleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   guess.QuestionTable,
-			Columns: []string{guess.QuestionColumn},
+			Table:   guess.PuzzleTable,
+			Columns: []string{guess.PuzzleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}

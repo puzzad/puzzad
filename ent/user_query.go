@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
+	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/predicate"
 	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/user"
@@ -29,7 +29,7 @@ type UserQuery struct {
 	predicates     []predicate.User
 	withAdventures *AdventureQuery
 	withProgress   *ProgressQuery
-	withAccess     *AccessQuery
+	withGame       *GameQuery
 	withFKs        bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -111,9 +111,9 @@ func (uq *UserQuery) QueryProgress() *ProgressQuery {
 	return query
 }
 
-// QueryAccess chains the current query on the "access" edge.
-func (uq *UserQuery) QueryAccess() *AccessQuery {
-	query := &AccessQuery{config: uq.config}
+// QueryGame chains the current query on the "game" edge.
+func (uq *UserQuery) QueryGame() *GameQuery {
+	query := &GameQuery{config: uq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -124,8 +124,8 @@ func (uq *UserQuery) QueryAccess() *AccessQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(access.Table, access.UserColumn),
-			sqlgraph.Edge(sqlgraph.O2M, true, user.AccessTable, user.AccessColumn),
+			sqlgraph.To(game.Table, game.UserColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, user.GameTable, user.GameColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -316,7 +316,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		predicates:     append([]predicate.User{}, uq.predicates...),
 		withAdventures: uq.withAdventures.Clone(),
 		withProgress:   uq.withProgress.Clone(),
-		withAccess:     uq.withAccess.Clone(),
+		withGame:       uq.withGame.Clone(),
 		// clone intermediate query.
 		sql:    uq.sql.Clone(),
 		path:   uq.path,
@@ -346,14 +346,14 @@ func (uq *UserQuery) WithProgress(opts ...func(*ProgressQuery)) *UserQuery {
 	return uq
 }
 
-// WithAccess tells the query-builder to eager-load the nodes that are connected to
-// the "access" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithAccess(opts ...func(*AccessQuery)) *UserQuery {
-	query := &AccessQuery{config: uq.config}
+// WithGame tells the query-builder to eager-load the nodes that are connected to
+// the "game" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithGame(opts ...func(*GameQuery)) *UserQuery {
+	query := &GameQuery{config: uq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	uq.withAccess = query
+	uq.withGame = query
 	return uq
 }
 
@@ -429,7 +429,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		loadedTypes = [3]bool{
 			uq.withAdventures != nil,
 			uq.withProgress != nil,
-			uq.withAccess != nil,
+			uq.withGame != nil,
 		}
 	)
 	if withFKs {
@@ -467,10 +467,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
-	if query := uq.withAccess; query != nil {
-		if err := uq.loadAccess(ctx, query, nodes,
-			func(n *User) { n.Edges.Access = []*Access{} },
-			func(n *User, e *Access) { n.Edges.Access = append(n.Edges.Access, e) }); err != nil {
+	if query := uq.withGame; query != nil {
+		if err := uq.loadGame(ctx, query, nodes,
+			func(n *User) { n.Edges.Game = []*Game{} },
+			func(n *User, e *Game) { n.Edges.Game = append(n.Edges.Game, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -593,7 +593,7 @@ func (uq *UserQuery) loadProgress(ctx context.Context, query *ProgressQuery, nod
 	}
 	return nil
 }
-func (uq *UserQuery) loadAccess(ctx context.Context, query *AccessQuery, nodes []*User, init func(*User), assign func(*User, *Access)) error {
+func (uq *UserQuery) loadGame(ctx context.Context, query *GameQuery, nodes []*User, init func(*User), assign func(*User, *Game)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*User)
 	for i := range nodes {
@@ -603,8 +603,8 @@ func (uq *UserQuery) loadAccess(ctx context.Context, query *AccessQuery, nodes [
 			init(nodes[i])
 		}
 	}
-	query.Where(predicate.Access(func(s *sql.Selector) {
-		s.Where(sql.InValues(user.AccessColumn, fks...))
+	query.Where(predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.InValues(user.GameColumn, fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

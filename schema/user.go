@@ -40,7 +40,7 @@ func (User) Mixin() []ent.Mixin {
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("adventures", Adventure.Type).Through("access", Access.Type),
+		edge.To("adventures", Adventure.Type).Through("game", Game.Type),
 		edge.To("progress", Progress.Type),
 	}
 }

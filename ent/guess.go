@@ -27,8 +27,8 @@ type Guess struct {
 
 // GuessEdges holds the relations/edges for other nodes in the graph.
 type GuessEdges struct {
-	// Question holds the value of the question edge.
-	Question []*Question `json:"question,omitempty"`
+	// Puzzle holds the value of the puzzle edge.
+	Puzzle []*Puzzle `json:"puzzle,omitempty"`
 	// Team holds the value of the team edge.
 	Team []*User `json:"team,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -36,13 +36,13 @@ type GuessEdges struct {
 	loadedTypes [2]bool
 }
 
-// QuestionOrErr returns the Question value or an error if the edge
+// PuzzleOrErr returns the Puzzle value or an error if the edge
 // was not loaded in eager-loading.
-func (e GuessEdges) QuestionOrErr() ([]*Question, error) {
+func (e GuessEdges) PuzzleOrErr() ([]*Puzzle, error) {
 	if e.loadedTypes[0] {
-		return e.Question, nil
+		return e.Puzzle, nil
 	}
-	return nil, &NotLoadedError{edge: "question"}
+	return nil, &NotLoadedError{edge: "puzzle"}
 }
 
 // TeamOrErr returns the Team value or an error if the edge
@@ -103,9 +103,9 @@ func (gu *Guess) assignValues(columns []string, values []interface{}) error {
 	return nil
 }
 
-// QueryQuestion queries the "question" edge of the Guess entity.
-func (gu *Guess) QueryQuestion() *QuestionQuery {
-	return (&GuessClient{config: gu.config}).QueryQuestion(gu)
+// QueryPuzzle queries the "puzzle" edge of the Guess entity.
+func (gu *Guess) QueryPuzzle() *PuzzleQuery {
+	return (&GuessClient{config: gu.config}).QueryPuzzle(gu)
 }
 
 // QueryTeam queries the "team" edge of the Guess entity.

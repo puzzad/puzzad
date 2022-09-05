@@ -7,16 +7,16 @@ import (
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
+	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/user"
 )
 
-// Access is the model entity for the Access schema.
-type Access struct {
+// Game is the model entity for the Game schema.
+type Game struct {
 	config `json:"-"`
 	// Status holds the value of the "status" field.
-	Status access.Status `json:"status,omitempty"`
+	Status game.Status `json:"status,omitempty"`
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
 	// UserID holds the value of the "user_id" field.
@@ -24,12 +24,12 @@ type Access struct {
 	// AdventureID holds the value of the "adventure_id" field.
 	AdventureID int `json:"adventure_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the AccessQuery when eager-loading is set.
-	Edges AccessEdges `json:"edges"`
+	// The values are being populated by the GameQuery when eager-loading is set.
+	Edges GameEdges `json:"edges"`
 }
 
-// AccessEdges holds the relations/edges for other nodes in the graph.
-type AccessEdges struct {
+// GameEdges holds the relations/edges for other nodes in the graph.
+type GameEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
 	// Adventures holds the value of the adventures edge.
@@ -41,7 +41,7 @@ type AccessEdges struct {
 
 // UserOrErr returns the User value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e AccessEdges) UserOrErr() (*User, error) {
+func (e GameEdges) UserOrErr() (*User, error) {
 	if e.loadedTypes[0] {
 		if e.User == nil {
 			// Edge was loaded but was not found.
@@ -54,7 +54,7 @@ func (e AccessEdges) UserOrErr() (*User, error) {
 
 // AdventuresOrErr returns the Adventures value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e AccessEdges) AdventuresOrErr() (*Adventure, error) {
+func (e GameEdges) AdventuresOrErr() (*Adventure, error) {
 	if e.loadedTypes[1] {
 		if e.Adventures == nil {
 			// Edge was loaded but was not found.
@@ -66,110 +66,110 @@ func (e AccessEdges) AdventuresOrErr() (*Adventure, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Access) scanValues(columns []string) ([]interface{}, error) {
+func (*Game) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case access.FieldUserID, access.FieldAdventureID:
+		case game.FieldUserID, game.FieldAdventureID:
 			values[i] = new(sql.NullInt64)
-		case access.FieldStatus, access.FieldCode:
+		case game.FieldStatus, game.FieldCode:
 			values[i] = new(sql.NullString)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Access", columns[i])
+			return nil, fmt.Errorf("unexpected column %q for type Game", columns[i])
 		}
 	}
 	return values, nil
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Access fields.
-func (a *Access) assignValues(columns []string, values []interface{}) error {
+// to the Game fields.
+func (ga *Game) assignValues(columns []string, values []interface{}) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case access.FieldStatus:
+		case game.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				a.Status = access.Status(value.String)
+				ga.Status = game.Status(value.String)
 			}
-		case access.FieldCode:
+		case game.FieldCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field code", values[i])
 			} else if value.Valid {
-				a.Code = value.String
+				ga.Code = value.String
 			}
-		case access.FieldUserID:
+		case game.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				a.UserID = int(value.Int64)
+				ga.UserID = int(value.Int64)
 			}
-		case access.FieldAdventureID:
+		case game.FieldAdventureID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field adventure_id", values[i])
 			} else if value.Valid {
-				a.AdventureID = int(value.Int64)
+				ga.AdventureID = int(value.Int64)
 			}
 		}
 	}
 	return nil
 }
 
-// QueryUser queries the "user" edge of the Access entity.
-func (a *Access) QueryUser() *UserQuery {
-	return (&AccessClient{config: a.config}).QueryUser(a)
+// QueryUser queries the "user" edge of the Game entity.
+func (ga *Game) QueryUser() *UserQuery {
+	return (&GameClient{config: ga.config}).QueryUser(ga)
 }
 
-// QueryAdventures queries the "adventures" edge of the Access entity.
-func (a *Access) QueryAdventures() *AdventureQuery {
-	return (&AccessClient{config: a.config}).QueryAdventures(a)
+// QueryAdventures queries the "adventures" edge of the Game entity.
+func (ga *Game) QueryAdventures() *AdventureQuery {
+	return (&GameClient{config: ga.config}).QueryAdventures(ga)
 }
 
-// Update returns a builder for updating this Access.
-// Note that you need to call Access.Unwrap() before calling this method if this Access
+// Update returns a builder for updating this Game.
+// Note that you need to call Game.Unwrap() before calling this method if this Game
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (a *Access) Update() *AccessUpdateOne {
-	return (&AccessClient{config: a.config}).UpdateOne(a)
+func (ga *Game) Update() *GameUpdateOne {
+	return (&GameClient{config: ga.config}).UpdateOne(ga)
 }
 
-// Unwrap unwraps the Access entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the Game entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (a *Access) Unwrap() *Access {
-	_tx, ok := a.config.driver.(*txDriver)
+func (ga *Game) Unwrap() *Game {
+	_tx, ok := ga.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: Access is not a transactional entity")
+		panic("ent: Game is not a transactional entity")
 	}
-	a.config.driver = _tx.drv
-	return a
+	ga.config.driver = _tx.drv
+	return ga
 }
 
 // String implements the fmt.Stringer.
-func (a *Access) String() string {
+func (ga *Game) String() string {
 	var builder strings.Builder
-	builder.WriteString("Access(")
+	builder.WriteString("Game(")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", a.Status))
+	builder.WriteString(fmt.Sprintf("%v", ga.Status))
 	builder.WriteString(", ")
 	builder.WriteString("code=")
-	builder.WriteString(a.Code)
+	builder.WriteString(ga.Code)
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", a.UserID))
+	builder.WriteString(fmt.Sprintf("%v", ga.UserID))
 	builder.WriteString(", ")
 	builder.WriteString("adventure_id=")
-	builder.WriteString(fmt.Sprintf("%v", a.AdventureID))
+	builder.WriteString(fmt.Sprintf("%v", ga.AdventureID))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// Accesses is a parsable slice of Access.
-type Accesses []*Access
+// Games is a parsable slice of Game.
+type Games []*Game
 
-func (a Accesses) config(cfg config) {
-	for _i := range a {
-		a[_i].config = cfg
+func (ga Games) config(cfg config) {
+	for _i := range ga {
+		ga[_i].config = cfg
 	}
 }

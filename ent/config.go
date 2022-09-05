@@ -24,11 +24,11 @@ type config struct {
 
 // hooks per client, for fast access.
 type hooks struct {
-	Access    []ent.Hook
 	Adventure []ent.Hook
+	Game      []ent.Hook
 	Guess     []ent.Hook
 	Progress  []ent.Hook
-	Question  []ent.Hook
+	Puzzle    []ent.Hook
 	User      []ent.Hook
 }
 

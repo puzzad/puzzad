@@ -9,19 +9,6 @@ import (
 	"github.com/greboid/puzzad/ent"
 )
 
-// The AccessFunc type is an adapter to allow the use of ordinary
-// function as Access mutator.
-type AccessFunc func(context.Context, *ent.AccessMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f AccessFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.AccessMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AccessMutation", m)
-	}
-	return f(ctx, mv)
-}
-
 // The AdventureFunc type is an adapter to allow the use of ordinary
 // function as Adventure mutator.
 type AdventureFunc func(context.Context, *ent.AdventureMutation) (ent.Value, error)
@@ -31,6 +18,19 @@ func (f AdventureFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 	mv, ok := m.(*ent.AdventureMutation)
 	if !ok {
 		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AdventureMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The GameFunc type is an adapter to allow the use of ordinary
+// function as Game mutator.
+type GameFunc func(context.Context, *ent.GameMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f GameFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.GameMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GameMutation", m)
 	}
 	return f(ctx, mv)
 }
@@ -61,15 +61,15 @@ func (f ProgressFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return f(ctx, mv)
 }
 
-// The QuestionFunc type is an adapter to allow the use of ordinary
-// function as Question mutator.
-type QuestionFunc func(context.Context, *ent.QuestionMutation) (ent.Value, error)
+// The PuzzleFunc type is an adapter to allow the use of ordinary
+// function as Puzzle mutator.
+type PuzzleFunc func(context.Context, *ent.PuzzleMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f QuestionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.QuestionMutation)
+func (f PuzzleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.PuzzleMutation)
 	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.QuestionMutation", m)
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PuzzleMutation", m)
 	}
 	return f(ctx, mv)
 }

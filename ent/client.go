@@ -10,11 +10,11 @@ import (
 
 	"github.com/greboid/puzzad/ent/migrate"
 
-	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/ent/adventure"
+	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/progress"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 
 	"entgo.io/ent/dialect"
@@ -27,16 +27,16 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Access is the client for interacting with the Access builders.
-	Access *AccessClient
 	// Adventure is the client for interacting with the Adventure builders.
 	Adventure *AdventureClient
+	// Game is the client for interacting with the Game builders.
+	Game *GameClient
 	// Guess is the client for interacting with the Guess builders.
 	Guess *GuessClient
 	// Progress is the client for interacting with the Progress builders.
 	Progress *ProgressClient
-	// Question is the client for interacting with the Question builders.
-	Question *QuestionClient
+	// Puzzle is the client for interacting with the Puzzle builders.
+	Puzzle *PuzzleClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -52,11 +52,11 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Access = NewAccessClient(c.config)
 	c.Adventure = NewAdventureClient(c.config)
+	c.Game = NewGameClient(c.config)
 	c.Guess = NewGuessClient(c.config)
 	c.Progress = NewProgressClient(c.config)
-	c.Question = NewQuestionClient(c.config)
+	c.Puzzle = NewPuzzleClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -91,11 +91,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:       ctx,
 		config:    cfg,
-		Access:    NewAccessClient(cfg),
 		Adventure: NewAdventureClient(cfg),
+		Game:      NewGameClient(cfg),
 		Guess:     NewGuessClient(cfg),
 		Progress:  NewProgressClient(cfg),
-		Question:  NewQuestionClient(cfg),
+		Puzzle:    NewPuzzleClient(cfg),
 		User:      NewUserClient(cfg),
 	}, nil
 }
@@ -116,11 +116,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:       ctx,
 		config:    cfg,
-		Access:    NewAccessClient(cfg),
 		Adventure: NewAdventureClient(cfg),
+		Game:      NewGameClient(cfg),
 		Guess:     NewGuessClient(cfg),
 		Progress:  NewProgressClient(cfg),
-		Question:  NewQuestionClient(cfg),
+		Puzzle:    NewPuzzleClient(cfg),
 		User:      NewUserClient(cfg),
 	}, nil
 }
@@ -128,7 +128,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Access.
+//		Adventure.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -150,85 +150,12 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Access.Use(hooks...)
 	c.Adventure.Use(hooks...)
+	c.Game.Use(hooks...)
 	c.Guess.Use(hooks...)
 	c.Progress.Use(hooks...)
-	c.Question.Use(hooks...)
+	c.Puzzle.Use(hooks...)
 	c.User.Use(hooks...)
-}
-
-// AccessClient is a client for the Access schema.
-type AccessClient struct {
-	config
-}
-
-// NewAccessClient returns a client for the Access from the given config.
-func NewAccessClient(c config) *AccessClient {
-	return &AccessClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `access.Hooks(f(g(h())))`.
-func (c *AccessClient) Use(hooks ...Hook) {
-	c.hooks.Access = append(c.hooks.Access, hooks...)
-}
-
-// Create returns a builder for creating a Access entity.
-func (c *AccessClient) Create() *AccessCreate {
-	mutation := newAccessMutation(c.config, OpCreate)
-	return &AccessCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Access entities.
-func (c *AccessClient) CreateBulk(builders ...*AccessCreate) *AccessCreateBulk {
-	return &AccessCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Access.
-func (c *AccessClient) Update() *AccessUpdate {
-	mutation := newAccessMutation(c.config, OpUpdate)
-	return &AccessUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *AccessClient) UpdateOne(a *Access) *AccessUpdateOne {
-	mutation := newAccessMutation(c.config, OpUpdateOne)
-	mutation.user = &a.UserID
-	mutation.adventures = &a.AdventureID
-	return &AccessUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Access.
-func (c *AccessClient) Delete() *AccessDelete {
-	mutation := newAccessMutation(c.config, OpDelete)
-	return &AccessDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Query returns a query builder for Access.
-func (c *AccessClient) Query() *AccessQuery {
-	return &AccessQuery{
-		config: c.config,
-	}
-}
-
-// QueryUser queries the user edge of a Access.
-func (c *AccessClient) QueryUser(a *Access) *UserQuery {
-	return c.Query().
-		Where(access.UserID(a.UserID), access.AdventureID(a.AdventureID)).
-		QueryUser()
-}
-
-// QueryAdventures queries the adventures edge of a Access.
-func (c *AccessClient) QueryAdventures(a *Access) *AdventureQuery {
-	return c.Query().
-		Where(access.UserID(a.UserID), access.AdventureID(a.AdventureID)).
-		QueryAdventures()
-}
-
-// Hooks returns the client hooks.
-func (c *AccessClient) Hooks() []Hook {
-	return c.hooks.Access
 }
 
 // AdventureClient is a client for the Adventure schema.
@@ -332,15 +259,15 @@ func (c *AdventureClient) QueryUser(a *Adventure) *UserQuery {
 	return query
 }
 
-// QueryQuestions queries the questions edge of a Adventure.
-func (c *AdventureClient) QueryQuestions(a *Adventure) *QuestionQuery {
-	query := &QuestionQuery{config: c.config}
+// QueryPuzzles queries the puzzles edge of a Adventure.
+func (c *AdventureClient) QueryPuzzles(a *Adventure) *PuzzleQuery {
+	query := &PuzzleQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(adventure.Table, adventure.FieldID, id),
-			sqlgraph.To(question.Table, question.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, adventure.QuestionsTable, adventure.QuestionsColumn),
+			sqlgraph.To(puzzle.Table, puzzle.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, adventure.PuzzlesTable, adventure.PuzzlesColumn),
 		)
 		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
 		return fromV, nil
@@ -348,15 +275,15 @@ func (c *AdventureClient) QueryQuestions(a *Adventure) *QuestionQuery {
 	return query
 }
 
-// QueryAccess queries the access edge of a Adventure.
-func (c *AdventureClient) QueryAccess(a *Adventure) *AccessQuery {
-	query := &AccessQuery{config: c.config}
+// QueryGame queries the game edge of a Adventure.
+func (c *AdventureClient) QueryGame(a *Adventure) *GameQuery {
+	query := &GameQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(adventure.Table, adventure.FieldID, id),
-			sqlgraph.To(access.Table, access.AdventuresColumn),
-			sqlgraph.Edge(sqlgraph.O2M, true, adventure.AccessTable, adventure.AccessColumn),
+			sqlgraph.To(game.Table, game.AdventuresColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, adventure.GameTable, adventure.GameColumn),
 		)
 		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
 		return fromV, nil
@@ -367,6 +294,79 @@ func (c *AdventureClient) QueryAccess(a *Adventure) *AccessQuery {
 // Hooks returns the client hooks.
 func (c *AdventureClient) Hooks() []Hook {
 	return c.hooks.Adventure
+}
+
+// GameClient is a client for the Game schema.
+type GameClient struct {
+	config
+}
+
+// NewGameClient returns a client for the Game from the given config.
+func NewGameClient(c config) *GameClient {
+	return &GameClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `game.Hooks(f(g(h())))`.
+func (c *GameClient) Use(hooks ...Hook) {
+	c.hooks.Game = append(c.hooks.Game, hooks...)
+}
+
+// Create returns a builder for creating a Game entity.
+func (c *GameClient) Create() *GameCreate {
+	mutation := newGameMutation(c.config, OpCreate)
+	return &GameCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Game entities.
+func (c *GameClient) CreateBulk(builders ...*GameCreate) *GameCreateBulk {
+	return &GameCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Game.
+func (c *GameClient) Update() *GameUpdate {
+	mutation := newGameMutation(c.config, OpUpdate)
+	return &GameUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *GameClient) UpdateOne(ga *Game) *GameUpdateOne {
+	mutation := newGameMutation(c.config, OpUpdateOne)
+	mutation.user = &ga.UserID
+	mutation.adventures = &ga.AdventureID
+	return &GameUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Game.
+func (c *GameClient) Delete() *GameDelete {
+	mutation := newGameMutation(c.config, OpDelete)
+	return &GameDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Query returns a query builder for Game.
+func (c *GameClient) Query() *GameQuery {
+	return &GameQuery{
+		config: c.config,
+	}
+}
+
+// QueryUser queries the user edge of a Game.
+func (c *GameClient) QueryUser(ga *Game) *UserQuery {
+	return c.Query().
+		Where(game.UserID(ga.UserID), game.AdventureID(ga.AdventureID)).
+		QueryUser()
+}
+
+// QueryAdventures queries the adventures edge of a Game.
+func (c *GameClient) QueryAdventures(ga *Game) *AdventureQuery {
+	return c.Query().
+		Where(game.UserID(ga.UserID), game.AdventureID(ga.AdventureID)).
+		QueryAdventures()
+}
+
+// Hooks returns the client hooks.
+func (c *GameClient) Hooks() []Hook {
+	return c.hooks.Game
 }
 
 // GuessClient is a client for the Guess schema.
@@ -454,15 +454,15 @@ func (c *GuessClient) GetX(ctx context.Context, id int) *Guess {
 	return obj
 }
 
-// QueryQuestion queries the question edge of a Guess.
-func (c *GuessClient) QueryQuestion(gu *Guess) *QuestionQuery {
-	query := &QuestionQuery{config: c.config}
+// QueryPuzzle queries the puzzle edge of a Guess.
+func (c *GuessClient) QueryPuzzle(gu *Guess) *PuzzleQuery {
+	query := &PuzzleQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := gu.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(guess.Table, guess.FieldID, id),
-			sqlgraph.To(question.Table, question.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, guess.QuestionTable, guess.QuestionColumn),
+			sqlgraph.To(puzzle.Table, puzzle.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, guess.PuzzleTable, guess.PuzzleColumn),
 		)
 		fromV = sqlgraph.Neighbors(gu.driver.Dialect(), step)
 		return fromV, nil
@@ -608,15 +608,15 @@ func (c *ProgressClient) QueryAdventure(pr *Progress) *AdventureQuery {
 	return query
 }
 
-// QueryQuestion queries the question edge of a Progress.
-func (c *ProgressClient) QueryQuestion(pr *Progress) *QuestionQuery {
-	query := &QuestionQuery{config: c.config}
+// QueryPuzzle queries the puzzle edge of a Progress.
+func (c *ProgressClient) QueryPuzzle(pr *Progress) *PuzzleQuery {
+	query := &PuzzleQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := pr.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(progress.Table, progress.FieldID, id),
-			sqlgraph.To(question.Table, question.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, progress.QuestionTable, progress.QuestionColumn),
+			sqlgraph.To(puzzle.Table, puzzle.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, progress.PuzzleTable, progress.PuzzleColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil
@@ -629,84 +629,84 @@ func (c *ProgressClient) Hooks() []Hook {
 	return c.hooks.Progress
 }
 
-// QuestionClient is a client for the Question schema.
-type QuestionClient struct {
+// PuzzleClient is a client for the Puzzle schema.
+type PuzzleClient struct {
 	config
 }
 
-// NewQuestionClient returns a client for the Question from the given config.
-func NewQuestionClient(c config) *QuestionClient {
-	return &QuestionClient{config: c}
+// NewPuzzleClient returns a client for the Puzzle from the given config.
+func NewPuzzleClient(c config) *PuzzleClient {
+	return &PuzzleClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `question.Hooks(f(g(h())))`.
-func (c *QuestionClient) Use(hooks ...Hook) {
-	c.hooks.Question = append(c.hooks.Question, hooks...)
+// A call to `Use(f, g, h)` equals to `puzzle.Hooks(f(g(h())))`.
+func (c *PuzzleClient) Use(hooks ...Hook) {
+	c.hooks.Puzzle = append(c.hooks.Puzzle, hooks...)
 }
 
-// Create returns a builder for creating a Question entity.
-func (c *QuestionClient) Create() *QuestionCreate {
-	mutation := newQuestionMutation(c.config, OpCreate)
-	return &QuestionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a Puzzle entity.
+func (c *PuzzleClient) Create() *PuzzleCreate {
+	mutation := newPuzzleMutation(c.config, OpCreate)
+	return &PuzzleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of Question entities.
-func (c *QuestionClient) CreateBulk(builders ...*QuestionCreate) *QuestionCreateBulk {
-	return &QuestionCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of Puzzle entities.
+func (c *PuzzleClient) CreateBulk(builders ...*PuzzleCreate) *PuzzleCreateBulk {
+	return &PuzzleCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Question.
-func (c *QuestionClient) Update() *QuestionUpdate {
-	mutation := newQuestionMutation(c.config, OpUpdate)
-	return &QuestionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for Puzzle.
+func (c *PuzzleClient) Update() *PuzzleUpdate {
+	mutation := newPuzzleMutation(c.config, OpUpdate)
+	return &PuzzleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *QuestionClient) UpdateOne(q *Question) *QuestionUpdateOne {
-	mutation := newQuestionMutation(c.config, OpUpdateOne, withQuestion(q))
-	return &QuestionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *PuzzleClient) UpdateOne(pu *Puzzle) *PuzzleUpdateOne {
+	mutation := newPuzzleMutation(c.config, OpUpdateOne, withPuzzle(pu))
+	return &PuzzleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *QuestionClient) UpdateOneID(id int) *QuestionUpdateOne {
-	mutation := newQuestionMutation(c.config, OpUpdateOne, withQuestionID(id))
-	return &QuestionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *PuzzleClient) UpdateOneID(id int) *PuzzleUpdateOne {
+	mutation := newPuzzleMutation(c.config, OpUpdateOne, withPuzzleID(id))
+	return &PuzzleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Question.
-func (c *QuestionClient) Delete() *QuestionDelete {
-	mutation := newQuestionMutation(c.config, OpDelete)
-	return &QuestionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for Puzzle.
+func (c *PuzzleClient) Delete() *PuzzleDelete {
+	mutation := newPuzzleMutation(c.config, OpDelete)
+	return &PuzzleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *QuestionClient) DeleteOne(q *Question) *QuestionDeleteOne {
-	return c.DeleteOneID(q.ID)
+func (c *PuzzleClient) DeleteOne(pu *Puzzle) *PuzzleDeleteOne {
+	return c.DeleteOneID(pu.ID)
 }
 
 // DeleteOne returns a builder for deleting the given entity by its id.
-func (c *QuestionClient) DeleteOneID(id int) *QuestionDeleteOne {
-	builder := c.Delete().Where(question.ID(id))
+func (c *PuzzleClient) DeleteOneID(id int) *PuzzleDeleteOne {
+	builder := c.Delete().Where(puzzle.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &QuestionDeleteOne{builder}
+	return &PuzzleDeleteOne{builder}
 }
 
-// Query returns a query builder for Question.
-func (c *QuestionClient) Query() *QuestionQuery {
-	return &QuestionQuery{
+// Query returns a query builder for Puzzle.
+func (c *PuzzleClient) Query() *PuzzleQuery {
+	return &PuzzleQuery{
 		config: c.config,
 	}
 }
 
-// Get returns a Question entity by its id.
-func (c *QuestionClient) Get(ctx context.Context, id int) (*Question, error) {
-	return c.Query().Where(question.ID(id)).Only(ctx)
+// Get returns a Puzzle entity by its id.
+func (c *PuzzleClient) Get(ctx context.Context, id int) (*Puzzle, error) {
+	return c.Query().Where(puzzle.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *QuestionClient) GetX(ctx context.Context, id int) *Question {
+func (c *PuzzleClient) GetX(ctx context.Context, id int) *Puzzle {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -714,25 +714,25 @@ func (c *QuestionClient) GetX(ctx context.Context, id int) *Question {
 	return obj
 }
 
-// QueryAdventure queries the adventure edge of a Question.
-func (c *QuestionClient) QueryAdventure(q *Question) *AdventureQuery {
+// QueryAdventure queries the adventure edge of a Puzzle.
+func (c *PuzzleClient) QueryAdventure(pu *Puzzle) *AdventureQuery {
 	query := &AdventureQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := q.ID
+		id := pu.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(question.Table, question.FieldID, id),
+			sqlgraph.From(puzzle.Table, puzzle.FieldID, id),
 			sqlgraph.To(adventure.Table, adventure.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, question.AdventureTable, question.AdventureColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, puzzle.AdventureTable, puzzle.AdventureColumn),
 		)
-		fromV = sqlgraph.Neighbors(q.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(pu.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // Hooks returns the client hooks.
-func (c *QuestionClient) Hooks() []Hook {
-	return c.hooks.Question
+func (c *PuzzleClient) Hooks() []Hook {
+	return c.hooks.Puzzle
 }
 
 // UserClient is a client for the User schema.
@@ -852,15 +852,15 @@ func (c *UserClient) QueryProgress(u *User) *ProgressQuery {
 	return query
 }
 
-// QueryAccess queries the access edge of a User.
-func (c *UserClient) QueryAccess(u *User) *AccessQuery {
-	query := &AccessQuery{config: c.config}
+// QueryGame queries the game edge of a User.
+func (c *UserClient) QueryGame(u *User) *GameQuery {
+	query := &GameQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(access.Table, access.UserColumn),
-			sqlgraph.Edge(sqlgraph.O2M, true, user.AccessTable, user.AccessColumn),
+			sqlgraph.To(game.Table, game.UserColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, user.GameTable, user.GameColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

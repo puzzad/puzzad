@@ -12,7 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/predicate"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
 
@@ -35,19 +35,19 @@ func (gu *GuessUpdate) SetContent(s string) *GuessUpdate {
 	return gu
 }
 
-// AddQuestionIDs adds the "question" edge to the Question entity by IDs.
-func (gu *GuessUpdate) AddQuestionIDs(ids ...int) *GuessUpdate {
-	gu.mutation.AddQuestionIDs(ids...)
+// AddPuzzleIDs adds the "puzzle" edge to the Puzzle entity by IDs.
+func (gu *GuessUpdate) AddPuzzleIDs(ids ...int) *GuessUpdate {
+	gu.mutation.AddPuzzleIDs(ids...)
 	return gu
 }
 
-// AddQuestion adds the "question" edges to the Question entity.
-func (gu *GuessUpdate) AddQuestion(q ...*Question) *GuessUpdate {
-	ids := make([]int, len(q))
-	for i := range q {
-		ids[i] = q[i].ID
+// AddPuzzle adds the "puzzle" edges to the Puzzle entity.
+func (gu *GuessUpdate) AddPuzzle(p ...*Puzzle) *GuessUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return gu.AddQuestionIDs(ids...)
+	return gu.AddPuzzleIDs(ids...)
 }
 
 // AddTeamIDs adds the "team" edge to the User entity by IDs.
@@ -70,25 +70,25 @@ func (gu *GuessUpdate) Mutation() *GuessMutation {
 	return gu.mutation
 }
 
-// ClearQuestion clears all "question" edges to the Question entity.
-func (gu *GuessUpdate) ClearQuestion() *GuessUpdate {
-	gu.mutation.ClearQuestion()
+// ClearPuzzle clears all "puzzle" edges to the Puzzle entity.
+func (gu *GuessUpdate) ClearPuzzle() *GuessUpdate {
+	gu.mutation.ClearPuzzle()
 	return gu
 }
 
-// RemoveQuestionIDs removes the "question" edge to Question entities by IDs.
-func (gu *GuessUpdate) RemoveQuestionIDs(ids ...int) *GuessUpdate {
-	gu.mutation.RemoveQuestionIDs(ids...)
+// RemovePuzzleIDs removes the "puzzle" edge to Puzzle entities by IDs.
+func (gu *GuessUpdate) RemovePuzzleIDs(ids ...int) *GuessUpdate {
+	gu.mutation.RemovePuzzleIDs(ids...)
 	return gu
 }
 
-// RemoveQuestion removes "question" edges to Question entities.
-func (gu *GuessUpdate) RemoveQuestion(q ...*Question) *GuessUpdate {
-	ids := make([]int, len(q))
-	for i := range q {
-		ids[i] = q[i].ID
+// RemovePuzzle removes "puzzle" edges to Puzzle entities.
+func (gu *GuessUpdate) RemovePuzzle(p ...*Puzzle) *GuessUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return gu.RemoveQuestionIDs(ids...)
+	return gu.RemovePuzzleIDs(ids...)
 }
 
 // ClearTeam clears all "team" edges to the User entity.
@@ -191,33 +191,33 @@ func (gu *GuessUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: guess.FieldContent,
 		})
 	}
-	if gu.mutation.QuestionCleared() {
+	if gu.mutation.PuzzleCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   guess.QuestionTable,
-			Columns: []string{guess.QuestionColumn},
+			Table:   guess.PuzzleTable,
+			Columns: []string{guess.PuzzleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := gu.mutation.RemovedQuestionIDs(); len(nodes) > 0 && !gu.mutation.QuestionCleared() {
+	if nodes := gu.mutation.RemovedPuzzleIDs(); len(nodes) > 0 && !gu.mutation.PuzzleCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   guess.QuestionTable,
-			Columns: []string{guess.QuestionColumn},
+			Table:   guess.PuzzleTable,
+			Columns: []string{guess.PuzzleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
@@ -226,17 +226,17 @@ func (gu *GuessUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := gu.mutation.QuestionIDs(); len(nodes) > 0 {
+	if nodes := gu.mutation.PuzzleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   guess.QuestionTable,
-			Columns: []string{guess.QuestionColumn},
+			Table:   guess.PuzzleTable,
+			Columns: []string{guess.PuzzleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
@@ -324,19 +324,19 @@ func (guo *GuessUpdateOne) SetContent(s string) *GuessUpdateOne {
 	return guo
 }
 
-// AddQuestionIDs adds the "question" edge to the Question entity by IDs.
-func (guo *GuessUpdateOne) AddQuestionIDs(ids ...int) *GuessUpdateOne {
-	guo.mutation.AddQuestionIDs(ids...)
+// AddPuzzleIDs adds the "puzzle" edge to the Puzzle entity by IDs.
+func (guo *GuessUpdateOne) AddPuzzleIDs(ids ...int) *GuessUpdateOne {
+	guo.mutation.AddPuzzleIDs(ids...)
 	return guo
 }
 
-// AddQuestion adds the "question" edges to the Question entity.
-func (guo *GuessUpdateOne) AddQuestion(q ...*Question) *GuessUpdateOne {
-	ids := make([]int, len(q))
-	for i := range q {
-		ids[i] = q[i].ID
+// AddPuzzle adds the "puzzle" edges to the Puzzle entity.
+func (guo *GuessUpdateOne) AddPuzzle(p ...*Puzzle) *GuessUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return guo.AddQuestionIDs(ids...)
+	return guo.AddPuzzleIDs(ids...)
 }
 
 // AddTeamIDs adds the "team" edge to the User entity by IDs.
@@ -359,25 +359,25 @@ func (guo *GuessUpdateOne) Mutation() *GuessMutation {
 	return guo.mutation
 }
 
-// ClearQuestion clears all "question" edges to the Question entity.
-func (guo *GuessUpdateOne) ClearQuestion() *GuessUpdateOne {
-	guo.mutation.ClearQuestion()
+// ClearPuzzle clears all "puzzle" edges to the Puzzle entity.
+func (guo *GuessUpdateOne) ClearPuzzle() *GuessUpdateOne {
+	guo.mutation.ClearPuzzle()
 	return guo
 }
 
-// RemoveQuestionIDs removes the "question" edge to Question entities by IDs.
-func (guo *GuessUpdateOne) RemoveQuestionIDs(ids ...int) *GuessUpdateOne {
-	guo.mutation.RemoveQuestionIDs(ids...)
+// RemovePuzzleIDs removes the "puzzle" edge to Puzzle entities by IDs.
+func (guo *GuessUpdateOne) RemovePuzzleIDs(ids ...int) *GuessUpdateOne {
+	guo.mutation.RemovePuzzleIDs(ids...)
 	return guo
 }
 
-// RemoveQuestion removes "question" edges to Question entities.
-func (guo *GuessUpdateOne) RemoveQuestion(q ...*Question) *GuessUpdateOne {
-	ids := make([]int, len(q))
-	for i := range q {
-		ids[i] = q[i].ID
+// RemovePuzzle removes "puzzle" edges to Puzzle entities.
+func (guo *GuessUpdateOne) RemovePuzzle(p ...*Puzzle) *GuessUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
 	}
-	return guo.RemoveQuestionIDs(ids...)
+	return guo.RemovePuzzleIDs(ids...)
 }
 
 // ClearTeam clears all "team" edges to the User entity.
@@ -510,33 +510,33 @@ func (guo *GuessUpdateOne) sqlSave(ctx context.Context) (_node *Guess, err error
 			Column: guess.FieldContent,
 		})
 	}
-	if guo.mutation.QuestionCleared() {
+	if guo.mutation.PuzzleCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   guess.QuestionTable,
-			Columns: []string{guess.QuestionColumn},
+			Table:   guess.PuzzleTable,
+			Columns: []string{guess.PuzzleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := guo.mutation.RemovedQuestionIDs(); len(nodes) > 0 && !guo.mutation.QuestionCleared() {
+	if nodes := guo.mutation.RemovedPuzzleIDs(); len(nodes) > 0 && !guo.mutation.PuzzleCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   guess.QuestionTable,
-			Columns: []string{guess.QuestionColumn},
+			Table:   guess.PuzzleTable,
+			Columns: []string{guess.PuzzleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}
@@ -545,17 +545,17 @@ func (guo *GuessUpdateOne) sqlSave(ctx context.Context) (_node *Guess, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := guo.mutation.QuestionIDs(); len(nodes) > 0 {
+	if nodes := guo.mutation.PuzzleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   guess.QuestionTable,
-			Columns: []string{guess.QuestionColumn},
+			Table:   guess.PuzzleTable,
+			Columns: []string{guess.PuzzleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: question.FieldID,
+					Column: puzzle.FieldID,
 				},
 			},
 		}

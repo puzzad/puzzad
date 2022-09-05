@@ -20,20 +20,20 @@ func init() {
 	}
 }
 
-// Access holds the schema definition for the Access entity.
-type Access struct {
+// Game holds the schema definition for the Game entity.
+type Game struct {
 	ent.Schema
 }
 
-func (Access) Annotations() []schema.Annotation {
+func (Game) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		//This crashes the ent schema description command, but its written as per the docs
 		field.ID("user_id", "adventure_id"),
 	}
 }
 
-// Fields of the Access.
-func (Access) Fields() []ent.Field {
+// Fields of the Game.
+func (Game) Fields() []ent.Field {
 	return []ent.Field{
 		field.Enum("status").Values("Paid", "Unpaid", "Expired").Default("Unpaid"),
 		field.String("code").
@@ -47,8 +47,8 @@ func (Access) Fields() []ent.Field {
 	}
 }
 
-// Edges of the Access.
-func (Access) Edges() []ent.Edge {
+// Edges of the Game.
+func (Game) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("user", User.Type).Unique().Required().Field("user_id"),
 		edge.To("adventures", Adventure.Type).Unique().Required().Field("adventure_id"),

@@ -11,31 +11,31 @@ const (
 	FieldName = "name"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
-	// EdgeQuestions holds the string denoting the questions edge name in mutations.
-	EdgeQuestions = "questions"
-	// EdgeAccess holds the string denoting the access edge name in mutations.
-	EdgeAccess = "access"
+	// EdgePuzzles holds the string denoting the puzzles edge name in mutations.
+	EdgePuzzles = "puzzles"
+	// EdgeGame holds the string denoting the game edge name in mutations.
+	EdgeGame = "game"
 	// Table holds the table name of the adventure in the database.
 	Table = "adventures"
 	// UserTable is the table that holds the user relation/edge. The primary key declared below.
-	UserTable = "accesses"
+	UserTable = "games"
 	// UserInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UserInverseTable = "users"
-	// QuestionsTable is the table that holds the questions relation/edge.
-	QuestionsTable = "questions"
-	// QuestionsInverseTable is the table name for the Question entity.
-	// It exists in this package in order to avoid circular dependency with the "question" package.
-	QuestionsInverseTable = "questions"
-	// QuestionsColumn is the table column denoting the questions relation/edge.
-	QuestionsColumn = "adventure_questions"
-	// AccessTable is the table that holds the access relation/edge.
-	AccessTable = "accesses"
-	// AccessInverseTable is the table name for the Access entity.
-	// It exists in this package in order to avoid circular dependency with the "access" package.
-	AccessInverseTable = "accesses"
-	// AccessColumn is the table column denoting the access relation/edge.
-	AccessColumn = "adventure_id"
+	// PuzzlesTable is the table that holds the puzzles relation/edge.
+	PuzzlesTable = "puzzles"
+	// PuzzlesInverseTable is the table name for the Puzzle entity.
+	// It exists in this package in order to avoid circular dependency with the "puzzle" package.
+	PuzzlesInverseTable = "puzzles"
+	// PuzzlesColumn is the table column denoting the puzzles relation/edge.
+	PuzzlesColumn = "adventure_puzzles"
+	// GameTable is the table that holds the game relation/edge.
+	GameTable = "games"
+	// GameInverseTable is the table name for the Game entity.
+	// It exists in this package in order to avoid circular dependency with the "game" package.
+	GameInverseTable = "games"
+	// GameColumn is the table column denoting the game relation/edge.
+	GameColumn = "adventure_id"
 )
 
 // Columns holds all SQL columns for adventure fields.

@@ -38,8 +38,8 @@ type UserEdges struct {
 	Adventures []*Adventure `json:"adventures,omitempty"`
 	// Progress holds the value of the progress edge.
 	Progress []*Progress `json:"progress,omitempty"`
-	// Access holds the value of the access edge.
-	Access []*Access `json:"access,omitempty"`
+	// Game holds the value of the game edge.
+	Game []*Game `json:"game,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [3]bool
@@ -63,13 +63,13 @@ func (e UserEdges) ProgressOrErr() ([]*Progress, error) {
 	return nil, &NotLoadedError{edge: "progress"}
 }
 
-// AccessOrErr returns the Access value or an error if the edge
+// GameOrErr returns the Game value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) AccessOrErr() ([]*Access, error) {
+func (e UserEdges) GameOrErr() ([]*Game, error) {
 	if e.loadedTypes[2] {
-		return e.Access, nil
+		return e.Game, nil
 	}
-	return nil, &NotLoadedError{edge: "access"}
+	return nil, &NotLoadedError{edge: "game"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -158,9 +158,9 @@ func (u *User) QueryProgress() *ProgressQuery {
 	return (&UserClient{config: u.config}).QueryProgress(u)
 }
 
-// QueryAccess queries the "access" edge of the User entity.
-func (u *User) QueryAccess() *AccessQuery {
-	return (&UserClient{config: u.config}).QueryAccess(u)
+// QueryGame queries the "game" edge of the User entity.
+func (u *User) QueryGame() *GameQuery {
+	return (&UserClient{config: u.config}).QueryGame(u)
 }
 
 // Update returns a builder for updating this User.

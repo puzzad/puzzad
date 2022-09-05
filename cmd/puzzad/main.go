@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/greboid/puzzad/ent/game"
 	"os"
 
 	"github.com/csmith/envflag"
-	"github.com/greboid/puzzad/ent/access"
 	"github.com/greboid/puzzad/puzzad"
 	"github.com/greboid/puzzad/web"
 	"github.com/rs/zerolog"
@@ -37,10 +37,10 @@ func main() {
 		ad, _ := client.CreateAdventure(ctx, "Test Adventure")
 		ad, _ = client.GetAdventure(ctx, "Test Adventure")
 		_ = client.AddAdventureForUser(ctx, ad, u)
-		_ = client.SetUserStatusForAdventure(ctx, ad, u, access.StatusPaid)
+		_ = client.SetUserStatusForAdventure(ctx, ad, u, game.StatusPaid)
 		adventures, _ := client.GetPaidAdventuresForUser(ctx, u)
 		for index := range adventures {
-			ac, _ := adventures[index].QueryAccess().Where(access.UserID(u.ID)).Only(ctx)
+			ac, _ := adventures[index].QueryGame().Where(game.UserID(u.ID)).Only(ctx)
 			log.Printf("Adventure codes: %s: %s", adventures[index].Name, ac.Code)
 		}
 	}()

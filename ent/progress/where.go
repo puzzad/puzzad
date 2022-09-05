@@ -135,25 +135,25 @@ func HasAdventureWith(preds ...predicate.Adventure) predicate.Progress {
 	})
 }
 
-// HasQuestion applies the HasEdge predicate on the "question" edge.
-func HasQuestion() predicate.Progress {
+// HasPuzzle applies the HasEdge predicate on the "puzzle" edge.
+func HasPuzzle() predicate.Progress {
 	return predicate.Progress(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(QuestionTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, QuestionTable, QuestionColumn),
+			sqlgraph.To(PuzzleTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, PuzzleTable, PuzzleColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasQuestionWith applies the HasEdge predicate on the "question" edge with a given conditions (other predicates).
-func HasQuestionWith(preds ...predicate.Question) predicate.Progress {
+// HasPuzzleWith applies the HasEdge predicate on the "puzzle" edge with a given conditions (other predicates).
+func HasPuzzleWith(preds ...predicate.Puzzle) predicate.Progress {
 	return predicate.Progress(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(QuestionInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, QuestionTable, QuestionColumn),
+			sqlgraph.To(PuzzleInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, PuzzleTable, PuzzleColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

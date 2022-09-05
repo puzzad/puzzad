@@ -8,11 +8,11 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/greboid/puzzad/ent/adventure"
-	"github.com/greboid/puzzad/ent/question"
+	"github.com/greboid/puzzad/ent/puzzle"
 )
 
-// Question is the model entity for the Question schema.
-type Question struct {
+// Puzzle is the model entity for the Puzzle schema.
+type Puzzle struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
@@ -21,14 +21,14 @@ type Question struct {
 	// Answer holds the value of the "answer" field.
 	Answer string `json:"answer,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the QuestionQuery when eager-loading is set.
-	Edges               QuestionEdges `json:"edges"`
-	adventure_questions *int
-	guess_question      *int
+	// The values are being populated by the PuzzleQuery when eager-loading is set.
+	Edges             PuzzleEdges `json:"edges"`
+	adventure_puzzles *int
+	guess_puzzle      *int
 }
 
-// QuestionEdges holds the relations/edges for other nodes in the graph.
-type QuestionEdges struct {
+// PuzzleEdges holds the relations/edges for other nodes in the graph.
+type PuzzleEdges struct {
 	// Adventure holds the value of the adventure edge.
 	Adventure *Adventure `json:"adventure,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -38,7 +38,7 @@ type QuestionEdges struct {
 
 // AdventureOrErr returns the Adventure value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e QuestionEdges) AdventureOrErr() (*Adventure, error) {
+func (e PuzzleEdges) AdventureOrErr() (*Adventure, error) {
 	if e.loadedTypes[0] {
 		if e.Adventure == nil {
 			// Edge was loaded but was not found.
@@ -50,112 +50,112 @@ func (e QuestionEdges) AdventureOrErr() (*Adventure, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Question) scanValues(columns []string) ([]interface{}, error) {
+func (*Puzzle) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case question.FieldID:
+		case puzzle.FieldID:
 			values[i] = new(sql.NullInt64)
-		case question.FieldTitle, question.FieldAnswer:
+		case puzzle.FieldTitle, puzzle.FieldAnswer:
 			values[i] = new(sql.NullString)
-		case question.ForeignKeys[0]: // adventure_questions
+		case puzzle.ForeignKeys[0]: // adventure_puzzles
 			values[i] = new(sql.NullInt64)
-		case question.ForeignKeys[1]: // guess_question
+		case puzzle.ForeignKeys[1]: // guess_puzzle
 			values[i] = new(sql.NullInt64)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Question", columns[i])
+			return nil, fmt.Errorf("unexpected column %q for type Puzzle", columns[i])
 		}
 	}
 	return values, nil
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Question fields.
-func (q *Question) assignValues(columns []string, values []interface{}) error {
+// to the Puzzle fields.
+func (pu *Puzzle) assignValues(columns []string, values []interface{}) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case question.FieldID:
+		case puzzle.FieldID:
 			value, ok := values[i].(*sql.NullInt64)
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			q.ID = int(value.Int64)
-		case question.FieldTitle:
+			pu.ID = int(value.Int64)
+		case puzzle.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				q.Title = value.String
+				pu.Title = value.String
 			}
-		case question.FieldAnswer:
+		case puzzle.FieldAnswer:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field answer", values[i])
 			} else if value.Valid {
-				q.Answer = value.String
+				pu.Answer = value.String
 			}
-		case question.ForeignKeys[0]:
+		case puzzle.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field adventure_questions", value)
+				return fmt.Errorf("unexpected type %T for edge-field adventure_puzzles", value)
 			} else if value.Valid {
-				q.adventure_questions = new(int)
-				*q.adventure_questions = int(value.Int64)
+				pu.adventure_puzzles = new(int)
+				*pu.adventure_puzzles = int(value.Int64)
 			}
-		case question.ForeignKeys[1]:
+		case puzzle.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field guess_question", value)
+				return fmt.Errorf("unexpected type %T for edge-field guess_puzzle", value)
 			} else if value.Valid {
-				q.guess_question = new(int)
-				*q.guess_question = int(value.Int64)
+				pu.guess_puzzle = new(int)
+				*pu.guess_puzzle = int(value.Int64)
 			}
 		}
 	}
 	return nil
 }
 
-// QueryAdventure queries the "adventure" edge of the Question entity.
-func (q *Question) QueryAdventure() *AdventureQuery {
-	return (&QuestionClient{config: q.config}).QueryAdventure(q)
+// QueryAdventure queries the "adventure" edge of the Puzzle entity.
+func (pu *Puzzle) QueryAdventure() *AdventureQuery {
+	return (&PuzzleClient{config: pu.config}).QueryAdventure(pu)
 }
 
-// Update returns a builder for updating this Question.
-// Note that you need to call Question.Unwrap() before calling this method if this Question
+// Update returns a builder for updating this Puzzle.
+// Note that you need to call Puzzle.Unwrap() before calling this method if this Puzzle
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (q *Question) Update() *QuestionUpdateOne {
-	return (&QuestionClient{config: q.config}).UpdateOne(q)
+func (pu *Puzzle) Update() *PuzzleUpdateOne {
+	return (&PuzzleClient{config: pu.config}).UpdateOne(pu)
 }
 
-// Unwrap unwraps the Question entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the Puzzle entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (q *Question) Unwrap() *Question {
-	_tx, ok := q.config.driver.(*txDriver)
+func (pu *Puzzle) Unwrap() *Puzzle {
+	_tx, ok := pu.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: Question is not a transactional entity")
+		panic("ent: Puzzle is not a transactional entity")
 	}
-	q.config.driver = _tx.drv
-	return q
+	pu.config.driver = _tx.drv
+	return pu
 }
 
 // String implements the fmt.Stringer.
-func (q *Question) String() string {
+func (pu *Puzzle) String() string {
 	var builder strings.Builder
-	builder.WriteString("Question(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", q.ID))
+	builder.WriteString("Puzzle(")
+	builder.WriteString(fmt.Sprintf("id=%v, ", pu.ID))
 	builder.WriteString("title=")
-	builder.WriteString(q.Title)
+	builder.WriteString(pu.Title)
 	builder.WriteString(", ")
 	builder.WriteString("answer=")
-	builder.WriteString(q.Answer)
+	builder.WriteString(pu.Answer)
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// Questions is a parsable slice of Question.
-type Questions []*Question
+// Puzzles is a parsable slice of Puzzle.
+type Puzzles []*Puzzle
 
-func (q Questions) config(cfg config) {
-	for _i := range q {
-		q[_i].config = cfg
+func (pu Puzzles) config(cfg config) {
+	for _i := range pu {
+		pu[_i].config = cfg
 	}
 }

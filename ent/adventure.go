@@ -26,10 +26,10 @@ type Adventure struct {
 type AdventureEdges struct {
 	// User holds the value of the user edge.
 	User []*User `json:"user,omitempty"`
-	// Questions holds the value of the questions edge.
-	Questions []*Question `json:"questions,omitempty"`
-	// Access holds the value of the access edge.
-	Access []*Access `json:"access,omitempty"`
+	// Puzzles holds the value of the puzzles edge.
+	Puzzles []*Puzzle `json:"puzzles,omitempty"`
+	// Game holds the value of the game edge.
+	Game []*Game `json:"game,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [3]bool
@@ -44,22 +44,22 @@ func (e AdventureEdges) UserOrErr() ([]*User, error) {
 	return nil, &NotLoadedError{edge: "user"}
 }
 
-// QuestionsOrErr returns the Questions value or an error if the edge
+// PuzzlesOrErr returns the Puzzles value or an error if the edge
 // was not loaded in eager-loading.
-func (e AdventureEdges) QuestionsOrErr() ([]*Question, error) {
+func (e AdventureEdges) PuzzlesOrErr() ([]*Puzzle, error) {
 	if e.loadedTypes[1] {
-		return e.Questions, nil
+		return e.Puzzles, nil
 	}
-	return nil, &NotLoadedError{edge: "questions"}
+	return nil, &NotLoadedError{edge: "puzzles"}
 }
 
-// AccessOrErr returns the Access value or an error if the edge
+// GameOrErr returns the Game value or an error if the edge
 // was not loaded in eager-loading.
-func (e AdventureEdges) AccessOrErr() ([]*Access, error) {
+func (e AdventureEdges) GameOrErr() ([]*Game, error) {
 	if e.loadedTypes[2] {
-		return e.Access, nil
+		return e.Game, nil
 	}
-	return nil, &NotLoadedError{edge: "access"}
+	return nil, &NotLoadedError{edge: "game"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -108,14 +108,14 @@ func (a *Adventure) QueryUser() *UserQuery {
 	return (&AdventureClient{config: a.config}).QueryUser(a)
 }
 
-// QueryQuestions queries the "questions" edge of the Adventure entity.
-func (a *Adventure) QueryQuestions() *QuestionQuery {
-	return (&AdventureClient{config: a.config}).QueryQuestions(a)
+// QueryPuzzles queries the "puzzles" edge of the Adventure entity.
+func (a *Adventure) QueryPuzzles() *PuzzleQuery {
+	return (&AdventureClient{config: a.config}).QueryPuzzles(a)
 }
 
-// QueryAccess queries the "access" edge of the Adventure entity.
-func (a *Adventure) QueryAccess() *AccessQuery {
-	return (&AdventureClient{config: a.config}).QueryAccess(a)
+// QueryGame queries the "game" edge of the Adventure entity.
+func (a *Adventure) QueryGame() *GameQuery {
+	return (&AdventureClient{config: a.config}).QueryGame(a)
 }
 
 // Update returns a builder for updating this Adventure.
