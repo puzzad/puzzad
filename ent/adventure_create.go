@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/adventure"
+	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/puzzle"
-	"github.com/greboid/puzzad/ent/user"
 )
 
 // AdventureCreate is the builder for creating a Adventure entity.
@@ -27,19 +27,19 @@ func (ac *AdventureCreate) SetName(s string) *AdventureCreate {
 	return ac
 }
 
-// AddUserIDs adds the "user" edge to the User entity by IDs.
-func (ac *AdventureCreate) AddUserIDs(ids ...int) *AdventureCreate {
-	ac.mutation.AddUserIDs(ids...)
+// AddGameIDs adds the "game" edge to the Game entity by IDs.
+func (ac *AdventureCreate) AddGameIDs(ids ...int) *AdventureCreate {
+	ac.mutation.AddGameIDs(ids...)
 	return ac
 }
 
-// AddUser adds the "user" edges to the User entity.
-func (ac *AdventureCreate) AddUser(u ...*User) *AdventureCreate {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// AddGame adds the "game" edges to the Game entity.
+func (ac *AdventureCreate) AddGame(g ...*Game) *AdventureCreate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
 	}
-	return ac.AddUserIDs(ids...)
+	return ac.AddGameIDs(ids...)
 }
 
 // AddPuzzleIDs adds the "puzzles" edge to the Puzzle entity by IDs.
@@ -171,27 +171,23 @@ func (ac *AdventureCreate) createSpec() (*Adventure, *sqlgraph.CreateSpec) {
 		})
 		_node.Name = value
 	}
-	if nodes := ac.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := ac.mutation.GameIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: true,
-			Table:   adventure.UserTable,
-			Columns: adventure.UserPrimaryKey,
+			Table:   adventure.GameTable,
+			Columns: []string{adventure.GameColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: user.FieldID,
+					Column: game.FieldID,
 				},
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		createE := &GameCreate{config: ac.config, mutation: newGameMutation(ac.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := ac.mutation.PuzzlesIDs(); len(nodes) > 0 {

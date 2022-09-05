@@ -27,7 +27,6 @@ type hooks struct {
 	Adventure []ent.Hook
 	Game      []ent.Hook
 	Guess     []ent.Hook
-	Progress  []ent.Hook
 	Puzzle    []ent.Hook
 	User      []ent.Hook
 }

@@ -9,19 +9,19 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// EdgeUser holds the string denoting the user edge name in mutations.
-	EdgeUser = "user"
-	// EdgePuzzles holds the string denoting the puzzles edge name in mutations.
-	EdgePuzzles = "puzzles"
 	// EdgeGame holds the string denoting the game edge name in mutations.
 	EdgeGame = "game"
+	// EdgePuzzles holds the string denoting the puzzles edge name in mutations.
+	EdgePuzzles = "puzzles"
 	// Table holds the table name of the adventure in the database.
 	Table = "adventures"
-	// UserTable is the table that holds the user relation/edge. The primary key declared below.
-	UserTable = "games"
-	// UserInverseTable is the table name for the User entity.
-	// It exists in this package in order to avoid circular dependency with the "user" package.
-	UserInverseTable = "users"
+	// GameTable is the table that holds the game relation/edge.
+	GameTable = "games"
+	// GameInverseTable is the table name for the Game entity.
+	// It exists in this package in order to avoid circular dependency with the "game" package.
+	GameInverseTable = "games"
+	// GameColumn is the table column denoting the game relation/edge.
+	GameColumn = "game_adventure"
 	// PuzzlesTable is the table that holds the puzzles relation/edge.
 	PuzzlesTable = "puzzles"
 	// PuzzlesInverseTable is the table name for the Puzzle entity.
@@ -29,13 +29,6 @@ const (
 	PuzzlesInverseTable = "puzzles"
 	// PuzzlesColumn is the table column denoting the puzzles relation/edge.
 	PuzzlesColumn = "adventure_puzzles"
-	// GameTable is the table that holds the game relation/edge.
-	GameTable = "games"
-	// GameInverseTable is the table name for the Game entity.
-	// It exists in this package in order to avoid circular dependency with the "game" package.
-	GameInverseTable = "games"
-	// GameColumn is the table column denoting the game relation/edge.
-	GameColumn = "adventure_id"
 )
 
 // Columns holds all SQL columns for adventure fields.
@@ -43,12 +36,6 @@ var Columns = []string{
 	FieldID,
 	FieldName,
 }
-
-var (
-	// UserPrimaryKey and UserColumn2 are the table columns denoting the
-	// primary key for the user relation (M2M).
-	UserPrimaryKey = []string{"user_id", "adventure_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {

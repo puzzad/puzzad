@@ -48,19 +48,6 @@ func (f GuessFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return f(ctx, mv)
 }
 
-// The ProgressFunc type is an adapter to allow the use of ordinary
-// function as Progress mutator.
-type ProgressFunc func(context.Context, *ent.ProgressMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f ProgressFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.ProgressMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProgressMutation", m)
-	}
-	return f(ctx, mv)
-}
-
 // The PuzzleFunc type is an adapter to allow the use of ordinary
 // function as Puzzle mutator.
 type PuzzleFunc func(context.Context, *ent.PuzzleMutation) (ent.Value, error)

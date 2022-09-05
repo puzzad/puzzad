@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/game"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
 
@@ -49,15 +50,9 @@ func (gc *GameCreate) SetNillableCode(s *string) *GameCreate {
 	return gc
 }
 
-// SetUserID sets the "user_id" field.
-func (gc *GameCreate) SetUserID(i int) *GameCreate {
-	gc.mutation.SetUserID(i)
-	return gc
-}
-
-// SetAdventureID sets the "adventure_id" field.
-func (gc *GameCreate) SetAdventureID(i int) *GameCreate {
-	gc.mutation.SetAdventureID(i)
+// SetUserID sets the "user" edge to the User entity by ID.
+func (gc *GameCreate) SetUserID(id int) *GameCreate {
+	gc.mutation.SetUserID(id)
 	return gc
 }
 
@@ -66,15 +61,26 @@ func (gc *GameCreate) SetUser(u *User) *GameCreate {
 	return gc.SetUserID(u.ID)
 }
 
-// SetAdventuresID sets the "adventures" edge to the Adventure entity by ID.
-func (gc *GameCreate) SetAdventuresID(id int) *GameCreate {
-	gc.mutation.SetAdventuresID(id)
+// SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
+func (gc *GameCreate) SetAdventureID(id int) *GameCreate {
+	gc.mutation.SetAdventureID(id)
 	return gc
 }
 
-// SetAdventures sets the "adventures" edge to the Adventure entity.
-func (gc *GameCreate) SetAdventures(a *Adventure) *GameCreate {
-	return gc.SetAdventuresID(a.ID)
+// SetAdventure sets the "adventure" edge to the Adventure entity.
+func (gc *GameCreate) SetAdventure(a *Adventure) *GameCreate {
+	return gc.SetAdventureID(a.ID)
+}
+
+// SetCurrentPuzzleID sets the "current_puzzle" edge to the Puzzle entity by ID.
+func (gc *GameCreate) SetCurrentPuzzleID(id int) *GameCreate {
+	gc.mutation.SetCurrentPuzzleID(id)
+	return gc
+}
+
+// SetCurrentPuzzle sets the "current_puzzle" edge to the Puzzle entity.
+func (gc *GameCreate) SetCurrentPuzzle(p *Puzzle) *GameCreate {
+	return gc.SetCurrentPuzzleID(p.ID)
 }
 
 // Mutation returns the GameMutation object of the builder.
@@ -107,6 +113,8 @@ func (gc *GameCreate) Save(ctx context.Context) (*Game, error) {
 			if node, err = gc.sqlSave(ctx); err != nil {
 				return nil, err
 			}
+			mutation.id = &node.ID
+			mutation.done = true
 			return node, err
 		})
 		for i := len(gc.hooks) - 1; i >= 0; i-- {
@@ -181,16 +189,13 @@ func (gc *GameCreate) check() error {
 		}
 	}
 	if _, ok := gc.mutation.UserID(); !ok {
-		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Game.user_id"`)}
-	}
-	if _, ok := gc.mutation.AdventureID(); !ok {
-		return &ValidationError{Name: "adventure_id", err: errors.New(`ent: missing required field "Game.adventure_id"`)}
-	}
-	if _, ok := gc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Game.user"`)}
 	}
-	if _, ok := gc.mutation.AdventuresID(); !ok {
-		return &ValidationError{Name: "adventures", err: errors.New(`ent: missing required edge "Game.adventures"`)}
+	if _, ok := gc.mutation.AdventureID(); !ok {
+		return &ValidationError{Name: "adventure", err: errors.New(`ent: missing required edge "Game.adventure"`)}
+	}
+	if _, ok := gc.mutation.CurrentPuzzleID(); !ok {
+		return &ValidationError{Name: "current_puzzle", err: errors.New(`ent: missing required edge "Game.current_puzzle"`)}
 	}
 	return nil
 }
@@ -203,6 +208,8 @@ func (gc *GameCreate) sqlSave(ctx context.Context) (*Game, error) {
 		}
 		return nil, err
 	}
+	id := _spec.ID.Value.(int64)
+	_node.ID = int(id)
 	return _node, nil
 }
 
@@ -211,6 +218,10 @@ func (gc *GameCreate) createSpec() (*Game, *sqlgraph.CreateSpec) {
 		_node = &Game{config: gc.config}
 		_spec = &sqlgraph.CreateSpec{
 			Table: game.Table,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeInt,
+				Column: game.FieldID,
+			},
 		}
 	)
 	if value, ok := gc.mutation.Status(); ok {
@@ -232,7 +243,7 @@ func (gc *GameCreate) createSpec() (*Game, *sqlgraph.CreateSpec) {
 	if nodes := gc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   game.UserTable,
 			Columns: []string{game.UserColumn},
 			Bidi:    false,
@@ -246,15 +257,15 @@ func (gc *GameCreate) createSpec() (*Game, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.UserID = nodes[0]
+		_node.user_game = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := gc.mutation.AdventuresIDs(); len(nodes) > 0 {
+	if nodes := gc.mutation.AdventureIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   game.AdventuresTable,
-			Columns: []string{game.AdventuresColumn},
+			Table:   game.AdventureTable,
+			Columns: []string{game.AdventureColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -266,7 +277,27 @@ func (gc *GameCreate) createSpec() (*Game, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.AdventureID = nodes[0]
+		_node.game_adventure = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := gc.mutation.CurrentPuzzleIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   game.CurrentPuzzleTable,
+			Columns: []string{game.CurrentPuzzleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: puzzle.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.game_current_puzzle = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -311,6 +342,11 @@ func (gcb *GameCreateBulk) Save(ctx context.Context) ([]*Game, error) {
 				}
 				if err != nil {
 					return nil, err
+				}
+				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
 				}
 				mutation.done = true
 				return nodes[i], nil

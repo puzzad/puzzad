@@ -93,6 +93,13 @@ func Answer(v string) predicate.Puzzle {
 	})
 }
 
+// Order applies equality check predicate on the "order" field. It's identical to OrderEQ.
+func Order(v int) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldOrder), v))
+	})
+}
+
 // TitleEQ applies the EQ predicate on the "title" field.
 func TitleEQ(v string) predicate.Puzzle {
 	return predicate.Puzzle(func(s *sql.Selector) {
@@ -288,6 +295,70 @@ func AnswerEqualFold(v string) predicate.Puzzle {
 func AnswerContainsFold(v string) predicate.Puzzle {
 	return predicate.Puzzle(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldAnswer), v))
+	})
+}
+
+// OrderEQ applies the EQ predicate on the "order" field.
+func OrderEQ(v int) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldOrder), v))
+	})
+}
+
+// OrderNEQ applies the NEQ predicate on the "order" field.
+func OrderNEQ(v int) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldOrder), v))
+	})
+}
+
+// OrderIn applies the In predicate on the "order" field.
+func OrderIn(vs ...int) predicate.Puzzle {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldOrder), v...))
+	})
+}
+
+// OrderNotIn applies the NotIn predicate on the "order" field.
+func OrderNotIn(vs ...int) predicate.Puzzle {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldOrder), v...))
+	})
+}
+
+// OrderGT applies the GT predicate on the "order" field.
+func OrderGT(v int) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldOrder), v))
+	})
+}
+
+// OrderGTE applies the GTE predicate on the "order" field.
+func OrderGTE(v int) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldOrder), v))
+	})
+}
+
+// OrderLT applies the LT predicate on the "order" field.
+func OrderLT(v int) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldOrder), v))
+	})
+}
+
+// OrderLTE applies the LTE predicate on the "order" field.
+func OrderLTE(v int) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldOrder), v))
 	})
 }
 

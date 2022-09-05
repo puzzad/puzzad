@@ -16,6 +16,7 @@ func (Puzzle) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("title"),
 		field.String("answer"),
+		field.Int("order"),
 	}
 }
 

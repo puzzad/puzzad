@@ -6,10 +6,12 @@ import (
 	"github.com/greboid/puzzad/ent"
 )
 
-func (db *DBClient) AddPuzzle(ctx context.Context, a *ent.Adventure, title string) (*ent.Puzzle, error) {
+func (db *DBClient) AddPuzzle(ctx context.Context, a *ent.Adventure, order int, title, answer string) (*ent.Puzzle, error) {
 	return db.entclient.Puzzle.Create().
 		SetTitle(title).
 		SetAdventure(a).
+		SetOrder(order).
+		SetAnswer(answer).
 		Save(ctx)
 }
 

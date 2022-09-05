@@ -9,23 +9,27 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/schema/field"
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/predicate"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
 
 // GameQuery is the builder for querying Game entities.
 type GameQuery struct {
 	config
-	limit          *int
-	offset         *int
-	unique         *bool
-	order          []OrderFunc
-	fields         []string
-	predicates     []predicate.Game
-	withUser       *UserQuery
-	withAdventures *AdventureQuery
+	limit             *int
+	offset            *int
+	unique            *bool
+	order             []OrderFunc
+	fields            []string
+	predicates        []predicate.Game
+	withUser          *UserQuery
+	withAdventure     *AdventureQuery
+	withCurrentPuzzle *PuzzleQuery
+	withFKs           bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -74,9 +78,9 @@ func (gq *GameQuery) QueryUser() *UserQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(game.Table, game.UserColumn, selector),
+			sqlgraph.From(game.Table, game.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, game.UserTable, game.UserColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.UserTable, game.UserColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
 		return fromU, nil
@@ -84,8 +88,8 @@ func (gq *GameQuery) QueryUser() *UserQuery {
 	return query
 }
 
-// QueryAdventures chains the current query on the "adventures" edge.
-func (gq *GameQuery) QueryAdventures() *AdventureQuery {
+// QueryAdventure chains the current query on the "adventure" edge.
+func (gq *GameQuery) QueryAdventure() *AdventureQuery {
 	query := &AdventureQuery{config: gq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := gq.prepareQuery(ctx); err != nil {
@@ -96,9 +100,31 @@ func (gq *GameQuery) QueryAdventures() *AdventureQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(game.Table, game.AdventuresColumn, selector),
+			sqlgraph.From(game.Table, game.FieldID, selector),
 			sqlgraph.To(adventure.Table, adventure.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, game.AdventuresTable, game.AdventuresColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, game.AdventureTable, game.AdventureColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCurrentPuzzle chains the current query on the "current_puzzle" edge.
+func (gq *GameQuery) QueryCurrentPuzzle() *PuzzleQuery {
+	query := &PuzzleQuery{config: gq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := gq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := gq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(puzzle.Table, puzzle.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, game.CurrentPuzzleTable, game.CurrentPuzzleColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
 		return fromU, nil
@@ -128,6 +154,29 @@ func (gq *GameQuery) FirstX(ctx context.Context) *Game {
 	return node
 }
 
+// FirstID returns the first Game ID from the query.
+// Returns a *NotFoundError when no Game ID was found.
+func (gq *GameQuery) FirstID(ctx context.Context) (id int, err error) {
+	var ids []int
+	if ids, err = gq.Limit(1).IDs(ctx); err != nil {
+		return
+	}
+	if len(ids) == 0 {
+		err = &NotFoundError{game.Label}
+		return
+	}
+	return ids[0], nil
+}
+
+// FirstIDX is like FirstID, but panics if an error occurs.
+func (gq *GameQuery) FirstIDX(ctx context.Context) int {
+	id, err := gq.FirstID(ctx)
+	if err != nil && !IsNotFound(err) {
+		panic(err)
+	}
+	return id
+}
+
 // Only returns a single Game entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one Game entity is found.
 // Returns a *NotFoundError when no Game entities are found.
@@ -155,6 +204,34 @@ func (gq *GameQuery) OnlyX(ctx context.Context) *Game {
 	return node
 }
 
+// OnlyID is like Only, but returns the only Game ID in the query.
+// Returns a *NotSingularError when more than one Game ID is found.
+// Returns a *NotFoundError when no entities are found.
+func (gq *GameQuery) OnlyID(ctx context.Context) (id int, err error) {
+	var ids []int
+	if ids, err = gq.Limit(2).IDs(ctx); err != nil {
+		return
+	}
+	switch len(ids) {
+	case 1:
+		id = ids[0]
+	case 0:
+		err = &NotFoundError{game.Label}
+	default:
+		err = &NotSingularError{game.Label}
+	}
+	return
+}
+
+// OnlyIDX is like OnlyID, but panics if an error occurs.
+func (gq *GameQuery) OnlyIDX(ctx context.Context) int {
+	id, err := gq.OnlyID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // All executes the query and returns a list of Games.
 func (gq *GameQuery) All(ctx context.Context) ([]*Game, error) {
 	if err := gq.prepareQuery(ctx); err != nil {
@@ -170,6 +247,24 @@ func (gq *GameQuery) AllX(ctx context.Context) []*Game {
 		panic(err)
 	}
 	return nodes
+}
+
+// IDs executes the query and returns a list of Game IDs.
+func (gq *GameQuery) IDs(ctx context.Context) ([]int, error) {
+	var ids []int
+	if err := gq.Select(game.FieldID).Scan(ctx, &ids); err != nil {
+		return nil, err
+	}
+	return ids, nil
+}
+
+// IDsX is like IDs, but panics if an error occurs.
+func (gq *GameQuery) IDsX(ctx context.Context) []int {
+	ids, err := gq.IDs(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return ids
 }
 
 // Count returns the count of the given query.
@@ -213,13 +308,14 @@ func (gq *GameQuery) Clone() *GameQuery {
 		return nil
 	}
 	return &GameQuery{
-		config:         gq.config,
-		limit:          gq.limit,
-		offset:         gq.offset,
-		order:          append([]OrderFunc{}, gq.order...),
-		predicates:     append([]predicate.Game{}, gq.predicates...),
-		withUser:       gq.withUser.Clone(),
-		withAdventures: gq.withAdventures.Clone(),
+		config:            gq.config,
+		limit:             gq.limit,
+		offset:            gq.offset,
+		order:             append([]OrderFunc{}, gq.order...),
+		predicates:        append([]predicate.Game{}, gq.predicates...),
+		withUser:          gq.withUser.Clone(),
+		withAdventure:     gq.withAdventure.Clone(),
+		withCurrentPuzzle: gq.withCurrentPuzzle.Clone(),
 		// clone intermediate query.
 		sql:    gq.sql.Clone(),
 		path:   gq.path,
@@ -238,14 +334,25 @@ func (gq *GameQuery) WithUser(opts ...func(*UserQuery)) *GameQuery {
 	return gq
 }
 
-// WithAdventures tells the query-builder to eager-load the nodes that are connected to
-// the "adventures" edge. The optional arguments are used to configure the query builder of the edge.
-func (gq *GameQuery) WithAdventures(opts ...func(*AdventureQuery)) *GameQuery {
+// WithAdventure tells the query-builder to eager-load the nodes that are connected to
+// the "adventure" edge. The optional arguments are used to configure the query builder of the edge.
+func (gq *GameQuery) WithAdventure(opts ...func(*AdventureQuery)) *GameQuery {
 	query := &AdventureQuery{config: gq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	gq.withAdventures = query
+	gq.withAdventure = query
+	return gq
+}
+
+// WithCurrentPuzzle tells the query-builder to eager-load the nodes that are connected to
+// the "current_puzzle" edge. The optional arguments are used to configure the query builder of the edge.
+func (gq *GameQuery) WithCurrentPuzzle(opts ...func(*PuzzleQuery)) *GameQuery {
+	query := &PuzzleQuery{config: gq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	gq.withCurrentPuzzle = query
 	return gq
 }
 
@@ -316,12 +423,20 @@ func (gq *GameQuery) prepareQuery(ctx context.Context) error {
 func (gq *GameQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Game, error) {
 	var (
 		nodes       = []*Game{}
+		withFKs     = gq.withFKs
 		_spec       = gq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			gq.withUser != nil,
-			gq.withAdventures != nil,
+			gq.withAdventure != nil,
+			gq.withCurrentPuzzle != nil,
 		}
 	)
+	if gq.withUser != nil || gq.withAdventure != nil || gq.withCurrentPuzzle != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, game.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		return (*Game).scanValues(nil, columns)
 	}
@@ -346,9 +461,15 @@ func (gq *GameQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Game, e
 			return nil, err
 		}
 	}
-	if query := gq.withAdventures; query != nil {
-		if err := gq.loadAdventures(ctx, query, nodes, nil,
-			func(n *Game, e *Adventure) { n.Edges.Adventures = e }); err != nil {
+	if query := gq.withAdventure; query != nil {
+		if err := gq.loadAdventure(ctx, query, nodes, nil,
+			func(n *Game, e *Adventure) { n.Edges.Adventure = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := gq.withCurrentPuzzle; query != nil {
+		if err := gq.loadCurrentPuzzle(ctx, query, nodes, nil,
+			func(n *Game, e *Puzzle) { n.Edges.CurrentPuzzle = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -359,7 +480,10 @@ func (gq *GameQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Ga
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Game)
 	for i := range nodes {
-		fk := nodes[i].UserID
+		if nodes[i].user_game == nil {
+			continue
+		}
+		fk := *nodes[i].user_game
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -373,7 +497,7 @@ func (gq *GameQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Ga
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_game" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -381,11 +505,14 @@ func (gq *GameQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Ga
 	}
 	return nil
 }
-func (gq *GameQuery) loadAdventures(ctx context.Context, query *AdventureQuery, nodes []*Game, init func(*Game), assign func(*Game, *Adventure)) error {
+func (gq *GameQuery) loadAdventure(ctx context.Context, query *AdventureQuery, nodes []*Game, init func(*Game), assign func(*Game, *Adventure)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Game)
 	for i := range nodes {
-		fk := nodes[i].AdventureID
+		if nodes[i].game_adventure == nil {
+			continue
+		}
+		fk := *nodes[i].game_adventure
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -399,7 +526,36 @@ func (gq *GameQuery) loadAdventures(ctx context.Context, query *AdventureQuery, 
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "adventure_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "game_adventure" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (gq *GameQuery) loadCurrentPuzzle(ctx context.Context, query *PuzzleQuery, nodes []*Game, init func(*Game), assign func(*Game, *Puzzle)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Game)
+	for i := range nodes {
+		if nodes[i].game_current_puzzle == nil {
+			continue
+		}
+		fk := *nodes[i].game_current_puzzle
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	query.Where(puzzle.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "game_current_puzzle" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -410,8 +566,10 @@ func (gq *GameQuery) loadAdventures(ctx context.Context, query *AdventureQuery, 
 
 func (gq *GameQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := gq.querySpec()
-	_spec.Unique = false
-	_spec.Node.Columns = nil
+	_spec.Node.Columns = gq.fields
+	if len(gq.fields) > 0 {
+		_spec.Unique = gq.unique != nil && *gq.unique
+	}
 	return sqlgraph.CountNodes(ctx, gq.driver, _spec)
 }
 
@@ -428,6 +586,10 @@ func (gq *GameQuery) querySpec() *sqlgraph.QuerySpec {
 		Node: &sqlgraph.NodeSpec{
 			Table:   game.Table,
 			Columns: game.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeInt,
+				Column: game.FieldID,
+			},
 		},
 		From:   gq.sql,
 		Unique: true,
@@ -437,8 +599,11 @@ func (gq *GameQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := gq.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
+		_spec.Node.Columns = append(_spec.Node.Columns, game.FieldID)
 		for i := range fields {
-			_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
+			if fields[i] != game.FieldID {
+				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
+			}
 		}
 	}
 	if ps := gq.predicates; len(ps) > 0 {

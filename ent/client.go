@@ -13,7 +13,6 @@ import (
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/guess"
-	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 
@@ -33,8 +32,6 @@ type Client struct {
 	Game *GameClient
 	// Guess is the client for interacting with the Guess builders.
 	Guess *GuessClient
-	// Progress is the client for interacting with the Progress builders.
-	Progress *ProgressClient
 	// Puzzle is the client for interacting with the Puzzle builders.
 	Puzzle *PuzzleClient
 	// User is the client for interacting with the User builders.
@@ -55,7 +52,6 @@ func (c *Client) init() {
 	c.Adventure = NewAdventureClient(c.config)
 	c.Game = NewGameClient(c.config)
 	c.Guess = NewGuessClient(c.config)
-	c.Progress = NewProgressClient(c.config)
 	c.Puzzle = NewPuzzleClient(c.config)
 	c.User = NewUserClient(c.config)
 }
@@ -94,7 +90,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Adventure: NewAdventureClient(cfg),
 		Game:      NewGameClient(cfg),
 		Guess:     NewGuessClient(cfg),
-		Progress:  NewProgressClient(cfg),
 		Puzzle:    NewPuzzleClient(cfg),
 		User:      NewUserClient(cfg),
 	}, nil
@@ -119,7 +114,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Adventure: NewAdventureClient(cfg),
 		Game:      NewGameClient(cfg),
 		Guess:     NewGuessClient(cfg),
-		Progress:  NewProgressClient(cfg),
 		Puzzle:    NewPuzzleClient(cfg),
 		User:      NewUserClient(cfg),
 	}, nil
@@ -153,7 +147,6 @@ func (c *Client) Use(hooks ...Hook) {
 	c.Adventure.Use(hooks...)
 	c.Game.Use(hooks...)
 	c.Guess.Use(hooks...)
-	c.Progress.Use(hooks...)
 	c.Puzzle.Use(hooks...)
 	c.User.Use(hooks...)
 }
@@ -243,15 +236,15 @@ func (c *AdventureClient) GetX(ctx context.Context, id int) *Adventure {
 	return obj
 }
 
-// QueryUser queries the user edge of a Adventure.
-func (c *AdventureClient) QueryUser(a *Adventure) *UserQuery {
-	query := &UserQuery{config: c.config}
+// QueryGame queries the game edge of a Adventure.
+func (c *AdventureClient) QueryGame(a *Adventure) *GameQuery {
+	query := &GameQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(adventure.Table, adventure.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, adventure.UserTable, adventure.UserPrimaryKey...),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, adventure.GameTable, adventure.GameColumn),
 		)
 		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
 		return fromV, nil
@@ -268,22 +261,6 @@ func (c *AdventureClient) QueryPuzzles(a *Adventure) *PuzzleQuery {
 			sqlgraph.From(adventure.Table, adventure.FieldID, id),
 			sqlgraph.To(puzzle.Table, puzzle.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, adventure.PuzzlesTable, adventure.PuzzlesColumn),
-		)
-		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryGame queries the game edge of a Adventure.
-func (c *AdventureClient) QueryGame(a *Adventure) *GameQuery {
-	query := &GameQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := a.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(adventure.Table, adventure.FieldID, id),
-			sqlgraph.To(game.Table, game.AdventuresColumn),
-			sqlgraph.Edge(sqlgraph.O2M, true, adventure.GameTable, adventure.GameColumn),
 		)
 		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
 		return fromV, nil
@@ -331,9 +308,13 @@ func (c *GameClient) Update() *GameUpdate {
 
 // UpdateOne returns an update builder for the given entity.
 func (c *GameClient) UpdateOne(ga *Game) *GameUpdateOne {
-	mutation := newGameMutation(c.config, OpUpdateOne)
-	mutation.user = &ga.UserID
-	mutation.adventures = &ga.AdventureID
+	mutation := newGameMutation(c.config, OpUpdateOne, withGame(ga))
+	return &GameUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *GameClient) UpdateOneID(id int) *GameUpdateOne {
+	mutation := newGameMutation(c.config, OpUpdateOne, withGameID(id))
 	return &GameUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -343,6 +324,19 @@ func (c *GameClient) Delete() *GameDelete {
 	return &GameDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
+// DeleteOne returns a builder for deleting the given entity.
+func (c *GameClient) DeleteOne(ga *Game) *GameDeleteOne {
+	return c.DeleteOneID(ga.ID)
+}
+
+// DeleteOne returns a builder for deleting the given entity by its id.
+func (c *GameClient) DeleteOneID(id int) *GameDeleteOne {
+	builder := c.Delete().Where(game.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &GameDeleteOne{builder}
+}
+
 // Query returns a query builder for Game.
 func (c *GameClient) Query() *GameQuery {
 	return &GameQuery{
@@ -350,18 +344,66 @@ func (c *GameClient) Query() *GameQuery {
 	}
 }
 
-// QueryUser queries the user edge of a Game.
-func (c *GameClient) QueryUser(ga *Game) *UserQuery {
-	return c.Query().
-		Where(game.UserID(ga.UserID), game.AdventureID(ga.AdventureID)).
-		QueryUser()
+// Get returns a Game entity by its id.
+func (c *GameClient) Get(ctx context.Context, id int) (*Game, error) {
+	return c.Query().Where(game.ID(id)).Only(ctx)
 }
 
-// QueryAdventures queries the adventures edge of a Game.
-func (c *GameClient) QueryAdventures(ga *Game) *AdventureQuery {
-	return c.Query().
-		Where(game.UserID(ga.UserID), game.AdventureID(ga.AdventureID)).
-		QueryAdventures()
+// GetX is like Get, but panics if an error occurs.
+func (c *GameClient) GetX(ctx context.Context, id int) *Game {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a Game.
+func (c *GameClient) QueryUser(ga *Game) *UserQuery {
+	query := &UserQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := ga.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, game.UserTable, game.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(ga.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryAdventure queries the adventure edge of a Game.
+func (c *GameClient) QueryAdventure(ga *Game) *AdventureQuery {
+	query := &AdventureQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := ga.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(adventure.Table, adventure.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, game.AdventureTable, game.AdventureColumn),
+		)
+		fromV = sqlgraph.Neighbors(ga.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCurrentPuzzle queries the current_puzzle edge of a Game.
+func (c *GameClient) QueryCurrentPuzzle(ga *Game) *PuzzleQuery {
+	query := &PuzzleQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := ga.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(puzzle.Table, puzzle.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, game.CurrentPuzzleTable, game.CurrentPuzzleColumn),
+		)
+		fromV = sqlgraph.Neighbors(ga.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -489,144 +531,6 @@ func (c *GuessClient) QueryTeam(gu *Guess) *UserQuery {
 // Hooks returns the client hooks.
 func (c *GuessClient) Hooks() []Hook {
 	return c.hooks.Guess
-}
-
-// ProgressClient is a client for the Progress schema.
-type ProgressClient struct {
-	config
-}
-
-// NewProgressClient returns a client for the Progress from the given config.
-func NewProgressClient(c config) *ProgressClient {
-	return &ProgressClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `progress.Hooks(f(g(h())))`.
-func (c *ProgressClient) Use(hooks ...Hook) {
-	c.hooks.Progress = append(c.hooks.Progress, hooks...)
-}
-
-// Create returns a builder for creating a Progress entity.
-func (c *ProgressClient) Create() *ProgressCreate {
-	mutation := newProgressMutation(c.config, OpCreate)
-	return &ProgressCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Progress entities.
-func (c *ProgressClient) CreateBulk(builders ...*ProgressCreate) *ProgressCreateBulk {
-	return &ProgressCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Progress.
-func (c *ProgressClient) Update() *ProgressUpdate {
-	mutation := newProgressMutation(c.config, OpUpdate)
-	return &ProgressUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *ProgressClient) UpdateOne(pr *Progress) *ProgressUpdateOne {
-	mutation := newProgressMutation(c.config, OpUpdateOne, withProgress(pr))
-	return &ProgressUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *ProgressClient) UpdateOneID(id int) *ProgressUpdateOne {
-	mutation := newProgressMutation(c.config, OpUpdateOne, withProgressID(id))
-	return &ProgressUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Progress.
-func (c *ProgressClient) Delete() *ProgressDelete {
-	mutation := newProgressMutation(c.config, OpDelete)
-	return &ProgressDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *ProgressClient) DeleteOne(pr *Progress) *ProgressDeleteOne {
-	return c.DeleteOneID(pr.ID)
-}
-
-// DeleteOne returns a builder for deleting the given entity by its id.
-func (c *ProgressClient) DeleteOneID(id int) *ProgressDeleteOne {
-	builder := c.Delete().Where(progress.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &ProgressDeleteOne{builder}
-}
-
-// Query returns a query builder for Progress.
-func (c *ProgressClient) Query() *ProgressQuery {
-	return &ProgressQuery{
-		config: c.config,
-	}
-}
-
-// Get returns a Progress entity by its id.
-func (c *ProgressClient) Get(ctx context.Context, id int) (*Progress, error) {
-	return c.Query().Where(progress.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *ProgressClient) GetX(ctx context.Context, id int) *Progress {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a Progress.
-func (c *ProgressClient) QueryUser(pr *Progress) *UserQuery {
-	query := &UserQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(progress.Table, progress.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, progress.UserTable, progress.UserPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryAdventure queries the adventure edge of a Progress.
-func (c *ProgressClient) QueryAdventure(pr *Progress) *AdventureQuery {
-	query := &AdventureQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(progress.Table, progress.FieldID, id),
-			sqlgraph.To(adventure.Table, adventure.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, progress.AdventureTable, progress.AdventureColumn),
-		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryPuzzle queries the puzzle edge of a Progress.
-func (c *ProgressClient) QueryPuzzle(pr *Progress) *PuzzleQuery {
-	query := &PuzzleQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(progress.Table, progress.FieldID, id),
-			sqlgraph.To(puzzle.Table, puzzle.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, progress.PuzzleTable, progress.PuzzleColumn),
-		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *ProgressClient) Hooks() []Hook {
-	return c.hooks.Progress
 }
 
 // PuzzleClient is a client for the Puzzle schema.
@@ -820,38 +724,6 @@ func (c *UserClient) GetX(ctx context.Context, id int) *User {
 	return obj
 }
 
-// QueryAdventures queries the adventures edge of a User.
-func (c *UserClient) QueryAdventures(u *User) *AdventureQuery {
-	query := &AdventureQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(adventure.Table, adventure.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, user.AdventuresTable, user.AdventuresPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryProgress queries the progress edge of a User.
-func (c *UserClient) QueryProgress(u *User) *ProgressQuery {
-	query := &ProgressQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(progress.Table, progress.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, user.ProgressTable, user.ProgressPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryGame queries the game edge of a User.
 func (c *UserClient) QueryGame(u *User) *GameQuery {
 	query := &GameQuery{config: c.config}
@@ -859,8 +731,8 @@ func (c *UserClient) QueryGame(u *User) *GameQuery {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(game.Table, game.UserColumn),
-			sqlgraph.Edge(sqlgraph.O2M, true, user.GameTable, user.GameColumn),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.GameTable, user.GameColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

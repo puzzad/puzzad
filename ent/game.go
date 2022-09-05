@@ -9,34 +9,38 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/game"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
 
 // Game is the model entity for the Game schema.
 type Game struct {
 	config `json:"-"`
+	// ID of the ent.
+	ID int `json:"id,omitempty"`
 	// Status holds the value of the "status" field.
 	Status game.Status `json:"status,omitempty"`
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
-	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
-	// AdventureID holds the value of the "adventure_id" field.
-	AdventureID int `json:"adventure_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GameQuery when eager-loading is set.
-	Edges GameEdges `json:"edges"`
+	Edges               GameEdges `json:"edges"`
+	game_adventure      *int
+	game_current_puzzle *int
+	user_game           *int
 }
 
 // GameEdges holds the relations/edges for other nodes in the graph.
 type GameEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
-	// Adventures holds the value of the adventures edge.
-	Adventures *Adventure `json:"adventures,omitempty"`
+	// Adventure holds the value of the adventure edge.
+	Adventure *Adventure `json:"adventure,omitempty"`
+	// CurrentPuzzle holds the value of the current_puzzle edge.
+	CurrentPuzzle *Puzzle `json:"current_puzzle,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -52,17 +56,30 @@ func (e GameEdges) UserOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "user"}
 }
 
-// AdventuresOrErr returns the Adventures value or an error if the edge
+// AdventureOrErr returns the Adventure value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e GameEdges) AdventuresOrErr() (*Adventure, error) {
+func (e GameEdges) AdventureOrErr() (*Adventure, error) {
 	if e.loadedTypes[1] {
-		if e.Adventures == nil {
+		if e.Adventure == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: adventure.Label}
 		}
-		return e.Adventures, nil
+		return e.Adventure, nil
 	}
-	return nil, &NotLoadedError{edge: "adventures"}
+	return nil, &NotLoadedError{edge: "adventure"}
+}
+
+// CurrentPuzzleOrErr returns the CurrentPuzzle value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e GameEdges) CurrentPuzzleOrErr() (*Puzzle, error) {
+	if e.loadedTypes[2] {
+		if e.CurrentPuzzle == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: puzzle.Label}
+		}
+		return e.CurrentPuzzle, nil
+	}
+	return nil, &NotLoadedError{edge: "current_puzzle"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -70,10 +87,16 @@ func (*Game) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case game.FieldUserID, game.FieldAdventureID:
+		case game.FieldID:
 			values[i] = new(sql.NullInt64)
 		case game.FieldStatus, game.FieldCode:
 			values[i] = new(sql.NullString)
+		case game.ForeignKeys[0]: // game_adventure
+			values[i] = new(sql.NullInt64)
+		case game.ForeignKeys[1]: // game_current_puzzle
+			values[i] = new(sql.NullInt64)
+		case game.ForeignKeys[2]: // user_game
+			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Game", columns[i])
 		}
@@ -89,6 +112,12 @@ func (ga *Game) assignValues(columns []string, values []interface{}) error {
 	}
 	for i := range columns {
 		switch columns[i] {
+		case game.FieldID:
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
+			}
+			ga.ID = int(value.Int64)
 		case game.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
@@ -101,17 +130,26 @@ func (ga *Game) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				ga.Code = value.String
 			}
-		case game.FieldUserID:
+		case game.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field user_id", values[i])
+				return fmt.Errorf("unexpected type %T for edge-field game_adventure", value)
 			} else if value.Valid {
-				ga.UserID = int(value.Int64)
+				ga.game_adventure = new(int)
+				*ga.game_adventure = int(value.Int64)
 			}
-		case game.FieldAdventureID:
+		case game.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field adventure_id", values[i])
+				return fmt.Errorf("unexpected type %T for edge-field game_current_puzzle", value)
 			} else if value.Valid {
-				ga.AdventureID = int(value.Int64)
+				ga.game_current_puzzle = new(int)
+				*ga.game_current_puzzle = int(value.Int64)
+			}
+		case game.ForeignKeys[2]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field user_game", value)
+			} else if value.Valid {
+				ga.user_game = new(int)
+				*ga.user_game = int(value.Int64)
 			}
 		}
 	}
@@ -123,9 +161,14 @@ func (ga *Game) QueryUser() *UserQuery {
 	return (&GameClient{config: ga.config}).QueryUser(ga)
 }
 
-// QueryAdventures queries the "adventures" edge of the Game entity.
-func (ga *Game) QueryAdventures() *AdventureQuery {
-	return (&GameClient{config: ga.config}).QueryAdventures(ga)
+// QueryAdventure queries the "adventure" edge of the Game entity.
+func (ga *Game) QueryAdventure() *AdventureQuery {
+	return (&GameClient{config: ga.config}).QueryAdventure(ga)
+}
+
+// QueryCurrentPuzzle queries the "current_puzzle" edge of the Game entity.
+func (ga *Game) QueryCurrentPuzzle() *PuzzleQuery {
+	return (&GameClient{config: ga.config}).QueryCurrentPuzzle(ga)
 }
 
 // Update returns a builder for updating this Game.
@@ -150,17 +193,12 @@ func (ga *Game) Unwrap() *Game {
 func (ga *Game) String() string {
 	var builder strings.Builder
 	builder.WriteString("Game(")
+	builder.WriteString(fmt.Sprintf("id=%v, ", ga.ID))
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", ga.Status))
 	builder.WriteString(", ")
 	builder.WriteString("code=")
 	builder.WriteString(ga.Code)
-	builder.WriteString(", ")
-	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", ga.UserID))
-	builder.WriteString(", ")
-	builder.WriteString("adventure_id=")
-	builder.WriteString(fmt.Sprintf("%v", ga.AdventureID))
 	builder.WriteByte(')')
 	return builder.String()
 }

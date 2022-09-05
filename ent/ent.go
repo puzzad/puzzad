@@ -13,7 +13,6 @@ import (
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/guess"
-	"github.com/greboid/puzzad/ent/progress"
 	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 )
@@ -39,7 +38,6 @@ func columnChecker(table string) func(string) error {
 		adventure.Table: adventure.ValidColumn,
 		game.Table:      game.ValidColumn,
 		guess.Table:     guess.ValidColumn,
-		progress.Table:  progress.ValidColumn,
 		puzzle.Table:    puzzle.ValidColumn,
 		user.Table:      user.ValidColumn,
 	}

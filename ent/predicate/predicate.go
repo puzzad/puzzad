@@ -15,9 +15,6 @@ type Game func(*sql.Selector)
 // Guess is the predicate function for guess builders.
 type Guess func(*sql.Selector)
 
-// Progress is the predicate function for progress builders.
-type Progress func(*sql.Selector)
-
 // Puzzle is the predicate function for puzzle builders.
 type Puzzle func(*sql.Selector)
 

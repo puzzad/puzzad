@@ -34,39 +34,17 @@ type User struct {
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
-	// Adventures holds the value of the adventures edge.
-	Adventures []*Adventure `json:"adventures,omitempty"`
-	// Progress holds the value of the progress edge.
-	Progress []*Progress `json:"progress,omitempty"`
 	// Game holds the value of the game edge.
 	Game []*Game `json:"game,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
-}
-
-// AdventuresOrErr returns the Adventures value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) AdventuresOrErr() ([]*Adventure, error) {
-	if e.loadedTypes[0] {
-		return e.Adventures, nil
-	}
-	return nil, &NotLoadedError{edge: "adventures"}
-}
-
-// ProgressOrErr returns the Progress value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) ProgressOrErr() ([]*Progress, error) {
-	if e.loadedTypes[1] {
-		return e.Progress, nil
-	}
-	return nil, &NotLoadedError{edge: "progress"}
+	loadedTypes [1]bool
 }
 
 // GameOrErr returns the Game value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) GameOrErr() ([]*Game, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[0] {
 		return e.Game, nil
 	}
 	return nil, &NotLoadedError{edge: "game"}
@@ -146,16 +124,6 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 		}
 	}
 	return nil
-}
-
-// QueryAdventures queries the "adventures" edge of the User entity.
-func (u *User) QueryAdventures() *AdventureQuery {
-	return (&UserClient{config: u.config}).QueryAdventures(u)
-}
-
-// QueryProgress queries the "progress" edge of the User entity.
-func (u *User) QueryProgress() *ProgressQuery {
-	return (&UserClient{config: u.config}).QueryProgress(u)
 }
 
 // QueryGame queries the "game" edge of the User entity.

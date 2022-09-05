@@ -10,8 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/greboid/puzzad/ent/adventure"
-	"github.com/greboid/puzzad/ent/progress"
+	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/user"
 )
 
@@ -84,34 +83,19 @@ func (uc *UserCreate) SetNillableStatus(u *user.Status) *UserCreate {
 	return uc
 }
 
-// AddAdventureIDs adds the "adventures" edge to the Adventure entity by IDs.
-func (uc *UserCreate) AddAdventureIDs(ids ...int) *UserCreate {
-	uc.mutation.AddAdventureIDs(ids...)
+// AddGameIDs adds the "game" edge to the Game entity by IDs.
+func (uc *UserCreate) AddGameIDs(ids ...int) *UserCreate {
+	uc.mutation.AddGameIDs(ids...)
 	return uc
 }
 
-// AddAdventures adds the "adventures" edges to the Adventure entity.
-func (uc *UserCreate) AddAdventures(a ...*Adventure) *UserCreate {
-	ids := make([]int, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+// AddGame adds the "game" edges to the Game entity.
+func (uc *UserCreate) AddGame(g ...*Game) *UserCreate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
 	}
-	return uc.AddAdventureIDs(ids...)
-}
-
-// AddProgresIDs adds the "progress" edge to the Progress entity by IDs.
-func (uc *UserCreate) AddProgresIDs(ids ...int) *UserCreate {
-	uc.mutation.AddProgresIDs(ids...)
-	return uc
-}
-
-// AddProgress adds the "progress" edges to the Progress entity.
-func (uc *UserCreate) AddProgress(p ...*Progress) *UserCreate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return uc.AddProgresIDs(ids...)
+	return uc.AddGameIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -298,40 +282,17 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		})
 		_node.Status = value
 	}
-	if nodes := uc.mutation.AdventuresIDs(); len(nodes) > 0 {
+	if nodes := uc.mutation.GameIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.AdventuresTable,
-			Columns: user.AdventuresPrimaryKey,
+			Table:   user.GameTable,
+			Columns: []string{user.GameColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: adventure.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		createE := &GameCreate{config: uc.config, mutation: newGameMutation(uc.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := uc.mutation.ProgressIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   user.ProgressTable,
-			Columns: user.ProgressPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: progress.FieldID,
+					Column: game.FieldID,
 				},
 			},
 		}
