@@ -1,0 +1,33 @@
+name: Automerge
+
+on:
+  schedule:
+    - cron: 0 * * * *
+  pull_request_target:
+    types:
+      - opened
+      - synchronized
+      - reopened
+      - edited
+      - labeled
+      - unlabeled
+      - ready_for_review
+
+  workflow_dispatch:
+    inputs:
+      pull-request:
+        description: Pull Request Number
+        required: false
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: reitermarkus/automerge@v2
+        with:
+          token: ${{ secrets.MY_GITHUB_TOKEN }}
+          merge-method: squash
+          squash-commit-title: ${pull_request.title}
+          squash-commit-message: ${pull_request.body}
+          do-not-merge-labels: never-merge
+          pull-request: ${{ github.event.inputs.pull-request }}
