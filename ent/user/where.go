@@ -102,6 +102,20 @@ func VerifyExpiry(v time.Time) predicate.User {
 	})
 }
 
+// ResetCode applies equality check predicate on the "resetCode" field. It's identical to ResetCodeEQ.
+func ResetCode(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldResetCode), v))
+	})
+}
+
+// ResetExpiry applies equality check predicate on the "resetExpiry" field. It's identical to ResetExpiryEQ.
+func ResetExpiry(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldResetExpiry), v))
+	})
+}
+
 // Email applies equality check predicate on the "email" field. It's identical to EmailEQ.
 func Email(v string) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -340,6 +354,169 @@ func VerifyExpiryLT(v time.Time) predicate.User {
 func VerifyExpiryLTE(v time.Time) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldVerifyExpiry), v))
+	})
+}
+
+// ResetCodeEQ applies the EQ predicate on the "resetCode" field.
+func ResetCodeEQ(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldResetCode), v))
+	})
+}
+
+// ResetCodeNEQ applies the NEQ predicate on the "resetCode" field.
+func ResetCodeNEQ(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldResetCode), v))
+	})
+}
+
+// ResetCodeIn applies the In predicate on the "resetCode" field.
+func ResetCodeIn(vs ...string) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldResetCode), v...))
+	})
+}
+
+// ResetCodeNotIn applies the NotIn predicate on the "resetCode" field.
+func ResetCodeNotIn(vs ...string) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldResetCode), v...))
+	})
+}
+
+// ResetCodeGT applies the GT predicate on the "resetCode" field.
+func ResetCodeGT(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldResetCode), v))
+	})
+}
+
+// ResetCodeGTE applies the GTE predicate on the "resetCode" field.
+func ResetCodeGTE(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldResetCode), v))
+	})
+}
+
+// ResetCodeLT applies the LT predicate on the "resetCode" field.
+func ResetCodeLT(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldResetCode), v))
+	})
+}
+
+// ResetCodeLTE applies the LTE predicate on the "resetCode" field.
+func ResetCodeLTE(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldResetCode), v))
+	})
+}
+
+// ResetCodeContains applies the Contains predicate on the "resetCode" field.
+func ResetCodeContains(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldResetCode), v))
+	})
+}
+
+// ResetCodeHasPrefix applies the HasPrefix predicate on the "resetCode" field.
+func ResetCodeHasPrefix(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldResetCode), v))
+	})
+}
+
+// ResetCodeHasSuffix applies the HasSuffix predicate on the "resetCode" field.
+func ResetCodeHasSuffix(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldResetCode), v))
+	})
+}
+
+// ResetCodeEqualFold applies the EqualFold predicate on the "resetCode" field.
+func ResetCodeEqualFold(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldResetCode), v))
+	})
+}
+
+// ResetCodeContainsFold applies the ContainsFold predicate on the "resetCode" field.
+func ResetCodeContainsFold(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldResetCode), v))
+	})
+}
+
+// ResetExpiryEQ applies the EQ predicate on the "resetExpiry" field.
+func ResetExpiryEQ(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldResetExpiry), v))
+	})
+}
+
+// ResetExpiryNEQ applies the NEQ predicate on the "resetExpiry" field.
+func ResetExpiryNEQ(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldResetExpiry), v))
+	})
+}
+
+// ResetExpiryIn applies the In predicate on the "resetExpiry" field.
+func ResetExpiryIn(vs ...time.Time) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldResetExpiry), v...))
+	})
+}
+
+// ResetExpiryNotIn applies the NotIn predicate on the "resetExpiry" field.
+func ResetExpiryNotIn(vs ...time.Time) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldResetExpiry), v...))
+	})
+}
+
+// ResetExpiryGT applies the GT predicate on the "resetExpiry" field.
+func ResetExpiryGT(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldResetExpiry), v))
+	})
+}
+
+// ResetExpiryGTE applies the GTE predicate on the "resetExpiry" field.
+func ResetExpiryGTE(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldResetExpiry), v))
+	})
+}
+
+// ResetExpiryLT applies the LT predicate on the "resetExpiry" field.
+func ResetExpiryLT(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldResetExpiry), v))
+	})
+}
+
+// ResetExpiryLTE applies the LTE predicate on the "resetExpiry" field.
+func ResetExpiryLTE(v time.Time) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldResetExpiry), v))
 	})
 }
 

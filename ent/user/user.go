@@ -18,6 +18,10 @@ const (
 	FieldVerifyCode = "verify_code"
 	// FieldVerifyExpiry holds the string denoting the verifyexpiry field in the database.
 	FieldVerifyExpiry = "verify_expiry"
+	// FieldResetCode holds the string denoting the resetcode field in the database.
+	FieldResetCode = "reset_code"
+	// FieldResetExpiry holds the string denoting the resetexpiry field in the database.
+	FieldResetExpiry = "reset_expiry"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
 	// FieldPasshash holds the string denoting the passhash field in the database.
@@ -43,6 +47,8 @@ var Columns = []string{
 	FieldCreateTime,
 	FieldVerifyCode,
 	FieldVerifyExpiry,
+	FieldResetCode,
+	FieldResetExpiry,
 	FieldEmail,
 	FieldPasshash,
 	FieldStatus,

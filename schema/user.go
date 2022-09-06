@@ -27,6 +27,8 @@ func (User) Fields() []ent.Field {
 			Default(func() time.Time {
 				return time.Now().Add(time.Hour)
 			}),
+		field.String("resetCode"),
+		field.Time("resetExpiry"),
 		field.String("email").Unique(),
 		field.String("passhash"),
 		field.Enum("status").Values("Unverified", "Verified", "Disabled").Default("Unverified"),

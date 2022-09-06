@@ -22,6 +22,10 @@ type User struct {
 	VerifyCode string `json:"verifyCode,omitempty"`
 	// VerifyExpiry holds the value of the "verifyExpiry" field.
 	VerifyExpiry time.Time `json:"verifyExpiry,omitempty"`
+	// ResetCode holds the value of the "resetCode" field.
+	ResetCode string `json:"resetCode,omitempty"`
+	// ResetExpiry holds the value of the "resetExpiry" field.
+	ResetExpiry time.Time `json:"resetExpiry,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
 	// Passhash holds the value of the "passhash" field.
@@ -59,9 +63,9 @@ func (*User) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case user.FieldID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldVerifyCode, user.FieldEmail, user.FieldPasshash, user.FieldStatus:
+		case user.FieldVerifyCode, user.FieldResetCode, user.FieldEmail, user.FieldPasshash, user.FieldStatus:
 			values[i] = new(sql.NullString)
-		case user.FieldCreateTime, user.FieldVerifyExpiry:
+		case user.FieldCreateTime, user.FieldVerifyExpiry, user.FieldResetExpiry:
 			values[i] = new(sql.NullTime)
 		case user.ForeignKeys[0]: // guess_team
 			values[i] = new(sql.NullInt64)
@@ -103,6 +107,18 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field verifyExpiry", values[i])
 			} else if value.Valid {
 				u.VerifyExpiry = value.Time
+			}
+		case user.FieldResetCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field resetCode", values[i])
+			} else if value.Valid {
+				u.ResetCode = value.String
+			}
+		case user.FieldResetExpiry:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field resetExpiry", values[i])
+			} else if value.Valid {
+				u.ResetExpiry = value.Time
 			}
 		case user.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -170,6 +186,12 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("verifyExpiry=")
 	builder.WriteString(u.VerifyExpiry.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("resetCode=")
+	builder.WriteString(u.ResetCode)
+	builder.WriteString(", ")
+	builder.WriteString("resetExpiry=")
+	builder.WriteString(u.ResetExpiry.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(u.Email)

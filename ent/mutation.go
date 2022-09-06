@@ -2148,6 +2148,8 @@ type UserMutation struct {
 	create_time   *time.Time
 	verifyCode    *string
 	verifyExpiry  *time.Time
+	resetCode     *string
+	resetExpiry   *time.Time
 	email         *string
 	passhash      *string
 	status        *user.Status
@@ -2366,6 +2368,78 @@ func (m *UserMutation) ResetVerifyExpiry() {
 	m.verifyExpiry = nil
 }
 
+// SetResetCode sets the "resetCode" field.
+func (m *UserMutation) SetResetCode(s string) {
+	m.resetCode = &s
+}
+
+// ResetCode returns the value of the "resetCode" field in the mutation.
+func (m *UserMutation) ResetCode() (r string, exists bool) {
+	v := m.resetCode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldResetCode returns the old "resetCode" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldResetCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldResetCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldResetCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldResetCode: %w", err)
+	}
+	return oldValue.ResetCode, nil
+}
+
+// ResetResetCode resets all changes to the "resetCode" field.
+func (m *UserMutation) ResetResetCode() {
+	m.resetCode = nil
+}
+
+// SetResetExpiry sets the "resetExpiry" field.
+func (m *UserMutation) SetResetExpiry(t time.Time) {
+	m.resetExpiry = &t
+}
+
+// ResetExpiry returns the value of the "resetExpiry" field in the mutation.
+func (m *UserMutation) ResetExpiry() (r time.Time, exists bool) {
+	v := m.resetExpiry
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldResetExpiry returns the old "resetExpiry" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldResetExpiry(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldResetExpiry is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldResetExpiry requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldResetExpiry: %w", err)
+	}
+	return oldValue.ResetExpiry, nil
+}
+
+// ResetResetExpiry resets all changes to the "resetExpiry" field.
+func (m *UserMutation) ResetResetExpiry() {
+	m.resetExpiry = nil
+}
+
 // SetEmail sets the "email" field.
 func (m *UserMutation) SetEmail(s string) {
 	m.email = &s
@@ -2547,7 +2621,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 8)
 	if m.create_time != nil {
 		fields = append(fields, user.FieldCreateTime)
 	}
@@ -2556,6 +2630,12 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.verifyExpiry != nil {
 		fields = append(fields, user.FieldVerifyExpiry)
+	}
+	if m.resetCode != nil {
+		fields = append(fields, user.FieldResetCode)
+	}
+	if m.resetExpiry != nil {
+		fields = append(fields, user.FieldResetExpiry)
 	}
 	if m.email != nil {
 		fields = append(fields, user.FieldEmail)
@@ -2580,6 +2660,10 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.VerifyCode()
 	case user.FieldVerifyExpiry:
 		return m.VerifyExpiry()
+	case user.FieldResetCode:
+		return m.ResetCode()
+	case user.FieldResetExpiry:
+		return m.ResetExpiry()
 	case user.FieldEmail:
 		return m.Email()
 	case user.FieldPasshash:
@@ -2601,6 +2685,10 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldVerifyCode(ctx)
 	case user.FieldVerifyExpiry:
 		return m.OldVerifyExpiry(ctx)
+	case user.FieldResetCode:
+		return m.OldResetCode(ctx)
+	case user.FieldResetExpiry:
+		return m.OldResetExpiry(ctx)
 	case user.FieldEmail:
 		return m.OldEmail(ctx)
 	case user.FieldPasshash:
@@ -2636,6 +2724,20 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetVerifyExpiry(v)
+		return nil
+	case user.FieldResetCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetResetCode(v)
+		return nil
+	case user.FieldResetExpiry:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetResetExpiry(v)
 		return nil
 	case user.FieldEmail:
 		v, ok := value.(string)
@@ -2715,6 +2817,12 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldVerifyExpiry:
 		m.ResetVerifyExpiry()
+		return nil
+	case user.FieldResetCode:
+		m.ResetResetCode()
+		return nil
+	case user.FieldResetExpiry:
+		m.ResetResetExpiry()
 		return nil
 	case user.FieldEmail:
 		m.ResetEmail()
