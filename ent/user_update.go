@@ -57,6 +57,18 @@ func (uu *UserUpdate) SetNillableVerifyExpiry(t *time.Time) *UserUpdate {
 	return uu
 }
 
+// SetResetCode sets the "resetCode" field.
+func (uu *UserUpdate) SetResetCode(s string) *UserUpdate {
+	uu.mutation.SetResetCode(s)
+	return uu
+}
+
+// SetResetExpiry sets the "resetExpiry" field.
+func (uu *UserUpdate) SetResetExpiry(t time.Time) *UserUpdate {
+	uu.mutation.SetResetExpiry(t)
+	return uu
+}
+
 // SetEmail sets the "email" field.
 func (uu *UserUpdate) SetEmail(s string) *UserUpdate {
 	uu.mutation.SetEmail(s)
@@ -226,6 +238,20 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldVerifyExpiry,
 		})
 	}
+	if value, ok := uu.mutation.ResetCode(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldResetCode,
+		})
+	}
+	if value, ok := uu.mutation.ResetExpiry(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: user.FieldResetExpiry,
+		})
+	}
 	if value, ok := uu.mutation.Email(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -345,6 +371,18 @@ func (uuo *UserUpdateOne) SetNillableVerifyExpiry(t *time.Time) *UserUpdateOne {
 	if t != nil {
 		uuo.SetVerifyExpiry(*t)
 	}
+	return uuo
+}
+
+// SetResetCode sets the "resetCode" field.
+func (uuo *UserUpdateOne) SetResetCode(s string) *UserUpdateOne {
+	uuo.mutation.SetResetCode(s)
+	return uuo
+}
+
+// SetResetExpiry sets the "resetExpiry" field.
+func (uuo *UserUpdateOne) SetResetExpiry(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetResetExpiry(t)
 	return uuo
 }
 
@@ -545,6 +583,20 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Type:   field.TypeTime,
 			Value:  value,
 			Column: user.FieldVerifyExpiry,
+		})
+	}
+	if value, ok := uuo.mutation.ResetCode(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldResetCode,
+		})
+	}
+	if value, ok := uuo.mutation.ResetExpiry(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: user.FieldResetExpiry,
 		})
 	}
 	if value, ok := uuo.mutation.Email(); ok {

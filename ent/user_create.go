@@ -63,6 +63,18 @@ func (uc *UserCreate) SetNillableVerifyExpiry(t *time.Time) *UserCreate {
 	return uc
 }
 
+// SetResetCode sets the "resetCode" field.
+func (uc *UserCreate) SetResetCode(s string) *UserCreate {
+	uc.mutation.SetResetCode(s)
+	return uc
+}
+
+// SetResetExpiry sets the "resetExpiry" field.
+func (uc *UserCreate) SetResetExpiry(t time.Time) *UserCreate {
+	uc.mutation.SetResetExpiry(t)
+	return uc
+}
+
 // SetEmail sets the "email" field.
 func (uc *UserCreate) SetEmail(s string) *UserCreate {
 	uc.mutation.SetEmail(s)
@@ -210,6 +222,12 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.VerifyExpiry(); !ok {
 		return &ValidationError{Name: "verifyExpiry", err: errors.New(`ent: missing required field "User.verifyExpiry"`)}
 	}
+	if _, ok := uc.mutation.ResetCode(); !ok {
+		return &ValidationError{Name: "resetCode", err: errors.New(`ent: missing required field "User.resetCode"`)}
+	}
+	if _, ok := uc.mutation.ResetExpiry(); !ok {
+		return &ValidationError{Name: "resetExpiry", err: errors.New(`ent: missing required field "User.resetExpiry"`)}
+	}
 	if _, ok := uc.mutation.Email(); !ok {
 		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "User.email"`)}
 	}
@@ -274,6 +292,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldVerifyExpiry,
 		})
 		_node.VerifyExpiry = value
+	}
+	if value, ok := uc.mutation.ResetCode(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldResetCode,
+		})
+		_node.ResetCode = value
+	}
+	if value, ok := uc.mutation.ResetExpiry(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: user.FieldResetExpiry,
+		})
+		_node.ResetExpiry = value
 	}
 	if value, ok := uc.mutation.Email(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

@@ -64,6 +64,37 @@ func (db *DBClient) GenerateVerificationCode(ctx context.Context, email string) 
 	return code, nil
 }
 
+func (db *DBClient) GeneratePasswordResetCode(ctx context.Context, u *ent.User) (string, error) {
+	code := uuid.New().String()
+
+	_, err := db.entclient.User.
+		UpdateOne(u).
+		SetResetCode(code).
+		SetResetExpiry(time.Now().Add(time.Hour)).
+		Save(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return code, nil
+}
+
+func (db *DBClient) InvalidatePasswordResetCode(ctx context.Context, u *ent.User) error {
+	_, err := db.entclient.User.
+		UpdateOne(u).
+		SetResetCode("").
+		Save(ctx)
+	return err
+}
+
+func (db *DBClient) SetPassword(ctx context.Context, u *ent.User, hash string) error {
+	_, err := db.entclient.User.
+		UpdateOne(u).
+		SetPasshash(hash).
+		Save(ctx)
+	return err
+}
+
 func (db *DBClient) UpdateUserStatus(ctx context.Context, u *ent.User, newStatus user.Status) error {
 	_, err := u.Update().SetStatus(newStatus).Save(ctx)
 	return err
