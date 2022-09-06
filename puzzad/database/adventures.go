@@ -1,7 +1,8 @@
-package puzzad
+package database
 
 import (
 	"context"
+
 	"github.com/greboid/puzzad/ent"
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/game"

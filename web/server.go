@@ -19,7 +19,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
-	"github.com/greboid/puzzad/puzzad"
+	"github.com/greboid/puzzad/puzzad/database"
 	"github.com/rs/zerolog"
 )
 
@@ -30,7 +30,7 @@ type Webserver struct {
 	handler *http.Server
 	router  *chi.Mux
 	log     *zerolog.Logger
-	Client  *puzzad.DBClient
+	Client  *database.DBClient
 }
 
 type Login struct {

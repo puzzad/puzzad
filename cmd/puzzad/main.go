@@ -8,7 +8,7 @@ import (
 	"github.com/csmith/envflag"
 	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/user"
-	"github.com/greboid/puzzad/puzzad"
+	"github.com/greboid/puzzad/puzzad/database"
 	"github.com/greboid/puzzad/web"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -22,7 +22,7 @@ var (
 func main() {
 	envflag.Parse()
 	logger := createLogger(*Debug)
-	client := &puzzad.DBClient{}
+	client := &database.DBClient{}
 	err := client.Init(*Debug)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed creating ent client")
