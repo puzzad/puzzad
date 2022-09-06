@@ -1,4 +1,4 @@
-package puzzad
+package database
 
 import (
 	"context"

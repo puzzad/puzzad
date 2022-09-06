@@ -2,79 +2,56 @@ package puzzad
 
 import (
 	"context"
-	"flag"
+	"errors"
 	"fmt"
-	"net/smtp"
-	"time"
-
-	"github.com/google/uuid"
-	"github.com/greboid/puzzad/ent/user"
 
 	"github.com/greboid/puzzad/ent"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/greboid/puzzad/ent/user"
+	"github.com/rs/zerolog/log"
 )
 
 var (
-	SmtpUser     = flag.String("smtp_user", "", "SMTP Username")
-	SmtpPassword = flag.String("smtp_password", "", "SMTP Password")
-	SmtpServer   = flag.String("smtp_server", "", "SMTP Server")
-	SmtpPort     = flag.Int("smtp_port", 25, "SMTP Server port")
-	SmtpFrom     = flag.String("smtp_from", "", "SMTP From address")
+	ErrBadUsernameOrPassword = errors.New("invalid username or password")
+	ErrAccountDisabled       = errors.New("account is disabled")
+	ErrAccountUnverified     = errors.New("account is unverified")
 )
 
-func (db *DBClient) CreateUser(ctx context.Context, email string) (*ent.User, error) {
-	return db.entclient.User.
-		Create().
-		SetEmail(email).
-		Save(ctx)
+type UserDatabase interface {
+	GetUser(ctx context.Context, email string) (*ent.User, error)
 }
 
-func (db *DBClient) GetUser(ctx context.Context, email string) (*ent.User, error) {
-	return db.entclient.User.
-		Query().
-		Where(user.Email(email)).
-		Only(ctx)
+type UserManager struct {
+	db UserDatabase
 }
 
-func (db *DBClient) GetOrCreateUser(ctx context.Context, email string) (*ent.User, error) {
-	u, err := db.GetUser(ctx, email)
-	if ent.IsNotFound(err) {
-		return db.CreateUser(ctx, email)
-	}
-	return u, err
-}
-
-func (db *DBClient) GenerateVerificationCode(ctx context.Context, email string) (string, error) {
-	u, err := db.GetOrCreateUser(ctx, email)
+// Authenticate attempts to validate the given email and password combination, returning the corresponding user
+// object if successful.
+//
+// Expected error values for user-facing problems: ErrBadUsernameOrPassword, ErrAccountDisabled, ErrAccountUnverified.
+func (um *UserManager) Authenticate(ctx context.Context, email, password string) (*ent.User, error) {
+	u, err := um.db.GetUser(ctx, email)
 	if err != nil {
-		return "", err
+		log.Info().Err(err).Msgf("Login failed for user '%s': could not retrieve user", email)
+		return nil, ErrBadUsernameOrPassword
 	}
 
-	code := uuid.New().String()
-
-	_, err = db.entclient.User.
-		UpdateOne(u).
-		SetVerifyCode(code).
-		SetVerifyExpiry(time.Now().Add(time.Hour)).
-		Save(ctx)
-	if err != nil {
-		return "", err
+	if ok, err := CheckHash(password, u.Passhash); !ok {
+		log.Info().Err(err).Msgf("Login failed for user '%s': password check failed", email)
+		return nil, ErrBadUsernameOrPassword
 	}
 
-	return code, nil
-}
-
-func (db *DBClient) UpdateUserStatus(ctx context.Context, u *ent.User, newStatus user.Status) error {
-	_, err := u.Update().SetStatus(newStatus).Save(ctx)
-	return err
-}
-
-func (db *DBClient) SendValidationEmail(_ context.Context, e *ent.User) error {
-	auth := smtp.PlainAuth("", *SmtpUser, *SmtpPassword, *SmtpServer)
-	body := fmt.Sprintf("To: %s\r\nSubject: %s\r\nReply-To: %s\r\nFrom: Puzzad <%s>\r\n\r\nPuzzad verify code: %s\r\n", e.Email, "Puzzad Validation", *SmtpFrom, *SmtpFrom, e.VerifyCode)
-	err := smtp.SendMail(fmt.Sprintf("%s:%d", *SmtpServer, *SmtpPort), auth, *SmtpFrom, []string{e.Email}, []byte(body))
-	if err != nil {
-		return err
+	switch u.Status {
+	case user.StatusUnverified:
+		log.Info().Msgf("Login failed for user '%s': account is unverified", email)
+		return nil, ErrAccountUnverified
+	case user.StatusDisabled:
+		log.Info().Msgf("Login failed for user '%s': account is disabled", email)
+		return nil, ErrAccountDisabled
+	case user.StatusVerified:
+		log.Debug().Msgf("Login successful for user '%s'", email)
+		return u, nil
+	default:
+		log.Error().Msgf("Login failed for user '%s', unknown account status: %s", email, u.Status)
+		return nil, fmt.Errorf("unknown account status")
 	}
-	return nil
 }
