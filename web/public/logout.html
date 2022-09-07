@@ -22,10 +22,8 @@
 </nav>
 <article>
     <p>This is the login page.</p>
-    <form hx-post="/login" hx-disable-element="#submit">
-        <label>Username: <input type="text" name="username" required></label>
-        <label>Password: <input type="text" name="password" required></label>
-        <button id="submit" type="submit">Login</button>
+    <form hx-post="/logout" hx-disable-element="#submit">
+        <button id="submit" type="submit">Logout</button>
     </form>
 </article>
 <footer>

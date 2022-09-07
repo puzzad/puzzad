@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"crypto/rand"
 	"embed"
 	"encoding/json"
 	"errors"
@@ -19,25 +20,32 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
+	"github.com/golangcollege/sessions"
 	"github.com/greboid/puzzad/puzzad/database"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 //go:embed public
 var publicfs embed.FS
 
 type Webserver struct {
-	handler *http.Server
-	router  *chi.Mux
-	log     *zerolog.Logger
-	Client  *database.DBClient
+	handler     *http.Server
+	router      *chi.Mux
+	log         *zerolog.Logger
+	Client      *database.DBClient
+	sessionSore *sessions.Session
 }
 
 type Login struct {
-	Code string
+	Code     string
+	Username string
+	Password string
 }
 
 func (web *Webserver) Init(port int, log *zerolog.Logger) {
+	// TODO: Pull this from an env var
+	web.sessionSore = sessions.New(randomByte(32))
 	web.router = chi.NewRouter()
 	web.log = log
 	web.addMiddleWare()
@@ -55,6 +63,7 @@ func (web *Webserver) addMiddleWare() {
 	web.router.Use(middleware.Recoverer)
 	web.router.Use(loggerMiddleware(web.log))
 	web.router.Use(middleware.Timeout(60 * time.Second))
+	web.router.Use(web.sessionSore.Enable)
 	web.router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -66,9 +75,10 @@ func (web *Webserver) addMiddleWare() {
 }
 
 func (web *Webserver) addRoutes() {
-	web.router.Post("/register", web.handleRegister)
-	web.router.Post("/login", web.handleLoginPost)
-	web.router.Get("/login", web.handleLoginGet)
+	web.router.With().Post("/register", web.handleRegister)
+	web.router.Post("/login", web.handleLogin)
+	web.router.Post("/logout", web.handleLogout)
+	web.router.Get("/logout", web.handleLogout)
 	web.router.Post("/validate", web.handleValidate)
 	_, err := os.OpenFile(filepath.Join("web", "public"), os.O_RDONLY, 0644)
 	if errors.Is(err, os.ErrNotExist) {
@@ -89,11 +99,8 @@ func (web *Webserver) handleValidate(writer http.ResponseWriter, request *http.R
 		http.Redirect(writer, request, "/index.html", http.StatusTemporaryRedirect)
 	}
 }
-func (web *Webserver) handleLoginGet(writer http.ResponseWriter, request *http.Request) {
-	web.handleStartAdventure(writer, request, request.URL.Query().Get("code"))
-}
 
-func (web *Webserver) handleLoginPost(writer http.ResponseWriter, request *http.Request) {
+func (web *Webserver) handleLogin(writer http.ResponseWriter, request *http.Request) {
 	data := &Login{}
 	bytes, err := io.ReadAll(request.Body)
 	if err != nil {
@@ -103,22 +110,13 @@ func (web *Webserver) handleLoginPost(writer http.ResponseWriter, request *http.
 	if err != nil {
 		return
 	}
-	web.handleStartAdventure(writer, request, data.Code)
-}
-
-func (web *Webserver) handleStartAdventure(writer http.ResponseWriter, request *http.Request, code string) {
-	var redirect string
-	err := web.Client.VerifyAdventureCode(request.Context(), code)
-	if err != nil {
-		redirect = "login.html"
-	} else {
-		redirect = "adventure.html"
-	}
+	log.Debug().Str("username", data.Username).Msg("Adding Auth: ")
+	web.sessionSore.Put(request, "username", data.Username)
 	if request.Header.Get("HX-Request") != "" {
-		writer.Header().Set("HX-Redirect", redirect)
+		writer.Header().Set("HX-Redirect", "index.html")
 		writer.WriteHeader(http.StatusTemporaryRedirect)
 	} else {
-		http.Redirect(writer, request, redirect, http.StatusTemporaryRedirect)
+		http.Redirect(writer, request, "index.html", http.StatusTemporaryRedirect)
 	}
 }
 
@@ -154,6 +152,17 @@ func (web *Webserver) RunAndWait() error {
 	return web.handler.Shutdown(ctx)
 }
 
+func (web *Webserver) handleLogout(writer http.ResponseWriter, request *http.Request) {
+	log.Debug().Str("username", web.sessionSore.GetString(request, "username")).Msg("Removing Auth: ")
+	web.sessionSore.Destroy(request)
+	if request.Header.Get("HX-Request") != "" {
+		writer.Header().Set("HX-Redirect", "index.html")
+		writer.WriteHeader(http.StatusTemporaryRedirect)
+	} else {
+		http.Redirect(writer, request, "index.html", http.StatusTemporaryRedirect)
+	}
+}
+
 func loggerMiddleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -172,4 +181,14 @@ func loggerMiddleware(logger *zerolog.Logger) func(next http.Handler) http.Handl
 			next.ServeHTTP(wrapper, r)
 		})
 	}
+}
+
+func randomByte(length int) []byte {
+	key := make([]byte, length)
+
+	_, err := rand.Read(key)
+	if err != nil {
+		return nil
+	}
+	return key
 }
