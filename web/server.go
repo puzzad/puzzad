@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"io"
 	"io/fs"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -26,7 +28,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-//go:embed public
+//go:embed resources
 var publicfs embed.FS
 
 type Webserver struct {
@@ -35,6 +37,9 @@ type Webserver struct {
 	log         *zerolog.Logger
 	Client      *database.DBClient
 	sessionSore *sessions.Session
+	static      http.Handler
+	templates   *template.Template
+	watcher     *fsnotify.Watcher
 }
 
 type Login struct {
@@ -48,11 +53,67 @@ func (web *Webserver) Init(port int, log *zerolog.Logger) {
 	web.sessionSore = sessions.New(randomByte(32))
 	web.router = chi.NewRouter()
 	web.log = log
+	web.static = web.getStaticServer()
+	web.templates = web.getTemplates()
 	web.addMiddleWare()
 	web.addRoutes()
 	web.handler = &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", "0.0.0.0", port),
 		Handler: web.router,
+	}
+}
+
+func getWatcher() *fsnotify.Watcher {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Panic().Err(err).Msg("Unable to create template watcher")
+	}
+	return watcher
+}
+
+func (web *Webserver) startWatcher(watcher *fsnotify.Watcher) {
+	go func() {
+		for {
+			select {
+			case _, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+				dfs := os.DirFS(filepath.Join("web", "resources", "templates"))
+				templates, err := template.ParseFS(dfs, "*.gohtml")
+				if err != nil {
+					log.Error().Err(err).Msg("Unable to recompile templates")
+				} else {
+					web.templates = templates
+				}
+			}
+		}
+	}()
+	err := watcher.Add(filepath.Join("web", "resources", "templates"))
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to watch templates path")
+	}
+}
+
+func (web *Webserver) getTemplates() *template.Template {
+	_, err := os.OpenFile(filepath.Join("web", "resources", "templates"), os.O_RDONLY, 0644)
+	if errors.Is(err, os.ErrNotExist) {
+		pfs, _ := fs.Sub(publicfs, "resources/templates")
+		return template.Must(template.ParseFS(pfs, "*.gohtml"))
+	} else {
+		web.startWatcher(getWatcher())
+		dfs := os.DirFS(filepath.Join("web", "resources", "templates"))
+		return template.Must(template.ParseFS(dfs, "*.gohtml"))
+	}
+}
+
+func (web *Webserver) getStaticServer() http.Handler {
+	_, err := os.OpenFile(filepath.Join("web", "public"), os.O_RDONLY, 0644)
+	if errors.Is(err, os.ErrNotExist) {
+		pfs, _ := fs.Sub(publicfs, "resources/public")
+		return http.FileServer(http.FS(pfs))
+	} else {
+		return http.FileServer(http.FS(os.DirFS(filepath.Join("web", "resources", "public"))))
 	}
 }
 
@@ -75,18 +136,13 @@ func (web *Webserver) addMiddleWare() {
 }
 
 func (web *Webserver) addRoutes() {
-	web.router.With().Post("/register", web.handleRegister)
+	web.router.Get("/", web.handleIndex)
+	web.router.Post("/register", web.handleRegister)
 	web.router.Post("/login", web.handleLogin)
 	web.router.Post("/logout", web.handleLogout)
 	web.router.Get("/logout", web.handleLogout)
 	web.router.Post("/validate", web.handleValidate)
-	_, err := os.OpenFile(filepath.Join("web", "public"), os.O_RDONLY, 0644)
-	if errors.Is(err, os.ErrNotExist) {
-		pfs, _ := fs.Sub(publicfs, "public")
-		web.router.Handle("/*", http.FileServer(http.FS(pfs)))
-	} else {
-		web.router.Handle("/*", http.FileServer(http.FS(os.DirFS(filepath.Join("web", "public")))))
-	}
+	web.router.Handle("/*", web.static)
 }
 
 func (web *Webserver) handleValidate(writer http.ResponseWriter, request *http.Request) {
@@ -160,6 +216,19 @@ func (web *Webserver) handleLogout(writer http.ResponseWriter, request *http.Req
 		writer.WriteHeader(http.StatusTemporaryRedirect)
 	} else {
 		http.Redirect(writer, request, "index.html", http.StatusTemporaryRedirect)
+	}
+}
+
+func (web *Webserver) handleIndex(writer http.ResponseWriter, request *http.Request) {
+	log.Debug().Bool("authed", web.sessionSore.GetString(request, "username") != "").Msg("Authed bool")
+	log.Debug().Str("authed", web.sessionSore.GetString(request, "username")).Msg("Authed string")
+	err := web.templates.ExecuteTemplate(writer, "index.gohtml", struct {
+		Authed bool
+	}{
+		Authed: web.sessionSore.GetString(request, "username") != "",
+	})
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to serve index page")
 	}
 }
 
