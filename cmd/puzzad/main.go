@@ -37,32 +37,32 @@ func main() {
 		// TODO: This should use the user manager
 		admins, err := client.GetAdmins(ctx)
 		if err != nil {
-			log.Panic().Err(err).Msg("Unable to check if admins exist")
+			log.Fatal().Err(err).Msg("Unable to check if admins exist")
 		}
 		if len(admins) == 0 {
 			log.Info().Str("email", *AdminEmail).Msg("Creating initial admin user.")
 			_, err = mail.ParseAddress(*AdminEmail)
 			if err != nil {
-				log.Panic().Err(err).Msg("Admin email must be valid")
+				log.Fatal().Err(err).Msg("Admin email must be valid")
 			}
 			if len(*AdminPassword) == 0 {
-				log.Panic().Err(err).Msg("Unable to hash admin password, not set")
+				log.Fatal().Err(err).Msg("Unable to hash admin password, not set")
 			}
 			passHash, err := puzzad.GetHash(*AdminPassword)
 			if err != nil {
-				log.Panic().Err(err).Msg("Unable to hash admin password")
+				log.Fatal().Err(err).Msg("Unable to hash admin password")
 			}
 			user, err := client.CreateUser(ctx, *AdminEmail)
 			if err != nil {
-				log.Panic().Err(err).Msg("Unable to create admin user")
+				log.Fatal().Err(err).Msg("Unable to create admin user")
 			}
 			err = client.SetPassword(ctx, user, passHash)
 			if err != nil {
-				log.Panic().Err(err).Msg("Unable to set admin password")
+				log.Fatal().Err(err).Msg("Unable to set admin password")
 			}
 			err = client.SetAdmin(ctx, user, true)
 			if err != nil {
-				log.Panic().Err(err).Msg("Unable to set user as admin")
+				log.Fatal().Err(err).Msg("Unable to set user as admin")
 			}
 		}
 	}()

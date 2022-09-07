@@ -66,7 +66,7 @@ func (web *Webserver) Init(port int, log *zerolog.Logger) {
 func getWatcher() *fsnotify.Watcher {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Panic().Err(err).Msg("Unable to create template watcher")
+		log.Fatal().Err(err).Msg("Unable to create template watcher")
 	}
 	return watcher
 }
