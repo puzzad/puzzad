@@ -1,24 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puzzad</title>
-    <link rel="stylesheet" href="/css/reset.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <script defer src="/js/htmx-1.8.0.js"></script>
-    <script defer src="/js/index.js"></script>
-</head>
-<body>
+{{ template "head.gohtml" . }}
 <header>
     <h1>Puzzad</h1>
 </header>
 {{ template "menu.gohtml" . }}
 <article>
-    <p>This is the frontpage.</p>
+    <p>Welcome to Puzzad.  Here you'll be able to go on some puzzling adventures either alone or with friends, or at least you will when the site is finished and someone writes some adventures!</p>
 </article>
-<footer>
-    <p>Footer</p>
-</footer>
-</body>
-</html>
+{{ template "foot.gohtml" . }}

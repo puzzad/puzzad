@@ -1,0 +1,15 @@
+{{ template "head.gohtml" . }}
+<header>
+    <h1>Puzzad</h1>
+</header>
+{{ template "menu.gohtml" . }}
+<article>
+    <p>If you don't already have an account, you will need to <a href="/register">register</a> before signing in.</p>
+    <form hx-post="/login" hx-disable-element="#submit">
+        <label>Username: <input type="text" name="username" required></label>
+        <label>Password: <input type="text" name="password" required></label>
+        <button id="submit" type="submit">Login</button>
+    </form>
+    <p>If you've forgotten your password, click <a href="/passreset">here</a> to start the reset process.</p>
+</article>
+{{ template "foot.gohtml" . }}

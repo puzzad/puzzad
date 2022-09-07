@@ -136,11 +136,17 @@ func (web *Webserver) addMiddleWare() {
 }
 
 func (web *Webserver) addRoutes() {
-	web.router.Get("/", web.handleIndex)
+	web.router.Get("/", web.handleTemplate("index"))
+	web.router.Get("/register", web.handleTemplate("register"))
 	web.router.Post("/register", web.handleRegister)
+	web.router.Get("/login", web.handleTemplate("login"))
 	web.router.Post("/login", web.handleLogin)
 	web.router.Post("/logout", web.handleLogout)
-	web.router.Get("/logout", web.handleLogout)
+	web.router.Get("/passreset", web.handleTemplate("passreset"))
+	web.router.Post("/passreset", func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusInternalServerError)
+	})
+	web.router.Get("/validate", web.handleTemplate("validate"))
 	web.router.Post("/validate", web.handleValidate)
 	web.router.Handle("/*", web.static)
 }
@@ -219,14 +225,16 @@ func (web *Webserver) handleLogout(writer http.ResponseWriter, request *http.Req
 	}
 }
 
-func (web *Webserver) handleIndex(writer http.ResponseWriter, request *http.Request) {
-	err := web.templates.ExecuteTemplate(writer, "index.gohtml", struct {
-		Authed bool
-	}{
-		Authed: web.sessionSore.GetString(request, "username") != "",
-	})
-	if err != nil {
-		log.Error().Err(err).Msg("Unable to serve index page")
+func (web *Webserver) handleTemplate(templateName string) func(writer http.ResponseWriter, request *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		err := web.templates.ExecuteTemplate(writer, templateName+".gohtml", struct {
+			Authed bool
+		}{
+			Authed: web.sessionSore.GetString(request, "username") != "",
+		})
+		if err != nil {
+			log.Error().Err(err).Msg("Unable to serve index page")
+		}
 	}
 }
 

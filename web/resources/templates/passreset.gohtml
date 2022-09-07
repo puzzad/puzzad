@@ -1,0 +1,15 @@
+{{ template "head.gohtml" . }}
+<header>
+    <h1>Puzzad</h1>
+</header>
+{{ template "menu.gohtml" . }}
+<article>
+    <p>
+        Enter the email you used to register below, if there's a valid account associated with it, you'll receive an email instruction you how to proceed.
+    </p>
+    <form hx-post="/passreset" hx-disable-element="#submit">
+        <label>Email Address: <input type="email" name="email" placeholder="user@domain.tld" required></label>
+        <button id="submit" type="submit">Register</button>
+    </form>
+</article>
+{{ template "foot.gohtml" . }}
