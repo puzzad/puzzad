@@ -32,18 +32,48 @@ func main() {
 	}()
 	go func() {
 		ctx := context.Background()
-		u, _ := client.GetOrCreateUser(ctx, "test@test.test")
+		u, err := client.GetOrCreateUser(ctx, "test@test.test")
+		if err != nil {
+			panic(err)
+		}
 		log.Printf("Verify Code: %s", u.VerifyCode)
-		ad, _ := client.CreateAdventure(ctx, "Test Adventure")
-		ad, _ = client.GetAdventure(ctx, "Test Adventure")
-		_, _ = client.AddPuzzle(ctx, ad, 0, "First puzzle", "one")
-		_, _ = client.AddPuzzle(ctx, ad, 1, "Second puzzle", "two")
-		_, _ = client.AddPuzzle(ctx, ad, 2, "Third puzzle", "three")
-		g, _ := client.CreateGame(ctx, ad, u)
-		_ = client.SetStatusForGame(ctx, g, game.StatusPaid)
-		adventures, _ := client.GetPaidAdventuresForUser(ctx, u)
+		ad, err := client.CreateAdventure(ctx, "Test Adventure")
+		if err != nil {
+			panic(err)
+		}
+		ad, err = client.GetAdventure(ctx, "Test Adventure")
+		if err != nil {
+			panic(err)
+		}
+		_, err = client.AddPuzzle(ctx, ad, 0, "First puzzle", "one")
+		if err != nil {
+			panic(err)
+		}
+		_, err = client.AddPuzzle(ctx, ad, 1, "Second puzzle", "two")
+		if err != nil {
+			panic(err)
+		}
+		_, err = client.AddPuzzle(ctx, ad, 2, "Third puzzle", "three")
+		if err != nil {
+			panic(err)
+		}
+		g, err := client.CreateGame(ctx, ad, u)
+		if err != nil {
+			panic(err)
+		}
+		err = client.SetStatusForGame(ctx, g, game.StatusPaid)
+		if err != nil {
+			panic(err)
+		}
+		adventures, err := client.GetPaidAdventuresForUser(ctx, u)
+		if err != nil {
+			panic(err)
+		}
 		for index := range adventures {
-			ac, _ := adventures[index].QueryGame().Where(game.HasUserWith(user.ID(u.ID))).Only(ctx)
+			ac, err := adventures[index].QueryGame().Where(game.HasUserWith(user.ID(u.ID))).Only(ctx)
+			if err != nil {
+				panic(err)
+			}
 			log.Printf("Adventure codes: %s: %s", adventures[index].Name, ac.Code)
 		}
 	}()
