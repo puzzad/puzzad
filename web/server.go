@@ -220,8 +220,6 @@ func (web *Webserver) handleLogout(writer http.ResponseWriter, request *http.Req
 }
 
 func (web *Webserver) handleIndex(writer http.ResponseWriter, request *http.Request) {
-	log.Debug().Bool("authed", web.sessionSore.GetString(request, "username") != "").Msg("Authed bool")
-	log.Debug().Str("authed", web.sessionSore.GetString(request, "username")).Msg("Authed string")
 	err := web.templates.ExecuteTemplate(writer, "index.gohtml", struct {
 		Authed bool
 	}{
