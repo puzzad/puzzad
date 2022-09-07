@@ -108,7 +108,7 @@ func (web *Webserver) getTemplates() *template.Template {
 }
 
 func (web *Webserver) getStaticServer() http.Handler {
-	_, err := os.OpenFile(filepath.Join("web", "public"), os.O_RDONLY, 0644)
+	_, err := os.OpenFile(filepath.Join("web", "resources", "public"), os.O_RDONLY, 0644)
 	if errors.Is(err, os.ErrNotExist) {
 		pfs, _ := fs.Sub(publicfs, "resources/public")
 		return http.FileServer(http.FS(pfs))
