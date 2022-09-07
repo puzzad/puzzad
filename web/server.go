@@ -148,6 +148,10 @@ func (web *Webserver) addRoutes() {
 	})
 	web.router.Get("/validate", web.handleTemplate("validate"))
 	web.router.Post("/validate", web.handleValidate)
+	web.router.Get("/play", web.handleTemplate("play"))
+	web.router.Post("/play", func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusInternalServerError)
+	})
 	web.router.Handle("/*", web.static)
 }
 

@@ -1,0 +1,15 @@
+{{ template "head.gohtml" . }}
+<header>
+    <h1>Puzzad</h1>
+</header>
+{{ template "menu.gohtml" . }}
+<article>
+    <p>
+        To start your adventure, you'll need to get the team code from the account owner and enter it below:
+    </p>
+    <form hx-post="/play" hx-disable-element="#submit">
+        <label>Team Code: <input type="email" name="email" placeholder="" required></label>
+        <button id="submit" type="submit">Join Adventure</button>
+    </form>
+</article>
+{{ template "foot.gohtml" . }}
