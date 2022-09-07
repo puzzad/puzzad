@@ -2153,6 +2153,7 @@ type UserMutation struct {
 	email         *string
 	passhash      *string
 	status        *user.Status
+	admin         *bool
 	clearedFields map[string]struct{}
 	game          map[int]struct{}
 	removedgame   map[int]struct{}
@@ -2548,6 +2549,42 @@ func (m *UserMutation) ResetStatus() {
 	m.status = nil
 }
 
+// SetAdmin sets the "admin" field.
+func (m *UserMutation) SetAdmin(b bool) {
+	m.admin = &b
+}
+
+// Admin returns the value of the "admin" field in the mutation.
+func (m *UserMutation) Admin() (r bool, exists bool) {
+	v := m.admin
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAdmin returns the old "admin" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldAdmin(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAdmin is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAdmin requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAdmin: %w", err)
+	}
+	return oldValue.Admin, nil
+}
+
+// ResetAdmin resets all changes to the "admin" field.
+func (m *UserMutation) ResetAdmin() {
+	m.admin = nil
+}
+
 // AddGameIDs adds the "game" edge to the Game entity by ids.
 func (m *UserMutation) AddGameIDs(ids ...int) {
 	if m.game == nil {
@@ -2621,7 +2658,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.create_time != nil {
 		fields = append(fields, user.FieldCreateTime)
 	}
@@ -2645,6 +2682,9 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.status != nil {
 		fields = append(fields, user.FieldStatus)
+	}
+	if m.admin != nil {
+		fields = append(fields, user.FieldAdmin)
 	}
 	return fields
 }
@@ -2670,6 +2710,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Passhash()
 	case user.FieldStatus:
 		return m.Status()
+	case user.FieldAdmin:
+		return m.Admin()
 	}
 	return nil, false
 }
@@ -2695,6 +2737,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldPasshash(ctx)
 	case user.FieldStatus:
 		return m.OldStatus(ctx)
+	case user.FieldAdmin:
+		return m.OldAdmin(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -2759,6 +2803,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStatus(v)
+		return nil
+	case user.FieldAdmin:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAdmin(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -2832,6 +2883,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldStatus:
 		m.ResetStatus()
+		return nil
+	case user.FieldAdmin:
+		m.ResetAdmin()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

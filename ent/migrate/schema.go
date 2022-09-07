@@ -106,6 +106,7 @@ var (
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "passhash", Type: field.TypeString, Default: ""},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"Unverified", "Verified", "Disabled"}, Default: "Unverified"},
+		{Name: "admin", Type: field.TypeBool, Default: false},
 		{Name: "guess_team", Type: field.TypeInt, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
@@ -116,7 +117,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_guesses_team",
-				Columns:    []*schema.Column{UsersColumns[9]},
+				Columns:    []*schema.Column{UsersColumns[10]},
 				RefColumns: []*schema.Column{GuessesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

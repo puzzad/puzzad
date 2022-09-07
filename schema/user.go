@@ -32,6 +32,7 @@ func (User) Fields() []ent.Field {
 		field.String("email").Unique(),
 		field.String("passhash").Default(""),
 		field.Enum("status").Values("Unverified", "Verified", "Disabled").Default("Unverified"),
+		field.Bool("admin").Default(false),
 	}
 }
 

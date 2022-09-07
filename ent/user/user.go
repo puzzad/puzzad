@@ -28,6 +28,8 @@ const (
 	FieldPasshash = "passhash"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldAdmin holds the string denoting the admin field in the database.
+	FieldAdmin = "admin"
 	// EdgeGame holds the string denoting the game edge name in mutations.
 	EdgeGame = "game"
 	// Table holds the table name of the user in the database.
@@ -52,6 +54,7 @@ var Columns = []string{
 	FieldEmail,
 	FieldPasshash,
 	FieldStatus,
+	FieldAdmin,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "users"
@@ -88,6 +91,8 @@ var (
 	DefaultResetExpiry time.Time
 	// DefaultPasshash holds the default value on creation for the "passhash" field.
 	DefaultPasshash string
+	// DefaultAdmin holds the default value on creation for the "admin" field.
+	DefaultAdmin bool
 )
 
 // Status defines the type for the "status" enum field.

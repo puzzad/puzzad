@@ -119,6 +119,20 @@ func (uu *UserUpdate) SetNillableStatus(u *user.Status) *UserUpdate {
 	return uu
 }
 
+// SetAdmin sets the "admin" field.
+func (uu *UserUpdate) SetAdmin(b bool) *UserUpdate {
+	uu.mutation.SetAdmin(b)
+	return uu
+}
+
+// SetNillableAdmin sets the "admin" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableAdmin(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetAdmin(*b)
+	}
+	return uu
+}
+
 // AddGameIDs adds the "game" edge to the Game entity by IDs.
 func (uu *UserUpdate) AddGameIDs(ids ...int) *UserUpdate {
 	uu.mutation.AddGameIDs(ids...)
@@ -297,6 +311,13 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldStatus,
 		})
 	}
+	if value, ok := uu.mutation.Admin(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldAdmin,
+		})
+	}
 	if uu.mutation.GameCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -456,6 +477,20 @@ func (uuo *UserUpdateOne) SetStatus(u user.Status) *UserUpdateOne {
 func (uuo *UserUpdateOne) SetNillableStatus(u *user.Status) *UserUpdateOne {
 	if u != nil {
 		uuo.SetStatus(*u)
+	}
+	return uuo
+}
+
+// SetAdmin sets the "admin" field.
+func (uuo *UserUpdateOne) SetAdmin(b bool) *UserUpdateOne {
+	uuo.mutation.SetAdmin(b)
+	return uuo
+}
+
+// SetNillableAdmin sets the "admin" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableAdmin(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetAdmin(*b)
 	}
 	return uuo
 }
@@ -666,6 +701,13 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Type:   field.TypeEnum,
 			Value:  value,
 			Column: user.FieldStatus,
+		})
+	}
+	if value, ok := uuo.mutation.Admin(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldAdmin,
 		})
 	}
 	if uuo.mutation.GameCleared() {

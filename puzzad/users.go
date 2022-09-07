@@ -19,6 +19,7 @@ var (
 
 type UserDatabase interface {
 	GetUser(ctx context.Context, email string) (*ent.User, error)
+	GetAdmins(ctx context.Context) ([]*ent.User, error)
 	GeneratePasswordResetCode(ctx context.Context, u *ent.User) (string, error)
 	InvalidatePasswordResetCode(ctx context.Context, u *ent.User) error
 	SetPassword(ctx context.Context, u *ent.User, hash string) error
@@ -31,6 +32,15 @@ type UserMailer interface {
 type UserManager struct {
 	db UserDatabase
 	m  UserMailer
+}
+
+// CheckAdminExists checks if at least one admin user is present in the database
+func (um *UserManager) CheckAdminExists(ctx context.Context) (bool, error) {
+	admins, err := um.db.GetAdmins(ctx)
+	if err != nil {
+		return false, err
+	}
+	return len(admins) > 0, nil
 }
 
 // Authenticate attempts to validate the given email and password combination, returning the corresponding user

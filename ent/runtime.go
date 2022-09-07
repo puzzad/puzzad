@@ -61,4 +61,8 @@ func init() {
 	userDescPasshash := userFields[5].Descriptor()
 	// user.DefaultPasshash holds the default value on creation for the passhash field.
 	user.DefaultPasshash = userDescPasshash.Default.(string)
+	// userDescAdmin is the schema descriptor for admin field.
+	userDescAdmin := userFields[7].Descriptor()
+	// user.DefaultAdmin holds the default value on creation for the admin field.
+	user.DefaultAdmin = userDescAdmin.Default.(bool)
 }

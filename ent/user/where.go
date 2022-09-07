@@ -130,6 +130,13 @@ func Passhash(v string) predicate.User {
 	})
 }
 
+// Admin applies equality check predicate on the "admin" field. It's identical to AdminEQ.
+func Admin(v bool) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldAdmin), v))
+	})
+}
+
 // CreateTimeEQ applies the EQ predicate on the "create_time" field.
 func CreateTimeEQ(v time.Time) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -751,6 +758,20 @@ func StatusNotIn(vs ...Status) predicate.User {
 	}
 	return predicate.User(func(s *sql.Selector) {
 		s.Where(sql.NotIn(s.C(FieldStatus), v...))
+	})
+}
+
+// AdminEQ applies the EQ predicate on the "admin" field.
+func AdminEQ(v bool) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldAdmin), v))
+	})
+}
+
+// AdminNEQ applies the NEQ predicate on the "admin" field.
+func AdminNEQ(v bool) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldAdmin), v))
 	})
 }
 

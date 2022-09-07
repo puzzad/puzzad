@@ -109,3 +109,16 @@ func (db *DBClient) SendValidationEmail(_ context.Context, e *ent.User) error {
 	}
 	return nil
 }
+
+func (db *DBClient) GetAdmins(ctx context.Context) ([]*ent.User, error) {
+	users, err := db.entclient.User.Query().Where(user.Admin(true)).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (db *DBClient) SetAdmin(ctx context.Context, u *ent.User, b bool) error {
+	_, err := db.entclient.User.UpdateOne(u).SetAdmin(b).Save(ctx)
+	return err
+}

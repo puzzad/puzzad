@@ -29,11 +29,21 @@ type FakeUserDatabase struct {
 	setPasswordUser  *ent.User
 	setPasswordHash  string
 	setPasswordError error
+
+	getAdminsUsers []*ent.User
+	getAdminsError error
+
+	setAdminUser  *ent.User
+	setAdminError error
 }
 
 func (f *FakeUserDatabase) GetUser(_ context.Context, email string) (*ent.User, error) {
 	f.email = email
 	return f.getUserResponse, f.getUserError
+}
+
+func (f *FakeUserDatabase) GetAdmins(_ context.Context) ([]*ent.User, error) {
+	return f.getAdminsUsers, f.getAdminsError
 }
 
 func (f *FakeUserDatabase) GeneratePasswordResetCode(_ context.Context, u *ent.User) (string, error) {
@@ -49,6 +59,11 @@ func (f *FakeUserDatabase) InvalidatePasswordResetCode(_ context.Context, u *ent
 func (f *FakeUserDatabase) SetPassword(_ context.Context, u *ent.User, hash string) error {
 	f.setPasswordUser = u
 	f.setPasswordHash = hash
+	return f.setPasswordError
+}
+
+func (f *FakeUserDatabase) SetAdmin(_ context.Context, u *ent.User, admin bool) error {
+	u.Admin = admin
 	return f.setPasswordError
 }
 
@@ -345,4 +360,23 @@ func TestUserManager_FinishPasswordReset_returnsTrueOnSuccess(t *testing.T) {
 
 	hashOk, _ := CheckHash("newpassword", db.setPasswordHash)
 	assert.True(t, hashOk, "password hash must match the given password")
+}
+
+func TestUserManager_GetAdmins_Error(t *testing.T) {
+	db := &FakeUserDatabase{
+		getAdminsUsers: []*ent.User{},
+		getAdminsError: fmt.Errorf("test error"),
+	}
+	_, err := db.GetAdmins(context.Background())
+	assert.True(t, err != nil)
+}
+
+func TestUserManager_GetAdmins_Admins(t *testing.T) {
+	db := &FakeUserDatabase{
+		getAdminsUsers: []*ent.User{{}},
+		getAdminsError: nil,
+	}
+	admins, err := db.GetAdmins(context.Background())
+	assert.True(t, len(admins) == 1)
+	assert.True(t, err == nil)
 }

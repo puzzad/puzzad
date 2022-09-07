@@ -32,6 +32,8 @@ type User struct {
 	Passhash string `json:"passhash,omitempty"`
 	// Status holds the value of the "status" field.
 	Status user.Status `json:"status,omitempty"`
+	// Admin holds the value of the "admin" field.
+	Admin bool `json:"admin,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges      UserEdges `json:"edges"`
@@ -61,6 +63,8 @@ func (*User) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case user.FieldAdmin:
+			values[i] = new(sql.NullBool)
 		case user.FieldID:
 			values[i] = new(sql.NullInt64)
 		case user.FieldVerifyCode, user.FieldResetCode, user.FieldEmail, user.FieldPasshash, user.FieldStatus:
@@ -138,6 +142,12 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				u.Status = user.Status(value.String)
 			}
+		case user.FieldAdmin:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field admin", values[i])
+			} else if value.Valid {
+				u.Admin = value.Bool
+			}
 		case user.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field guess_team", value)
@@ -201,6 +211,9 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", u.Status))
+	builder.WriteString(", ")
+	builder.WriteString("admin=")
+	builder.WriteString(fmt.Sprintf("%v", u.Admin))
 	builder.WriteByte(')')
 	return builder.String()
 }

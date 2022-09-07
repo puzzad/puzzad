@@ -125,6 +125,20 @@ func (uc *UserCreate) SetNillableStatus(u *user.Status) *UserCreate {
 	return uc
 }
 
+// SetAdmin sets the "admin" field.
+func (uc *UserCreate) SetAdmin(b bool) *UserCreate {
+	uc.mutation.SetAdmin(b)
+	return uc
+}
+
+// SetNillableAdmin sets the "admin" field if the given value is not nil.
+func (uc *UserCreate) SetNillableAdmin(b *bool) *UserCreate {
+	if b != nil {
+		uc.SetAdmin(*b)
+	}
+	return uc
+}
+
 // AddGameIDs adds the "game" edge to the Game entity by IDs.
 func (uc *UserCreate) AddGameIDs(ids ...int) *UserCreate {
 	uc.mutation.AddGameIDs(ids...)
@@ -245,6 +259,10 @@ func (uc *UserCreate) defaults() {
 		v := user.DefaultStatus
 		uc.mutation.SetStatus(v)
 	}
+	if _, ok := uc.mutation.Admin(); !ok {
+		v := user.DefaultAdmin
+		uc.mutation.SetAdmin(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -277,6 +295,9 @@ func (uc *UserCreate) check() error {
 		if err := user.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "User.status": %w`, err)}
 		}
+	}
+	if _, ok := uc.mutation.Admin(); !ok {
+		return &ValidationError{Name: "admin", err: errors.New(`ent: missing required field "User.admin"`)}
 	}
 	return nil
 }
@@ -368,6 +389,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldStatus,
 		})
 		_node.Status = value
+	}
+	if value, ok := uc.mutation.Admin(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldAdmin,
+		})
+		_node.Admin = value
 	}
 	if nodes := uc.mutation.GameIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
