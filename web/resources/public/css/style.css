@@ -43,6 +43,8 @@ form {
 form > label  {
     grid-column: labels;
     grid-row: auto;
+    justify-self: right;
+    align-self: center;
 }
 form > input,
 form > textarea,
