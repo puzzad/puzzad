@@ -82,6 +82,12 @@ var (
 	DefaultVerifyCode func() string
 	// DefaultVerifyExpiry holds the default value on creation for the "verifyExpiry" field.
 	DefaultVerifyExpiry func() time.Time
+	// DefaultResetCode holds the default value on creation for the "resetCode" field.
+	DefaultResetCode string
+	// DefaultResetExpiry holds the default value on creation for the "resetExpiry" field.
+	DefaultResetExpiry time.Time
+	// DefaultPasshash holds the default value on creation for the "passhash" field.
+	DefaultPasshash string
 )
 
 // Status defines the type for the "status" enum field.

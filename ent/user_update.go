@@ -63,9 +63,25 @@ func (uu *UserUpdate) SetResetCode(s string) *UserUpdate {
 	return uu
 }
 
+// SetNillableResetCode sets the "resetCode" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableResetCode(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetResetCode(*s)
+	}
+	return uu
+}
+
 // SetResetExpiry sets the "resetExpiry" field.
 func (uu *UserUpdate) SetResetExpiry(t time.Time) *UserUpdate {
 	uu.mutation.SetResetExpiry(t)
+	return uu
+}
+
+// SetNillableResetExpiry sets the "resetExpiry" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableResetExpiry(t *time.Time) *UserUpdate {
+	if t != nil {
+		uu.SetResetExpiry(*t)
+	}
 	return uu
 }
 
@@ -78,6 +94,14 @@ func (uu *UserUpdate) SetEmail(s string) *UserUpdate {
 // SetPasshash sets the "passhash" field.
 func (uu *UserUpdate) SetPasshash(s string) *UserUpdate {
 	uu.mutation.SetPasshash(s)
+	return uu
+}
+
+// SetNillablePasshash sets the "passhash" field if the given value is not nil.
+func (uu *UserUpdate) SetNillablePasshash(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetPasshash(*s)
+	}
 	return uu
 }
 
@@ -380,9 +404,25 @@ func (uuo *UserUpdateOne) SetResetCode(s string) *UserUpdateOne {
 	return uuo
 }
 
+// SetNillableResetCode sets the "resetCode" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableResetCode(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetResetCode(*s)
+	}
+	return uuo
+}
+
 // SetResetExpiry sets the "resetExpiry" field.
 func (uuo *UserUpdateOne) SetResetExpiry(t time.Time) *UserUpdateOne {
 	uuo.mutation.SetResetExpiry(t)
+	return uuo
+}
+
+// SetNillableResetExpiry sets the "resetExpiry" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableResetExpiry(t *time.Time) *UserUpdateOne {
+	if t != nil {
+		uuo.SetResetExpiry(*t)
+	}
 	return uuo
 }
 
@@ -395,6 +435,14 @@ func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
 // SetPasshash sets the "passhash" field.
 func (uuo *UserUpdateOne) SetPasshash(s string) *UserUpdateOne {
 	uuo.mutation.SetPasshash(s)
+	return uuo
+}
+
+// SetNillablePasshash sets the "passhash" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillablePasshash(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetPasshash(*s)
+	}
 	return uuo
 }
 

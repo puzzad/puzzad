@@ -101,10 +101,10 @@ var (
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "verify_code", Type: field.TypeString, Unique: true},
 		{Name: "verify_expiry", Type: field.TypeTime},
-		{Name: "reset_code", Type: field.TypeString},
+		{Name: "reset_code", Type: field.TypeString, Default: ""},
 		{Name: "reset_expiry", Type: field.TypeTime},
 		{Name: "email", Type: field.TypeString, Unique: true},
-		{Name: "passhash", Type: field.TypeString},
+		{Name: "passhash", Type: field.TypeString, Default: ""},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"Unverified", "Verified", "Disabled"}, Default: "Unverified"},
 		{Name: "guess_team", Type: field.TypeInt, Nullable: true},
 	}

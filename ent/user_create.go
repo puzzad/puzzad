@@ -69,9 +69,25 @@ func (uc *UserCreate) SetResetCode(s string) *UserCreate {
 	return uc
 }
 
+// SetNillableResetCode sets the "resetCode" field if the given value is not nil.
+func (uc *UserCreate) SetNillableResetCode(s *string) *UserCreate {
+	if s != nil {
+		uc.SetResetCode(*s)
+	}
+	return uc
+}
+
 // SetResetExpiry sets the "resetExpiry" field.
 func (uc *UserCreate) SetResetExpiry(t time.Time) *UserCreate {
 	uc.mutation.SetResetExpiry(t)
+	return uc
+}
+
+// SetNillableResetExpiry sets the "resetExpiry" field if the given value is not nil.
+func (uc *UserCreate) SetNillableResetExpiry(t *time.Time) *UserCreate {
+	if t != nil {
+		uc.SetResetExpiry(*t)
+	}
 	return uc
 }
 
@@ -84,6 +100,14 @@ func (uc *UserCreate) SetEmail(s string) *UserCreate {
 // SetPasshash sets the "passhash" field.
 func (uc *UserCreate) SetPasshash(s string) *UserCreate {
 	uc.mutation.SetPasshash(s)
+	return uc
+}
+
+// SetNillablePasshash sets the "passhash" field if the given value is not nil.
+func (uc *UserCreate) SetNillablePasshash(s *string) *UserCreate {
+	if s != nil {
+		uc.SetPasshash(*s)
+	}
 	return uc
 }
 
@@ -204,6 +228,18 @@ func (uc *UserCreate) defaults() {
 	if _, ok := uc.mutation.VerifyExpiry(); !ok {
 		v := user.DefaultVerifyExpiry()
 		uc.mutation.SetVerifyExpiry(v)
+	}
+	if _, ok := uc.mutation.ResetCode(); !ok {
+		v := user.DefaultResetCode
+		uc.mutation.SetResetCode(v)
+	}
+	if _, ok := uc.mutation.ResetExpiry(); !ok {
+		v := user.DefaultResetExpiry
+		uc.mutation.SetResetExpiry(v)
+	}
+	if _, ok := uc.mutation.Passhash(); !ok {
+		v := user.DefaultPasshash
+		uc.mutation.SetPasshash(v)
 	}
 	if _, ok := uc.mutation.Status(); !ok {
 		v := user.DefaultStatus

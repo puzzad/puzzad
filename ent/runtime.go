@@ -49,4 +49,16 @@ func init() {
 	userDescVerifyExpiry := userFields[1].Descriptor()
 	// user.DefaultVerifyExpiry holds the default value on creation for the verifyExpiry field.
 	user.DefaultVerifyExpiry = userDescVerifyExpiry.Default.(func() time.Time)
+	// userDescResetCode is the schema descriptor for resetCode field.
+	userDescResetCode := userFields[2].Descriptor()
+	// user.DefaultResetCode holds the default value on creation for the resetCode field.
+	user.DefaultResetCode = userDescResetCode.Default.(string)
+	// userDescResetExpiry is the schema descriptor for resetExpiry field.
+	userDescResetExpiry := userFields[3].Descriptor()
+	// user.DefaultResetExpiry holds the default value on creation for the resetExpiry field.
+	user.DefaultResetExpiry = userDescResetExpiry.Default.(time.Time)
+	// userDescPasshash is the schema descriptor for passhash field.
+	userDescPasshash := userFields[5].Descriptor()
+	// user.DefaultPasshash holds the default value on creation for the passhash field.
+	user.DefaultPasshash = userDescPasshash.Default.(string)
 }
