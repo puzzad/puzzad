@@ -8,7 +8,7 @@
         To start your adventure, you'll need to get the team code from the account owner and enter it below:
     </p>
     <form hx-post="/play" hx-disable-element="#submit">
-        <label>Team Code: <input type="email" name="email" placeholder="" required></label>
+        <label for="code">Team Code: </label><input type="text" id="code" name="code" placeholder="" required>
         <button id="submit" type="submit">Join Adventure</button>
     </form>
 </article>
