@@ -1,7 +1,25 @@
+:root {
+    --background-colour: #fcfcfc;
+    --foreground-colour: #1c1c1c;
+    --input-color: black;
+    --input-border: #d6d6d6;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-colour: #1c1c1c;
+        --foreground-colour: #d6d6d6;
+        --input-background: #333333;
+        --input-color: #d6d6d6;
+        --input-border: #5b5b5b;
+    }
+}
 *, *:before, *:after {
     box-sizing: border-box;
 }
 body {
+    background:  var(--background-colour);
+    color: var(--foreground-colour);
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -56,4 +74,10 @@ form > textarea,
 form > button {
     grid-column: controls;
     grid-row: auto;
+    background-color: var(--input-background);
+    color: var(--input-color);
+    border: 1px solid var(--input-border);
+}
+a {
+    color: var(--foreground-colour);
 }
