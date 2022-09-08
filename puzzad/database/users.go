@@ -22,10 +22,11 @@ var (
 	SmtpFrom     = flag.String("smtp_from", "", "SMTP From address")
 )
 
-func (db *DBClient) CreateUser(ctx context.Context, email string) (*ent.User, error) {
+func (db *DBClient) CreateUser(ctx context.Context, email, hash string) (*ent.User, error) {
 	return db.entclient.User.
 		Create().
 		SetEmail(email).
+		SetPasshash(hash).
 		Save(ctx)
 }
 
@@ -36,16 +37,8 @@ func (db *DBClient) GetUser(ctx context.Context, email string) (*ent.User, error
 		Only(ctx)
 }
 
-func (db *DBClient) GetOrCreateUser(ctx context.Context, email string) (*ent.User, error) {
-	u, err := db.GetUser(ctx, email)
-	if ent.IsNotFound(err) {
-		return db.CreateUser(ctx, email)
-	}
-	return u, err
-}
-
 func (db *DBClient) GenerateVerificationCode(ctx context.Context, email string) (string, error) {
-	u, err := db.GetOrCreateUser(ctx, email)
+	u, err := db.GetUser(ctx, email)
 	if err != nil {
 		return "", err
 	}
@@ -110,15 +103,20 @@ func (db *DBClient) SendValidationEmail(_ context.Context, e *ent.User) error {
 	return nil
 }
 
-func (db *DBClient) GetAdmins(ctx context.Context) ([]*ent.User, error) {
-	users, err := db.entclient.User.Query().Where(user.Admin(true)).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return users, nil
+func (db *DBClient) HasAdmins(ctx context.Context) (bool, error) {
+	return db.entclient.User.Query().Where(user.Admin(true)).Exist(ctx)
 }
 
-func (db *DBClient) SetAdmin(ctx context.Context, u *ent.User, b bool) error {
-	_, err := db.entclient.User.UpdateOne(u).SetAdmin(b).Save(ctx)
+func (db *DBClient) SetAdmin(ctx context.Context, u *ent.User, admin bool) error {
+	_, err := db.entclient.User.UpdateOne(u).
+		SetAdmin(admin).
+		Save(ctx)
+	return err
+}
+
+func (db *DBClient) SetStatus(ctx context.Context, u *ent.User, status user.Status) error {
+	_, err := db.entclient.User.UpdateOne(u).
+		SetStatus(status).
+		Save(ctx)
 	return err
 }

@@ -4,11 +4,9 @@ import (
 	"context"
 	"crypto/rand"
 	"embed"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"html/template"
-	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -23,6 +21,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
 	"github.com/golangcollege/sessions"
+	"github.com/greboid/puzzad/puzzad"
 	"github.com/greboid/puzzad/puzzad/database"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -35,17 +34,13 @@ type Webserver struct {
 	handler     *http.Server
 	router      *chi.Mux
 	log         *zerolog.Logger
-	Client      *database.DBClient
 	sessionSore *sessions.Session
 	static      http.Handler
 	templates   *template.Template
 	watcher     *fsnotify.Watcher
-}
 
-type Login struct {
-	Code     string
-	Username string
-	Password string
+	Client      *database.DBClient
+	UserManager *puzzad.UserManager
 }
 
 func (web *Webserver) Init(port int, log *zerolog.Logger) {
@@ -167,17 +162,26 @@ func (web *Webserver) handleValidate(writer http.ResponseWriter, request *http.R
 }
 
 func (web *Webserver) handleLogin(writer http.ResponseWriter, request *http.Request) {
-	data := &Login{}
-	bytes, err := io.ReadAll(request.Body)
+	username := request.FormValue("username")
+	password := request.FormValue("password")
+
+	user, err := web.UserManager.Authenticate(request.Context(), username, password)
 	if err != nil {
+		// TODO: Make these errors work in a way htmx will display
+		if errors.Is(err, puzzad.ErrBadUsernameOrPassword) {
+			http.Error(writer, "Invalid username or password", http.StatusUnauthorized)
+		} else if errors.Is(err, puzzad.ErrAccountDisabled) {
+			http.Error(writer, "Account disabled", http.StatusUnauthorized)
+		} else if errors.Is(err, puzzad.ErrAccountUnverified) {
+			http.Error(writer, "Account unverified", http.StatusUnauthorized)
+		} else {
+			http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		}
 		return
 	}
-	err = json.Unmarshal(bytes, data)
-	if err != nil {
-		return
-	}
-	log.Debug().Str("username", data.Username).Msg("Adding Auth: ")
-	web.sessionSore.Put(request, "username", data.Username)
+
+	log.Debug().Str("username", username).Msg("Adding Auth: ")
+	web.sessionSore.Put(request, "username", user.Email)
 	if request.Header.Get("HX-Request") != "" {
 		writer.Header().Set("HX-Redirect", "index.html")
 		writer.WriteHeader(http.StatusTemporaryRedirect)
