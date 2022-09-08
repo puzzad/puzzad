@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/mail"
 	"time"
 
 	"github.com/greboid/puzzad/ent"
@@ -15,14 +16,20 @@ var (
 	ErrBadUsernameOrPassword = errors.New("invalid username or password")
 	ErrAccountDisabled       = errors.New("account is disabled")
 	ErrAccountUnverified     = errors.New("account is unverified")
+	ErrBadEmailAddress       = errors.New("invalid e-mail address")
 )
 
 type UserDatabase interface {
+	HasAdmins(ctx context.Context) (bool, error)
+
+	CreateUser(ctx context.Context, email, hash string) (*ent.User, error)
 	GetUser(ctx context.Context, email string) (*ent.User, error)
-	GetAdmins(ctx context.Context) ([]*ent.User, error)
+	SetPassword(ctx context.Context, u *ent.User, hash string) error
+	SetAdmin(ctx context.Context, u *ent.User, admin bool) error
+	SetStatus(ctx context.Context, u *ent.User, status user.Status) error
+
 	GeneratePasswordResetCode(ctx context.Context, u *ent.User) (string, error)
 	InvalidatePasswordResetCode(ctx context.Context, u *ent.User) error
-	SetPassword(ctx context.Context, u *ent.User, hash string) error
 }
 
 type UserMailer interface {
@@ -34,13 +41,55 @@ type UserManager struct {
 	m  UserMailer
 }
 
-// CheckAdminExists checks if at least one admin user is present in the database
-func (um *UserManager) CheckAdminExists(ctx context.Context) (bool, error) {
-	admins, err := um.db.GetAdmins(ctx)
-	if err != nil {
-		return false, err
+func NewUserManager(db UserDatabase, mailer UserMailer) *UserManager {
+	return &UserManager{
+		db: db,
+		m:  mailer,
 	}
-	return len(admins) > 0, nil
+}
+
+// EnsureAdminExists checks if there is at least one admin user, and if not creates a new one with the given
+// email and password combination.
+func (um *UserManager) EnsureAdminExists(ctx context.Context, defaultEmail, defaultPassword string) error {
+	exists, err := um.db.HasAdmins(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to query admin users: %w", err)
+	}
+
+	if exists {
+		log.Debug().Msg("There are existing admin users, not creating default.")
+		return nil
+	}
+
+	if err := validateEmailAddress(defaultEmail); err != nil {
+		return fmt.Errorf("no admin user exists and invalid admin e-mail address supplied: %s (%w)", defaultEmail, err)
+	}
+
+	// TODO: Use proper password validation logic when we have it
+	if len(defaultPassword) == 0 {
+		return fmt.Errorf("no admin user exists and no default admin password supplied")
+	}
+
+	hash, err := GetHash(defaultPassword)
+	if err != nil {
+		return fmt.Errorf("failed to create hash: %w", err)
+	}
+
+	u, err := um.db.CreateUser(ctx, defaultEmail, hash)
+	if err != nil {
+		return fmt.Errorf("failed to create admin user: %w", err)
+	}
+
+	if err := um.db.SetAdmin(ctx, u, true); err != nil {
+		return fmt.Errorf("failed to set admin status: %w", err)
+	}
+
+	if err := um.db.SetStatus(ctx, u, user.StatusVerified); err != nil {
+		return fmt.Errorf("failed to set admin account to verified: %w", err)
+	}
+
+	log.Info().Msgf("Created new admin user: %s", defaultEmail)
+	return nil
 }
 
 // Authenticate attempts to validate the given email and password combination, returning the corresponding user
@@ -145,4 +194,20 @@ func (um *UserManager) FinishPasswordReset(ctx context.Context, email, code, pas
 	}
 
 	return true, nil
+}
+
+func validateEmailAddress(email string) error {
+	parsed, err := mail.ParseAddress(email)
+
+	// We outright can't parse it
+	if err != nil {
+		return ErrBadEmailAddress
+	}
+
+	// The input must have contained some other gunk like a random name before the address.
+	if parsed.Address != email {
+		return ErrBadEmailAddress
+	}
+
+	return nil
 }

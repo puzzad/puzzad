@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"net/mail"
 	"os"
 
 	"github.com/csmith/envflag"
@@ -32,43 +31,18 @@ func main() {
 	defer func() {
 		_ = client.Close()
 	}()
-	go func() {
-		ctx := context.Background()
-		// TODO: This should use the user manager
-		admins, err := client.GetAdmins(ctx)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Unable to check if admins exist")
-		}
-		if len(admins) == 0 {
-			log.Info().Str("email", *AdminEmail).Msg("Creating initial admin user.")
-			_, err = mail.ParseAddress(*AdminEmail)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Admin email must be valid")
-			}
-			if len(*AdminPassword) == 0 {
-				log.Fatal().Err(err).Msg("Unable to hash admin password, not set")
-			}
-			passHash, err := puzzad.GetHash(*AdminPassword)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Unable to hash admin password")
-			}
-			user, err := client.CreateUser(ctx, *AdminEmail)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Unable to create admin user")
-			}
-			err = client.SetPassword(ctx, user, passHash)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Unable to set admin password")
-			}
-			err = client.SetAdmin(ctx, user, true)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Unable to set user as admin")
-			}
-		}
-	}()
-	server := web.Webserver{
-		Client: client,
+
+	userManager := puzzad.NewUserManager(client, nil)
+
+	if err := userManager.EnsureAdminExists(context.Background(), *AdminEmail, *AdminPassword); err != nil {
+		log.Fatal().Err(err).Msg("Unable to create default admin account")
 	}
+
+	server := web.Webserver{
+		Client:      client,
+		UserManager: userManager,
+	}
+
 	server.Init(*WebPort, logger)
 	log.Info().Int("port", *WebPort).Msg("Starting web server.")
 	err = server.RunAndWait()
