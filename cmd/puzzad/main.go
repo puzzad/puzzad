@@ -18,6 +18,12 @@ var (
 	Debug         = flag.Bool("debug", true, "Enable debug logging")
 	AdminEmail    = flag.String("admin-email", "", "Default admin email, only used if at least one admin does not exist, must be accompanied by admin-password")
 	AdminPassword = flag.String("admin-password", "", "Default admin password, only used if at least one admin does not exist, must be accompanied by admin-email")
+
+	SmtpUser     = flag.String("smtp_user", "", "SMTP Username")
+	SmtpPassword = flag.String("smtp_password", "", "SMTP Password")
+	SmtpServer   = flag.String("smtp_server", "", "SMTP Server")
+	SmtpPort     = flag.Int("smtp_port", 25, "SMTP Server port")
+	SmtpFrom     = flag.String("smtp_from", "", "SMTP From address")
 )
 
 func main() {
@@ -31,8 +37,14 @@ func main() {
 	defer func() {
 		_ = client.Close()
 	}()
-
-	userManager := puzzad.NewUserManager(client, nil)
+	mailer := &puzzad.MailClient{
+		SMTPUser:     *SmtpUser,
+		SMTPPassword: *SmtpPassword,
+		SMTPServer:   *SmtpServer,
+		SMTPPort:     *SmtpPort,
+		SMTPFrom:     *SmtpFrom,
+	}
+	userManager := puzzad.NewUserManager(client, mailer)
 
 	if err := userManager.EnsureAdminExists(context.Background(), *AdminEmail, *AdminPassword); err != nil {
 		log.Fatal().Err(err).Msg("Unable to create default admin account")
