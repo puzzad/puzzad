@@ -169,19 +169,14 @@ func (web *Webserver) handleLogin(writer http.ResponseWriter, request *http.Requ
 
 	user, err := web.UserManager.Authenticate(request.Context(), username, password)
 	if err != nil {
-		// TODO: Make these a template
 		if errors.Is(err, puzzad.ErrBadUsernameOrPassword) {
-			_, _ = writer.Write([]byte("<div id=\"error\" hx-swap-oob=\"true\"><p>Invalid username or password</p></div>"))
-			http.Error(writer, "Invalid username or password", http.StatusUnauthorized)
+			outputError(web.templates, writer, http.StatusUnauthorized, "Invalid username or password")
 		} else if errors.Is(err, puzzad.ErrAccountDisabled) {
-			_, _ = writer.Write([]byte("<div id=\"error\" hx-swap-oob=\"true\"><p>Account disabled</p></div>"))
-			http.Error(writer, "Account disabled", http.StatusUnauthorized)
+			outputError(web.templates, writer, http.StatusUnauthorized, "Account disabled")
 		} else if errors.Is(err, puzzad.ErrAccountUnverified) {
-			_, _ = writer.Write([]byte("<div id=\"error\" hx-swap-oob=\"true\"><p>Account unverified</p></div>"))
-			http.Error(writer, "Account unverified", http.StatusUnauthorized)
+			outputError(web.templates, writer, http.StatusUnauthorized, "Account unverified")
 		} else {
-			_, _ = writer.Write([]byte("<div id=\"error\" hx-swap-oob=\"true\"><p>Internal Server Error</p></div>"))
-			http.Error(writer, "Internal server error", http.StatusInternalServerError)
+			outputError(web.templates, writer, http.StatusInternalServerError, "Internal server error")
 		}
 		return
 	}
@@ -280,4 +275,12 @@ func randomByte(length int) []byte {
 		return nil
 	}
 	return key
+}
+
+func outputError(t *template.Template, writer http.ResponseWriter, code int, message string) {
+	err := t.ExecuteTemplate(writer, "error.gohtml", message)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to serve error page")
+	}
+	http.Error(writer, message, code)
 }
