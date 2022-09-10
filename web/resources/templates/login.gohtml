@@ -5,7 +5,8 @@
 {{ template "menu.gohtml" . }}
 <article>
     <p>If you don't already have an account, you will need to <a href="/register">register</a> before signing in.</p>
-    <form hx-post="/login" hx-disable-element="#submit">
+    <div id="error"></div>
+    <form hx-post="/login" hx-disable-element="#submit" hx-swap="none">
         <label for="username">Email: </label><input type="email" id="username" name="username" placeholder="user@example.com" required>
         <label for="password">Password: </label><input type="password" id="password" name="password" required>
         <button id="submit" type="submit">Login</button>

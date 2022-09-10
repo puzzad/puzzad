@@ -136,6 +136,8 @@ func (web *Webserver) addRoutes() {
 	web.router.Post("/register", web.handleRegister)
 	web.router.Get("/login", web.handleTemplate("login"))
 	web.router.Post("/login", web.handleLogin)
+	// TODO: Handle this better?
+	web.router.Get("/logout", web.handleLogout)
 	web.router.Post("/logout", web.handleLogout)
 	web.router.Get("/passreset", web.handleTemplate("passreset"))
 	web.router.Post("/passreset", func(writer http.ResponseWriter, request *http.Request) {
@@ -167,14 +169,18 @@ func (web *Webserver) handleLogin(writer http.ResponseWriter, request *http.Requ
 
 	user, err := web.UserManager.Authenticate(request.Context(), username, password)
 	if err != nil {
-		// TODO: Make these errors work in a way htmx will display
+		// TODO: Make these a template
 		if errors.Is(err, puzzad.ErrBadUsernameOrPassword) {
+			_, _ = writer.Write([]byte("<div id=\"error\" hx-swap-oob=\"true\"><p>Invalid username or password</p></div>"))
 			http.Error(writer, "Invalid username or password", http.StatusUnauthorized)
 		} else if errors.Is(err, puzzad.ErrAccountDisabled) {
+			_, _ = writer.Write([]byte("<div id=\"error\" hx-swap-oob=\"true\"><p>Account disabled</p></div>"))
 			http.Error(writer, "Account disabled", http.StatusUnauthorized)
 		} else if errors.Is(err, puzzad.ErrAccountUnverified) {
+			_, _ = writer.Write([]byte("<div id=\"error\" hx-swap-oob=\"true\"><p>Account unverified</p></div>"))
 			http.Error(writer, "Account unverified", http.StatusUnauthorized)
 		} else {
+			_, _ = writer.Write([]byte("<div id=\"error\" hx-swap-oob=\"true\"><p>Internal Server Error</p></div>"))
 			http.Error(writer, "Internal server error", http.StatusInternalServerError)
 		}
 		return

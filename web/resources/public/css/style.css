@@ -3,6 +3,8 @@
     --foreground-colour: #1c1c1c;
     --input-color: black;
     --input-border: #d6d6d6;
+    --background-error: #f26161;
+    --foreground-error: #000000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -12,6 +14,8 @@
         --input-background: #333333;
         --input-color: #d6d6d6;
         --input-border: #5b5b5b;
+        --background-error: #9d0000;
+        --foreground-error: #ffffff;
     }
 }
 *, *:before, *:after {
@@ -80,4 +84,10 @@ form > button {
 }
 a {
     color: var(--foreground-colour);
+}
+div#error p {
+    margin: 0.5em 0;
+    padding: 0.5em;
+    background: var(--background-error);
+    color: var(--foreground-error);
 }
