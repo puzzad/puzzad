@@ -23,6 +23,10 @@ type FakeUserDatabase struct {
 	generateCodeUser     *ent.User
 	generateCodeError    error
 
+	verifyValidateCode      string
+	verifyValidateCodeUser  *ent.User
+	verifyValidateCodeError error
+
 	invalidateCodeUser  *ent.User
 	invalidateCodeError error
 
@@ -49,6 +53,11 @@ func (f *FakeUserDatabase) HasAdmins(_ context.Context) (bool, error) {
 func (f *FakeUserDatabase) GeneratePasswordResetCode(_ context.Context, u *ent.User) (string, error) {
 	f.generateCodeUser = u
 	return f.generateCodeResponse, f.generateCodeError
+}
+
+func (f *FakeUserDatabase) VerifyPasswordCode(_ context.Context, code string) (*ent.User, error) {
+	f.verifyValidateCode = code
+	return f.verifyValidateCodeUser, f.verifyValidateCodeError
 }
 
 func (f *FakeUserDatabase) InvalidatePasswordResetCode(_ context.Context, u *ent.User) error {
@@ -87,6 +96,10 @@ type FakeUserMailer struct {
 	passwordResetError error
 	passwordResetEmail string
 	passwordResetCode  string
+}
+
+func (f *FakeUserMailer) SendEmailVerifyLink(ctx context.Context, email string, code string) error {
+	panic("implement me")
 }
 
 func (f *FakeUserMailer) SendPasswordResetLink(_ context.Context, email string, code string) error {
@@ -256,14 +269,27 @@ func TestUserManager_StartPasswordReset_returnsNilOnSuccess(t *testing.T) {
 	assert.NoError(t, err, "should not return an error")
 }
 
-func TestUserManager_FinishPasswordReset_returnsFalseIfUserNotFound(t *testing.T) {
+func TestUserManager_FinishPasswordReset_returnsFalseIfCodeZeroLength(t *testing.T) {
 	db := &FakeUserDatabase{
-		getUserError: &ent.NotFoundError{},
+		verifyValidateCodeError: nil,
 	}
 
 	manager := &UserManager{db: db}
 
-	ok, err := manager.FinishPasswordReset(context.Background(), "em@il", "code", "newpassword")
+	ok, err := manager.FinishPasswordReset(context.Background(), "", "newpassword")
+	assert.False(t, ok)
+	assert.NoError(t, err)
+	assert.Nil(t, db.invalidateCodeUser, "should not try to invalidate code")
+}
+
+func TestUserManager_FinishPasswordReset_returnsFalseIfCodeNotFound(t *testing.T) {
+	db := &FakeUserDatabase{
+		verifyValidateCodeError: &ent.NotFoundError{},
+	}
+
+	manager := &UserManager{db: db}
+
+	ok, err := manager.FinishPasswordReset(context.Background(), "code", "newpassword")
 	assert.False(t, ok)
 	assert.NoError(t, err)
 	assert.Nil(t, db.invalidateCodeUser, "should not try to invalidate code")
@@ -276,7 +302,7 @@ func TestUserManager_FinishPasswordReset_returnsFalseIfResetCodeIsEmpty(t *testi
 
 	manager := &UserManager{db: db}
 
-	ok, err := manager.FinishPasswordReset(context.Background(), "em@il", "", "newpassword")
+	ok, err := manager.FinishPasswordReset(context.Background(), "", "newpassword")
 	assert.False(t, ok)
 	assert.NoError(t, err)
 	assert.Nil(t, db.invalidateCodeUser, "should not try to invalidate code")
@@ -284,12 +310,12 @@ func TestUserManager_FinishPasswordReset_returnsFalseIfResetCodeIsEmpty(t *testi
 
 func TestUserManager_FinishPasswordReset_returnsFalseIfResetCodeDoesNotMatch(t *testing.T) {
 	db := &FakeUserDatabase{
-		getUserResponse: &ent.User{ResetCode: "123"},
+		verifyValidateCodeUser: &ent.User{ResetCode: "123"},
 	}
 
 	manager := &UserManager{db: db}
 
-	ok, err := manager.FinishPasswordReset(context.Background(), "em@il", "456", "newpassword")
+	ok, err := manager.FinishPasswordReset(context.Background(), "456", "newpassword")
 	assert.False(t, ok)
 	assert.NoError(t, err)
 	assert.Nil(t, db.invalidateCodeUser, "should not try to invalidate code")
@@ -297,12 +323,12 @@ func TestUserManager_FinishPasswordReset_returnsFalseIfResetCodeDoesNotMatch(t *
 
 func TestUserManager_FinishPasswordReset_returnsFalseIfResetCodeHasExpired(t *testing.T) {
 	db := &FakeUserDatabase{
-		getUserResponse: &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(-time.Hour)},
+		verifyValidateCodeUser: &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(-time.Hour)},
 	}
 
 	manager := &UserManager{db: db}
 
-	ok, err := manager.FinishPasswordReset(context.Background(), "em@il", "123", "newpassword")
+	ok, err := manager.FinishPasswordReset(context.Background(), "123", "newpassword")
 	assert.False(t, ok)
 	assert.NoError(t, err, "should not return an error")
 	assert.Nil(t, db.invalidateCodeUser, "should not try to invalidate code")
@@ -310,21 +336,22 @@ func TestUserManager_FinishPasswordReset_returnsFalseIfResetCodeHasExpired(t *te
 
 func TestUserManager_FinishPasswordReset_returnsErrorIfInvalidationFails(t *testing.T) {
 	db := &FakeUserDatabase{
-		getUserResponse:     &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(time.Hour)},
-		invalidateCodeError: fmt.Errorf("whelp"),
+		verifyValidateCodeUser: &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(time.Hour)},
+		invalidateCodeError:    fmt.Errorf("whelp"),
 	}
 
 	manager := &UserManager{db: db}
 
-	ok, err := manager.FinishPasswordReset(context.Background(), "em@il", "123", "newpassword")
+	ok, err := manager.FinishPasswordReset(context.Background(), "123", "newpassword")
 	assert.False(t, ok)
 	assert.Error(t, err)
-	assert.Equal(t, db.getUserResponse, db.invalidateCodeUser, "should try to invalidate code")
+	assert.Equal(t, db.verifyValidateCodeUser, db.invalidateCodeUser, "should try to invalidate code")
 }
 
 func TestUserManager_FinishPasswordReset_returnsErrorIfHashingFails(t *testing.T) {
 	db := &FakeUserDatabase{
-		getUserResponse: &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(time.Hour)},
+		verifyValidateCodeUser: &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(time.Hour)},
+		invalidateCodeUser:     &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(time.Hour)},
 	}
 
 	manager := &UserManager{db: db}
@@ -337,25 +364,26 @@ func TestUserManager_FinishPasswordReset_returnsErrorIfHashingFails(t *testing.T
 	}()
 	rand.Reader = iotest.ErrReader(io.EOF)
 
-	ok, err := manager.FinishPasswordReset(context.Background(), "em@il", "123", "newpassword")
+	ok, err := manager.FinishPasswordReset(context.Background(), "123", "newpassword")
 	assert.False(t, ok)
 	assert.Error(t, err)
-	assert.Equal(t, db.getUserResponse, db.invalidateCodeUser, "should try to invalidate code")
+	assert.Equal(t, db.verifyValidateCodeUser, db.invalidateCodeUser, "should try to invalidate code")
 }
 
 func TestUserManager_FinishPasswordReset_returnsErrorIfSettingPasswordFails(t *testing.T) {
 	db := &FakeUserDatabase{
-		getUserResponse:  &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(time.Hour)},
-		setPasswordError: fmt.Errorf("oh noes"),
+		verifyValidateCodeUser: &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(time.Hour)},
+		invalidateCodeUser:     &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(time.Hour)},
+		setPasswordError:       fmt.Errorf("oh noes"),
 	}
 
 	manager := &UserManager{db: db}
 
-	ok, err := manager.FinishPasswordReset(context.Background(), "em@il", "123", "newpassword")
+	ok, err := manager.FinishPasswordReset(context.Background(), "123", "newpassword")
 	assert.False(t, ok)
 	assert.Error(t, err)
-	assert.Equal(t, db.getUserResponse, db.invalidateCodeUser, "should try to invalidate code")
-	assert.Equal(t, db.getUserResponse, db.setPasswordUser, "should try setting password")
+	assert.Equal(t, db.verifyValidateCodeUser, db.invalidateCodeUser, "should try to invalidate code")
+	assert.Equal(t, db.verifyValidateCodeUser, db.setPasswordUser, "should try setting password")
 
 	hashOk, _ := CheckHash("newpassword", db.setPasswordHash)
 	assert.True(t, hashOk, "password hash must match the given password")
@@ -363,16 +391,17 @@ func TestUserManager_FinishPasswordReset_returnsErrorIfSettingPasswordFails(t *t
 
 func TestUserManager_FinishPasswordReset_returnsTrueOnSuccess(t *testing.T) {
 	db := &FakeUserDatabase{
-		getUserResponse: &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(time.Hour)},
+		verifyValidateCodeUser: &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(time.Hour)},
+		invalidateCodeUser:     &ent.User{ResetCode: "123", ResetExpiry: time.Now().Add(time.Hour)},
 	}
 
 	manager := &UserManager{db: db}
 
-	ok, err := manager.FinishPasswordReset(context.Background(), "em@il", "123", "newpassword")
+	ok, err := manager.FinishPasswordReset(context.Background(), "123", "newpassword")
 	assert.True(t, ok)
 	assert.NoError(t, err)
-	assert.Equal(t, db.getUserResponse, db.invalidateCodeUser, "should try to invalidate code")
-	assert.Equal(t, db.getUserResponse, db.setPasswordUser, "should try setting password")
+	assert.Equal(t, db.verifyValidateCodeUser, db.invalidateCodeUser, "should try to invalidate code")
+	assert.Equal(t, db.verifyValidateCodeUser, db.setPasswordUser, "should try setting password")
 
 	hashOk, _ := CheckHash("newpassword", db.setPasswordHash)
 	assert.True(t, hashOk, "password hash must match the given password")

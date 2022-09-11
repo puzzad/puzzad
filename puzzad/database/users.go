@@ -5,9 +5,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/greboid/puzzad/ent/user"
-
 	"github.com/greboid/puzzad/ent"
+	"github.com/greboid/puzzad/ent/user"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -49,6 +48,11 @@ func (db *DBClient) GenerateVerificationCode(ctx context.Context, email string) 
 func (db *DBClient) VerifyVerificationCode(ctx context.Context, code string) (*ent.User, error) {
 	// TODO Should probably split this up to handle expired verify codes better
 	return db.entclient.User.Query().Where(user.And(user.VerifyCode(code), user.VerifyExpiryGT(time.Now()))).Only(ctx)
+}
+
+func (db *DBClient) VerifyPasswordCode(ctx context.Context, code string) (*ent.User, error) {
+	// TODO Should probably split this up to handle expired codes better
+	return db.entclient.User.Query().Where(user.ResetCode(code)).Only(ctx)
 }
 
 func (db *DBClient) InvalidateVerificationCode(ctx context.Context, u *ent.User) error {

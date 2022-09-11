@@ -8,7 +8,7 @@
         If you've been invited to play by someone else, you should follow the link they gave, or enter it <a href="/play">here</a>.
         Otherwise, if you're looking to register for some puzzling adventures and don't already have a team, you'll need to start the registration process below, you'll need to enter a valid email address below and we'll email over the next steps.
     </p>
-    <form hx-post="/register" hx-disable-element="#submit">
+    <form hx-post="/register" hx-disable-element="#submit" hx-swap="none">
         <label for="email">Email Address: </label><input type="email" id="email" name="email" placeholder="user@domain.tld" required>
         <label for="password">Password: </label><input type="password" id="password" name="password" placeholder="" required min="1">
         <button id="submit" type="submit">Register</button>

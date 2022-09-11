@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"crypto/rand"
 	"embed"
 	"errors"
 	"fmt"
@@ -141,9 +140,9 @@ func (web *Webserver) addRoutes() {
 	web.router.Get("/logout", web.handleLogout)
 	web.router.Post("/logout", web.handleLogout)
 	web.router.Get("/passreset", web.handleTemplate("passreset"))
-	web.router.Post("/passreset", func(writer http.ResponseWriter, request *http.Request) {
-		writer.WriteHeader(http.StatusInternalServerError)
-	})
+	web.router.Post("/passreset", web.handlePassReset)
+	web.router.Get("/setpass", web.handleTemplate("setpass"))
+	web.router.Post("/setpass", web.handleSetPass)
 	web.router.With(web.AdminOnly).Mount("/admin", web.adminRoutes())
 	web.router.Get("/validate", web.handleTemplate("validate"))
 	web.router.Post("/validate", web.handleValidate)
@@ -229,6 +228,37 @@ func (web *Webserver) handleRegister(writer http.ResponseWriter, request *http.R
 	}
 }
 
+func (web *Webserver) handlePassReset(writer http.ResponseWriter, request *http.Request) {
+	email := request.FormValue("email")
+	_ = web.UserManager.StartPasswordReset(request.Context(), email)
+	if request.Header.Get("HX-Request") != "" {
+		_, _ = writer.Write([]byte("<p>If an account exists for that email address, an email will arrive shortly with further instructions.</p>"))
+	} else {
+		http.Redirect(writer, request, "/", http.StatusTemporaryRedirect)
+	}
+}
+
+func (web *Webserver) handleSetPass(writer http.ResponseWriter, request *http.Request) {
+	code := request.FormValue("code")
+	password := request.FormValue("password")
+	confirm := request.FormValue("confirm")
+	if password != confirm {
+		outputError(web.templates, writer, http.StatusBadRequest, "passwords do not match")
+		return
+	}
+	success, _ := web.UserManager.FinishPasswordReset(request.Context(), code, password)
+	if !success {
+		outputError(web.templates, writer, http.StatusInternalServerError, "error resetting password")
+		return
+	}
+	if request.Header.Get("HX-Request") != "" {
+		writer.Header().Set("HX-Redirect", "/login")
+		writer.WriteHeader(http.StatusTemporaryRedirect)
+	} else {
+		http.Redirect(writer, request, "/login", http.StatusTemporaryRedirect)
+	}
+}
+
 func (web *Webserver) RunAndWait() error {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM)
@@ -305,16 +335,6 @@ func loggerMiddleware(logger *zerolog.Logger) func(next http.Handler) http.Handl
 			next.ServeHTTP(wrapper, r)
 		})
 	}
-}
-
-func randomByte(length int) []byte {
-	key := make([]byte, length)
-
-	_, err := rand.Read(key)
-	if err != nil {
-		return nil
-	}
-	return key
 }
 
 func outputError(t *template.Template, writer http.ResponseWriter, code int, message string) {

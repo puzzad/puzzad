@@ -1,0 +1,5 @@
+Thank you for choosing signing up to Puzzad.
+
+Please confirm that this is your email address by clicking on the button below or use this link {{ .URL }}/validate?code={{ .Code }} within 48 hours.
+
+Puzzad Team

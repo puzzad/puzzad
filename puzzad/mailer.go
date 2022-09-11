@@ -19,28 +19,41 @@ type MailClient struct {
 	SMTPServer   string
 	SMTPPort     int
 	SMTPFrom     string
-	ValidateURL  string
+	URL          string
 }
 
 type EmailData struct {
-	ValidateURL string
-	Code        string
-	Email       string
+	URL   string
+	Code  string
+	Email string
+}
+
+func (m *MailClient) SendEmailVerifyLink(_ context.Context, address string, code string) error {
+	data := EmailData{
+		URL:   m.URL,
+		Code:  code,
+		Email: address,
+	}
+	return m.sendEmail("verify", data)
 }
 
 func (m *MailClient) SendPasswordResetLink(_ context.Context, address string, code string) error {
 	data := EmailData{
-		ValidateURL: m.ValidateURL,
-		Code:        code,
-		Email:       address,
+		URL:   m.URL,
+		Code:  code,
+		Email: address,
 	}
+	return m.sendEmail("passreset", data)
+}
+
+func (m *MailClient) sendEmail(template string, data EmailData) error {
 	textData := bytes.NewBuffer(make([]byte, 0))
 	htmlData := bytes.NewBuffer(make([]byte, 0))
-	err := textTemplate.Must(textTemplate.New("plain.email").ParseFiles(filepath.Join("puzzad", "templates", "plain.email"))).Execute(textData, data)
+	err := textTemplate.Must(textTemplate.New(template+".txt").ParseFiles(filepath.Join("puzzad", "templates", template+".txt"))).Execute(textData, data)
 	if err != nil {
 		return err
 	}
-	err = htmlTemplate.Must(htmlTemplate.New("html.email").ParseFiles(filepath.Join("puzzad", "templates", "html.email"))).Execute(htmlData, data)
+	err = htmlTemplate.Must(htmlTemplate.New(template+".html").ParseFiles(filepath.Join("puzzad", "templates", template+".html"))).Execute(htmlData, data)
 	if err != nil {
 		return err
 	}

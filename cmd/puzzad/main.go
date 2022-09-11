@@ -45,7 +45,7 @@ func main() {
 		SMTPServer:   *SmtpServer,
 		SMTPPort:     *SmtpPort,
 		SMTPFrom:     *SmtpFrom,
-		ValidateURL:  *WebURL,
+		URL:          *WebURL,
 	}
 	userManager := puzzad.NewUserManager(client, mailer)
 

@@ -1,0 +1,3 @@
+Please follow this link to reset your password {{ .URL }}/setpass?code={{ .Code }} within 48 hours.
+
+Puzzad Team

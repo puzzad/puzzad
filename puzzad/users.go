@@ -33,10 +33,12 @@ type UserDatabase interface {
 	InvalidateVerificationCode(ctx context.Context, u *ent.User) error
 
 	GeneratePasswordResetCode(ctx context.Context, u *ent.User) (string, error)
+	VerifyPasswordCode(ctx context.Context, code string) (*ent.User, error)
 	InvalidatePasswordResetCode(ctx context.Context, u *ent.User) error
 }
 
 type UserMailer interface {
+	SendEmailVerifyLink(ctx context.Context, email string, code string) error
 	SendPasswordResetLink(ctx context.Context, email string, code string) error
 }
 
@@ -160,20 +162,20 @@ func (um *UserManager) StartPasswordReset(ctx context.Context, email string) err
 
 // FinishPasswordReset attempts to complete a password reset previously started using StartPasswordReset. If the user's
 // reset code is valid, the password will be set to the one provided.
-func (um *UserManager) FinishPasswordReset(ctx context.Context, email, code, password string) (bool, error) {
-	u, err := um.db.GetUser(ctx, email)
-	if err != nil {
-		log.Info().Err(err).Msgf("Password reset failed for user '%s': could not retrieve user", email)
+func (um *UserManager) FinishPasswordReset(ctx context.Context, code, password string) (bool, error) {
+	if len(code) == 0 {
+		log.Info().Msgf("Password reset failed for code %s: invalid code", code)
 		return false, nil
 	}
 
-	if len(u.ResetCode) == 0 || u.ResetCode != code {
-		log.Info().Msgf("Password reset failed for user '%s': invalid code", email)
+	u, err := um.db.VerifyPasswordCode(ctx, code)
+	if err != nil {
+		log.Info().Err(err).Msgf("Password reset failed for code '%s': could not retrieve user", code)
 		return false, nil
 	}
 
 	if u.ResetExpiry.Before(time.Now()) {
-		log.Info().Msgf("Password reset failed for user '%s': code expired", email)
+		log.Info().Msgf("Password reset failed for code %s: invalid code", code)
 		return false, nil
 	}
 
@@ -181,19 +183,19 @@ func (um *UserManager) FinishPasswordReset(ctx context.Context, email, code, pas
 
 	err = um.db.InvalidatePasswordResetCode(ctx, u)
 	if err != nil {
-		log.Error().Err(err).Msgf("Password reset failed for user '%s': could not invalidate reset code", email)
+		log.Error().Err(err).Msgf("Password reset failed for user '%s': could not invalidate reset code", u.Email)
 		return false, err
 	}
 
 	hash, err := GetHash(password)
 	if err != nil {
-		log.Error().Err(err).Msgf("Password reset failed for user '%s': could not create hash", email)
+		log.Error().Err(err).Msgf("Password reset failed for user '%s': could not create hash", u.Email)
 		return false, err
 	}
 
 	err = um.db.SetPassword(ctx, u, hash)
 	if err != nil {
-		log.Error().Err(err).Msgf("Password reset failed for user '%s': could not save password", email)
+		log.Error().Err(err).Msgf("Password reset failed for user '%s': could not save password", u.Email)
 		return false, err
 	}
 
@@ -209,7 +211,7 @@ func (um *UserManager) CreateUser(ctx context.Context, email string) (*ent.User,
 	if err != nil {
 		return nil, err
 	}
-	err = um.m.SendPasswordResetLink(ctx, u.Email, u.VerifyCode)
+	err = um.m.SendEmailVerifyLink(ctx, u.Email, u.VerifyCode)
 	if err != nil {
 		return nil, err
 	}
