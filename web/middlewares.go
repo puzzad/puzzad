@@ -65,9 +65,7 @@ func (i *Interceptor) WriteHeader(rc int) {
 		i.handler("404", nil)(i.writer, i.request)
 		return
 	case 403:
-		i.writer.Header().Set("Content-Type", "text/html")
-		i.handler("403", nil)(i.writer, i.request)
-		return
+		//Fallthrough
 	case 401:
 		i.writer.Header().Set("Content-Type", "text/html")
 		i.handler("401", nil)(i.writer, i.request)
