@@ -27,7 +27,7 @@ func (web *Webserver) AccountOnly(next http.Handler) http.Handler {
 	})
 }
 
-func loggerMiddleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
+func (web *Webserver) loggerMiddleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			wrapper := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
@@ -45,4 +45,57 @@ func loggerMiddleware(logger *zerolog.Logger) func(next http.Handler) http.Handl
 			next.ServeHTTP(wrapper, r)
 		})
 	}
+}
+
+type Interceptor struct {
+	handler    func(string) func(writer http.ResponseWriter, request *http.Request)
+	writer     http.ResponseWriter
+	request    *http.Request
+	overridden bool
+}
+
+func (i *Interceptor) WriteHeader(rc int) {
+	switch rc {
+	case 500:
+		i.writer.Header().Set("Content-Type", "text/html")
+		i.handler("500")(i.writer, i.request)
+		return
+	case 404:
+		i.writer.Header().Set("Content-Type", "text/html")
+		i.handler("404")(i.writer, i.request)
+		return
+	case 403:
+		i.writer.Header().Set("Content-Type", "text/html")
+		i.handler("403")(i.writer, i.request)
+		return
+	case 401:
+		i.writer.Header().Set("Content-Type", "text/html")
+		i.handler("401")(i.writer, i.request)
+		return
+	default:
+		i.writer.WriteHeader(rc)
+		return
+	}
+}
+
+func (i *Interceptor) Write(b []byte) (int, error) {
+	if !i.overridden {
+		return i.writer.Write(b)
+	}
+	return 0, nil
+}
+
+func (i *Interceptor) Header() http.Header {
+	return i.writer.Header()
+}
+
+func (web *Webserver) errorInterceptMiddleWare(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		wrapper := &Interceptor{
+			handler: web.handleTemplate,
+			writer:  w,
+			request: r,
+		}
+		handler.ServeHTTP(wrapper, r)
+	})
 }
