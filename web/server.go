@@ -192,12 +192,17 @@ func (web *Webserver) handleLogin(writer http.ResponseWriter, request *http.Requ
 }
 
 func (web *Webserver) handleRegister(writer http.ResponseWriter, request *http.Request) {
-	time.Sleep(2 * time.Second)
-	if request.Header.Get("HX-Request") != "" {
-		writer.Header().Set("HX-Redirect", "/validate.html")
-		writer.WriteHeader(http.StatusTemporaryRedirect)
+	email := request.FormValue("email")
+	err := web.UserManager.CreateUser(request.Context(), email)
+	if err != nil {
+		outputError(web.templates, writer, http.StatusInternalServerError, "Internal server error")
 	} else {
-		http.Redirect(writer, request, "/validate.html", http.StatusTemporaryRedirect)
+		if request.Header.Get("HX-Request") != "" {
+			writer.Header().Set("HX-Redirect", "/validate")
+			writer.WriteHeader(http.StatusTemporaryRedirect)
+		} else {
+			http.Redirect(writer, request, "/validate", http.StatusTemporaryRedirect)
+		}
 	}
 }
 
@@ -238,8 +243,10 @@ func (web *Webserver) handleTemplate(templateName string) func(writer http.Respo
 	return func(writer http.ResponseWriter, request *http.Request) {
 		err := web.templates.ExecuteTemplate(writer, templateName+".gohtml", struct {
 			Authed bool
+			Values map[string][]string
 		}{
 			Authed: web.sessionSore.GetString(request, "username") != "",
+			Values: request.URL.Query(),
 		})
 		if err != nil {
 			log.Error().Err(err).Msg("Unable to serve index page")

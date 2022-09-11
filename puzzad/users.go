@@ -7,6 +7,7 @@ import (
 	"net/mail"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/greboid/puzzad/ent"
 	"github.com/greboid/puzzad/ent/user"
 	"github.com/rs/zerolog/log"
@@ -194,6 +195,22 @@ func (um *UserManager) FinishPasswordReset(ctx context.Context, email, code, pas
 	}
 
 	return true, nil
+}
+
+func (um *UserManager) CreateUser(ctx context.Context, email string) error {
+	hash, err := GetHash(uuid.New().String())
+	if err != nil {
+		return err
+	}
+	u, err := um.db.CreateUser(ctx, email, hash)
+	if err != nil {
+		return err
+	}
+	code, err := um.db.GeneratePasswordResetCode(ctx, u)
+	if err != nil {
+		return err
+	}
+	return um.m.SendPasswordResetLink(ctx, u.Email, code)
 }
 
 func validateEmailAddress(email string) error {

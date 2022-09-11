@@ -19,6 +19,7 @@ type MailClient struct {
 	SMTPServer   string
 	SMTPPort     int
 	SMTPFrom     string
+	ValidateURL  string
 }
 
 type EmailData struct {
@@ -29,7 +30,7 @@ type EmailData struct {
 
 func (m *MailClient) SendPasswordResetLink(_ context.Context, address string, code string) error {
 	data := EmailData{
-		ValidateURL: "http://localhost:3000",
+		ValidateURL: m.ValidateURL,
 		Code:        code,
 		Email:       address,
 	}

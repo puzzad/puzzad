@@ -14,6 +14,7 @@ import (
 )
 
 var (
+	WebURL        = flag.String("web-url", "http://localhost:3000", "Base URL used for the site")
 	WebPort       = flag.Int("web-port", 3000, "Port for webserver")
 	Debug         = flag.Bool("debug", true, "Enable debug logging")
 	AdminEmail    = flag.String("admin-email", "", "Default admin email, only used if at least one admin does not exist, must be accompanied by admin-password")
@@ -43,6 +44,7 @@ func main() {
 		SMTPServer:   *SmtpServer,
 		SMTPPort:     *SmtpPort,
 		SMTPFrom:     *SmtpFrom,
+		ValidateURL:  *WebURL,
 	}
 	userManager := puzzad.NewUserManager(client, mailer)
 
