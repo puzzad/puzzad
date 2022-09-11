@@ -9,7 +9,7 @@
     </p>
     <div id="error"></div>
     <form hx-post="/validate" hx-disable-element="#submit">
-        <label for="code">Validation code: </label><input type="text" id="code" name="code" maxlength="20" required value="{{ index .Values "code" 0 }}">
+        <label for="code">Validation code: </label><input type="text" id="code" name="code" maxlength="80" required value="{{ if index .Values "code" }}{{ index .Values "code" 0 }}{{ else }}{{ end }}">
         <button id="submit" type="submit">Validate</button>
     </form>
 </article>

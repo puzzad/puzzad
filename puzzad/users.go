@@ -200,16 +200,28 @@ func (um *UserManager) FinishPasswordReset(ctx context.Context, email, code, pas
 	return true, nil
 }
 
-func (um *UserManager) CreateUser(ctx context.Context, email string) error {
+func (um *UserManager) CreateUser(ctx context.Context, email string) (*ent.User, error) {
 	hash, err := GetHash(uuid.New().String())
 	if err != nil {
-		return err
+		return nil, err
 	}
 	u, err := um.db.CreateUser(ctx, email, hash)
 	if err != nil {
+		return nil, err
+	}
+	err = um.m.SendPasswordResetLink(ctx, u.Email, u.VerifyCode)
+	if err != nil {
+		return nil, err
+	}
+	return u, err
+}
+
+func (um *UserManager) SetPassword(ctx context.Context, u *ent.User, password string) error {
+	hash, err := GetHash(password)
+	if err != nil {
 		return err
 	}
-	return um.m.SendPasswordResetLink(ctx, u.Email, u.VerifyCode)
+	return um.db.SetPassword(ctx, u, hash)
 }
 
 func (um *UserManager) CompleteVerification(ctx context.Context, code string) (*ent.User, error) {

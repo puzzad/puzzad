@@ -21,7 +21,6 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
 	"github.com/golangcollege/sessions"
-	"github.com/greboid/puzzad/ent/user"
 	"github.com/greboid/puzzad/puzzad"
 	"github.com/greboid/puzzad/puzzad/database"
 	"github.com/rs/zerolog"
@@ -161,7 +160,7 @@ func (web *Webserver) handleValidate(writer http.ResponseWriter, request *http.R
 		outputError(web.templates, writer, http.StatusExpectationFailed, "Incorrect verify code")
 	}
 	log.Debug().Str("username", u.Email).Msg("Adding Auth: ")
-	web.sessionSore.Put(request, "username", user.Email)
+	web.sessionSore.Put(request, "username", u.Email)
 
 	writer.WriteHeader(http.StatusTemporaryRedirect)
 	if request.Header.Get("HX-Request") != "" {
@@ -176,7 +175,7 @@ func (web *Webserver) handleLogin(writer http.ResponseWriter, request *http.Requ
 	username := request.FormValue("username")
 	password := request.FormValue("password")
 
-	user, err := web.UserManager.Authenticate(request.Context(), username, password)
+	u, err := web.UserManager.Authenticate(request.Context(), username, password)
 	if err != nil {
 		if errors.Is(err, puzzad.ErrBadUsernameOrPassword) {
 			outputError(web.templates, writer, http.StatusUnauthorized, "Invalid username or password")
@@ -191,7 +190,7 @@ func (web *Webserver) handleLogin(writer http.ResponseWriter, request *http.Requ
 	}
 
 	log.Debug().Str("username", username).Msg("Adding Auth: ")
-	web.sessionSore.Put(request, "username", user.Email)
+	web.sessionSore.Put(request, "username", u.Email)
 	if request.Header.Get("HX-Request") != "" {
 		writer.Header().Set("HX-Redirect", "index.html")
 		writer.WriteHeader(http.StatusTemporaryRedirect)
@@ -202,16 +201,22 @@ func (web *Webserver) handleLogin(writer http.ResponseWriter, request *http.Requ
 
 func (web *Webserver) handleRegister(writer http.ResponseWriter, request *http.Request) {
 	email := request.FormValue("email")
-	err := web.UserManager.CreateUser(request.Context(), email)
+	password := request.FormValue("password")
+	u, err := web.UserManager.CreateUser(request.Context(), email)
 	if err != nil {
 		outputError(web.templates, writer, http.StatusInternalServerError, "Internal server error")
+		return
+	}
+	err = web.UserManager.SetPassword(request.Context(), u, password)
+	if err != nil {
+		outputError(web.templates, writer, http.StatusInternalServerError, "Internal server error")
+		return
+	}
+	if request.Header.Get("HX-Request") != "" {
+		writer.Header().Set("HX-Redirect", "/validate")
+		writer.WriteHeader(http.StatusTemporaryRedirect)
 	} else {
-		if request.Header.Get("HX-Request") != "" {
-			writer.Header().Set("HX-Redirect", "/validate")
-			writer.WriteHeader(http.StatusTemporaryRedirect)
-		} else {
-			http.Redirect(writer, request, "/validate", http.StatusTemporaryRedirect)
-		}
+		http.Redirect(writer, request, "/validate", http.StatusTemporaryRedirect)
 	}
 }
 
