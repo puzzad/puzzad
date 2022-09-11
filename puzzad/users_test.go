@@ -75,6 +75,14 @@ func (f *FakeUserDatabase) SetStatus(ctx context.Context, u *ent.User, status us
 	panic("implement me")
 }
 
+func (f *FakeUserDatabase) VerifyVerificationCode(ctx context.Context, code string) (*ent.User, error) {
+	panic("implement me")
+}
+
+func (f *FakeUserDatabase) InvalidateVerificationCode(ctx context.Context, u *ent.User) error {
+	panic("implement me")
+}
+
 type FakeUserMailer struct {
 	passwordResetError error
 	passwordResetEmail string
