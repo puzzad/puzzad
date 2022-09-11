@@ -122,6 +122,7 @@ func (web *Webserver) addRoutes() {
 	web.router.Get("/setpass", web.handleTemplate("setpass"))
 	web.router.Post("/setpass", web.handleSetPass)
 	web.router.With(web.AdminOnly).Mount("/admin", web.adminRoutes())
+	web.router.With(web.AccountOnly).Mount("/account", web.accountRoutes())
 	web.router.Get("/validate", web.handleTemplate("validate"))
 	web.router.Post("/validate", web.handleValidate)
 	web.router.Get("/play", web.handleTemplate("play"))
@@ -134,6 +135,12 @@ func (web *Webserver) addRoutes() {
 func (web *Webserver) adminRoutes() http.Handler {
 	r := chi.NewRouter()
 	r.Get("/", web.handleTemplate("admin"))
+	return r
+}
+
+func (web *Webserver) accountRoutes() http.Handler {
+	r := chi.NewRouter()
+	r.Get("/", web.handleTemplate("account"))
 	return r
 }
 
