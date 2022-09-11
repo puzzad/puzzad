@@ -153,7 +153,8 @@ func (web *Webserver) handleValidate(writer http.ResponseWriter, request *http.R
 
 	u, err := web.UserManager.CompleteVerification(request.Context(), code)
 	if err != nil {
-		outputError(web.templates, writer, http.StatusExpectationFailed, "Incorrect verify code")
+		outputError(web.templates, writer, http.StatusBadRequest, "Incorrect verify code")
+		return
 	}
 	log.Debug().Str("username", u.Email).Msg("Adding Auth: ")
 	web.sessionSore.Put(request, "username", u.Email)

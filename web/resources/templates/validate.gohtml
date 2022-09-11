@@ -8,7 +8,7 @@
         Enter the code you received in the email address below to validate your email address.
     </p>
     <div id="error"></div>
-    <form hx-post="/validate" hx-disable-element="#submit">
+    <form hx-post="/validate" hx-disable-element="#submit" hx-swap="none">
         <label for="code">Validation code: </label><input type="text" id="code" name="code" maxlength="80" required value="{{ if index .Values "code" }}{{ index .Values "code" 0 }}{{ else }}{{ end }}">
         <button id="submit" type="submit">Validate</button>
     </form>

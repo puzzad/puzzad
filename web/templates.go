@@ -78,5 +78,5 @@ func outputError(t *template.Template, writer http.ResponseWriter, code int, mes
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to serve error page")
 	}
-	http.Error(writer, message, code)
+	writer.WriteHeader(code)
 }
