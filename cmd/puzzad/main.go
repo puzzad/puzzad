@@ -19,6 +19,7 @@ var (
 	Debug         = flag.Bool("debug", true, "Enable debug logging")
 	AdminEmail    = flag.String("admin-email", "", "Default admin email, only used if at least one admin does not exist, must be accompanied by admin-password")
 	AdminPassword = flag.String("admin-password", "", "Default admin password, only used if at least one admin does not exist, must be accompanied by admin-email")
+	SessionKey    = flag.String("session-key", "", "Encryption key for sessions, should be 32 bytes")
 
 	SmtpUser     = flag.String("smtp_user", "", "SMTP Username")
 	SmtpPassword = flag.String("smtp_password", "", "SMTP Password")
@@ -52,9 +53,14 @@ func main() {
 		log.Fatal().Err(err).Msg("Unable to create default admin account")
 	}
 
+	if *SessionKey == "" {
+		log.Fatal().Msg("Session key must be set")
+	}
+
 	server := web.Webserver{
 		Client:      client,
 		UserManager: userManager,
+		SessionKey:  *SessionKey,
 	}
 
 	server.Init(*WebPort, logger)

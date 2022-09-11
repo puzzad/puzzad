@@ -41,11 +41,12 @@ type Webserver struct {
 
 	Client      *database.DBClient
 	UserManager *puzzad.UserManager
+	SessionKey  string
 }
 
 func (web *Webserver) Init(port int, log *zerolog.Logger) {
 	// TODO: Pull this from an env var
-	web.sessionSore = sessions.New(randomByte(32))
+	web.sessionSore = sessions.New([]byte(web.SessionKey))
 	web.router = chi.NewRouter()
 	web.log = log
 	web.static = web.getStaticServer()
