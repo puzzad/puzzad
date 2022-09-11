@@ -1,0 +1,19 @@
+{{ template "head.gohtml" . }}
+<header>
+    <h1>Puzzad</h1>
+</header>
+{{ template "menu.gohtml" . }}
+<article>
+    <p>All possible adventures are listed below, some may need to be purchased and others may be free.</p>
+    {{ if not .Data }}
+        <p>No adventures available.</p>
+    {{ end }}
+    {{range .Data}}
+        <div>
+            <h2>{{.Name}}</h2>
+            <p>{{if eq .Price 0.00 }}Free{{ else }}£{{.Price}}{{end}}</p>
+            <p>{{.Description}}</p>
+        </div>
+    {{end}}
+</article>
+{{ template "foot.gohtml" . }}

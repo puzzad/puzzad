@@ -35,6 +35,41 @@ func (au *AdventureUpdate) SetName(s string) *AdventureUpdate {
 	return au
 }
 
+// SetDescription sets the "description" field.
+func (au *AdventureUpdate) SetDescription(s string) *AdventureUpdate {
+	au.mutation.SetDescription(s)
+	return au
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (au *AdventureUpdate) SetNillableDescription(s *string) *AdventureUpdate {
+	if s != nil {
+		au.SetDescription(*s)
+	}
+	return au
+}
+
+// SetPrice sets the "price" field.
+func (au *AdventureUpdate) SetPrice(f float64) *AdventureUpdate {
+	au.mutation.ResetPrice()
+	au.mutation.SetPrice(f)
+	return au
+}
+
+// SetNillablePrice sets the "price" field if the given value is not nil.
+func (au *AdventureUpdate) SetNillablePrice(f *float64) *AdventureUpdate {
+	if f != nil {
+		au.SetPrice(*f)
+	}
+	return au
+}
+
+// AddPrice adds f to the "price" field.
+func (au *AdventureUpdate) AddPrice(f float64) *AdventureUpdate {
+	au.mutation.AddPrice(f)
+	return au
+}
+
 // AddGameIDs adds the "game" edge to the Game entity by IDs.
 func (au *AdventureUpdate) AddGameIDs(ids ...int) *AdventureUpdate {
 	au.mutation.AddGameIDs(ids...)
@@ -191,6 +226,27 @@ func (au *AdventureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: adventure.FieldName,
 		})
 	}
+	if value, ok := au.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: adventure.FieldDescription,
+		})
+	}
+	if value, ok := au.mutation.Price(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: adventure.FieldPrice,
+		})
+	}
+	if value, ok := au.mutation.AddedPrice(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: adventure.FieldPrice,
+		})
+	}
 	if au.mutation.GameCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -321,6 +377,41 @@ type AdventureUpdateOne struct {
 // SetName sets the "name" field.
 func (auo *AdventureUpdateOne) SetName(s string) *AdventureUpdateOne {
 	auo.mutation.SetName(s)
+	return auo
+}
+
+// SetDescription sets the "description" field.
+func (auo *AdventureUpdateOne) SetDescription(s string) *AdventureUpdateOne {
+	auo.mutation.SetDescription(s)
+	return auo
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (auo *AdventureUpdateOne) SetNillableDescription(s *string) *AdventureUpdateOne {
+	if s != nil {
+		auo.SetDescription(*s)
+	}
+	return auo
+}
+
+// SetPrice sets the "price" field.
+func (auo *AdventureUpdateOne) SetPrice(f float64) *AdventureUpdateOne {
+	auo.mutation.ResetPrice()
+	auo.mutation.SetPrice(f)
+	return auo
+}
+
+// SetNillablePrice sets the "price" field if the given value is not nil.
+func (auo *AdventureUpdateOne) SetNillablePrice(f *float64) *AdventureUpdateOne {
+	if f != nil {
+		auo.SetPrice(*f)
+	}
+	return auo
+}
+
+// AddPrice adds f to the "price" field.
+func (auo *AdventureUpdateOne) AddPrice(f float64) *AdventureUpdateOne {
+	auo.mutation.AddPrice(f)
 	return auo
 }
 
@@ -508,6 +599,27 @@ func (auo *AdventureUpdateOne) sqlSave(ctx context.Context) (_node *Adventure, e
 			Type:   field.TypeString,
 			Value:  value,
 			Column: adventure.FieldName,
+		})
+	}
+	if value, ok := auo.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: adventure.FieldDescription,
+		})
+	}
+	if value, ok := auo.mutation.Price(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: adventure.FieldPrice,
+		})
+	}
+	if value, ok := auo.mutation.AddedPrice(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: adventure.FieldPrice,
 		})
 	}
 	if auo.mutation.GameCleared() {

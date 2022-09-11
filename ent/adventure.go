@@ -17,6 +17,10 @@ type Adventure struct {
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
+	// Price holds the value of the "price" field.
+	Price float64 `json:"price,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AdventureQuery when eager-loading is set.
 	Edges AdventureEdges `json:"edges"`
@@ -56,9 +60,11 @@ func (*Adventure) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case adventure.FieldPrice:
+			values[i] = new(sql.NullFloat64)
 		case adventure.FieldID:
 			values[i] = new(sql.NullInt64)
-		case adventure.FieldName:
+		case adventure.FieldName, adventure.FieldDescription:
 			values[i] = new(sql.NullString)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Adventure", columns[i])
@@ -86,6 +92,18 @@ func (a *Adventure) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				a.Name = value.String
+			}
+		case adventure.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				a.Description = value.String
+			}
+		case adventure.FieldPrice:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field price", values[i])
+			} else if value.Valid {
+				a.Price = value.Float64
 			}
 		}
 	}
@@ -127,6 +145,12 @@ func (a *Adventure) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", a.ID))
 	builder.WriteString("name=")
 	builder.WriteString(a.Name)
+	builder.WriteString(", ")
+	builder.WriteString("description=")
+	builder.WriteString(a.Description)
+	builder.WriteString(", ")
+	builder.WriteString("price=")
+	builder.WriteString(fmt.Sprintf("%v", a.Price))
 	builder.WriteByte(')')
 	return builder.String()
 }

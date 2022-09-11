@@ -42,6 +42,9 @@ type AdventureMutation struct {
 	typ            string
 	id             *int
 	name           *string
+	description    *string
+	price          *float64
+	addprice       *float64
 	clearedFields  map[string]struct{}
 	game           map[int]struct{}
 	removedgame    map[int]struct{}
@@ -188,6 +191,98 @@ func (m *AdventureMutation) ResetName() {
 	m.name = nil
 }
 
+// SetDescription sets the "description" field.
+func (m *AdventureMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *AdventureMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the Adventure entity.
+// If the Adventure object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AdventureMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *AdventureMutation) ResetDescription() {
+	m.description = nil
+}
+
+// SetPrice sets the "price" field.
+func (m *AdventureMutation) SetPrice(f float64) {
+	m.price = &f
+	m.addprice = nil
+}
+
+// Price returns the value of the "price" field in the mutation.
+func (m *AdventureMutation) Price() (r float64, exists bool) {
+	v := m.price
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPrice returns the old "price" field's value of the Adventure entity.
+// If the Adventure object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AdventureMutation) OldPrice(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPrice is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPrice requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPrice: %w", err)
+	}
+	return oldValue.Price, nil
+}
+
+// AddPrice adds f to the "price" field.
+func (m *AdventureMutation) AddPrice(f float64) {
+	if m.addprice != nil {
+		*m.addprice += f
+	} else {
+		m.addprice = &f
+	}
+}
+
+// AddedPrice returns the value that was added to the "price" field in this mutation.
+func (m *AdventureMutation) AddedPrice() (r float64, exists bool) {
+	v := m.addprice
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPrice resets all changes to the "price" field.
+func (m *AdventureMutation) ResetPrice() {
+	m.price = nil
+	m.addprice = nil
+}
+
 // AddGameIDs adds the "game" edge to the Game entity by ids.
 func (m *AdventureMutation) AddGameIDs(ids ...int) {
 	if m.game == nil {
@@ -315,9 +410,15 @@ func (m *AdventureMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AdventureMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 3)
 	if m.name != nil {
 		fields = append(fields, adventure.FieldName)
+	}
+	if m.description != nil {
+		fields = append(fields, adventure.FieldDescription)
+	}
+	if m.price != nil {
+		fields = append(fields, adventure.FieldPrice)
 	}
 	return fields
 }
@@ -329,6 +430,10 @@ func (m *AdventureMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case adventure.FieldName:
 		return m.Name()
+	case adventure.FieldDescription:
+		return m.Description()
+	case adventure.FieldPrice:
+		return m.Price()
 	}
 	return nil, false
 }
@@ -340,6 +445,10 @@ func (m *AdventureMutation) OldField(ctx context.Context, name string) (ent.Valu
 	switch name {
 	case adventure.FieldName:
 		return m.OldName(ctx)
+	case adventure.FieldDescription:
+		return m.OldDescription(ctx)
+	case adventure.FieldPrice:
+		return m.OldPrice(ctx)
 	}
 	return nil, fmt.Errorf("unknown Adventure field %s", name)
 }
@@ -356,6 +465,20 @@ func (m *AdventureMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetName(v)
 		return nil
+	case adventure.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case adventure.FieldPrice:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPrice(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Adventure field %s", name)
 }
@@ -363,13 +486,21 @@ func (m *AdventureMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *AdventureMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addprice != nil {
+		fields = append(fields, adventure.FieldPrice)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *AdventureMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case adventure.FieldPrice:
+		return m.AddedPrice()
+	}
 	return nil, false
 }
 
@@ -378,6 +509,13 @@ func (m *AdventureMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *AdventureMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case adventure.FieldPrice:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPrice(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Adventure numeric field %s", name)
 }
@@ -407,6 +545,12 @@ func (m *AdventureMutation) ResetField(name string) error {
 	switch name {
 	case adventure.FieldName:
 		m.ResetName()
+		return nil
+	case adventure.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case adventure.FieldPrice:
+		m.ResetPrice()
 		return nil
 	}
 	return fmt.Errorf("unknown Adventure field %s", name)

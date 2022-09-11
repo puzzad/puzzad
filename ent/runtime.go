@@ -5,6 +5,7 @@ package ent
 import (
 	"time"
 
+	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/guess"
 	"github.com/greboid/puzzad/ent/user"
@@ -15,6 +16,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	adventureFields := schema.Adventure{}.Fields()
+	_ = adventureFields
+	// adventureDescDescription is the schema descriptor for description field.
+	adventureDescDescription := adventureFields[1].Descriptor()
+	// adventure.DefaultDescription holds the default value on creation for the description field.
+	adventure.DefaultDescription = adventureDescDescription.Default.(string)
+	// adventureDescPrice is the schema descriptor for price field.
+	adventureDescPrice := adventureFields[2].Descriptor()
+	// adventure.DefaultPrice holds the default value on creation for the price field.
+	adventure.DefaultPrice = adventureDescPrice.Default.(float64)
 	gameFields := schema.Game{}.Fields()
 	_ = gameFields
 	// gameDescCode is the schema descriptor for code field.

@@ -9,6 +9,10 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
+	// FieldPrice holds the string denoting the price field in the database.
+	FieldPrice = "price"
 	// EdgeGame holds the string denoting the game edge name in mutations.
 	EdgeGame = "game"
 	// EdgePuzzles holds the string denoting the puzzles edge name in mutations.
@@ -35,6 +39,8 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldName,
+	FieldDescription,
+	FieldPrice,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -46,3 +52,10 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultDescription holds the default value on creation for the "description" field.
+	DefaultDescription string
+	// DefaultPrice holds the default value on creation for the "price" field.
+	DefaultPrice float64
+)

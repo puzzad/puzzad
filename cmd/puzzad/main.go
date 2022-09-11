@@ -48,6 +48,7 @@ func main() {
 		URL:          *WebURL,
 	}
 	userManager := puzzad.NewUserManager(client, mailer)
+	adventureManager := puzzad.NewAdventureManager(client)
 
 	if err := userManager.EnsureAdminExists(context.Background(), *AdminEmail, *AdminPassword); err != nil {
 		log.Fatal().Err(err).Msg("Unable to create default admin account")
@@ -58,9 +59,10 @@ func main() {
 	}
 
 	server := web.Webserver{
-		Client:      client,
-		UserManager: userManager,
-		SessionKey:  *SessionKey,
+		Client:           client,
+		UserManager:      userManager,
+		SessionKey:       *SessionKey,
+		AdventureManager: adventureManager,
 	}
 
 	server.Init(*WebPort, logger)

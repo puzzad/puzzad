@@ -56,14 +56,16 @@ func (web *Webserver) getTemplates() *template.Template {
 	}
 }
 
-func (web *Webserver) handleTemplate(templateName string) func(writer http.ResponseWriter, request *http.Request) {
+func (web *Webserver) handleTemplate(templateName string, data interface{}) func(writer http.ResponseWriter, request *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		err := web.templates.ExecuteTemplate(writer, templateName+".gohtml", struct {
 			Authed bool
 			Values map[string][]string
+			Data   interface{}
 		}{
 			Authed: web.sessionSore.GetString(request, "username") != "",
 			Values: request.URL.Query(),
+			Data:   data,
 		})
 		if err != nil {
 			log.Error().Err(err).Msg("Unable to serve index page")

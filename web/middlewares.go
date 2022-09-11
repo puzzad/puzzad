@@ -48,7 +48,7 @@ func (web *Webserver) loggerMiddleware(logger *zerolog.Logger) func(next http.Ha
 }
 
 type Interceptor struct {
-	handler    func(string) func(writer http.ResponseWriter, request *http.Request)
+	handler    func(string, interface{}) func(writer http.ResponseWriter, request *http.Request)
 	writer     http.ResponseWriter
 	request    *http.Request
 	overridden bool
@@ -58,19 +58,19 @@ func (i *Interceptor) WriteHeader(rc int) {
 	switch rc {
 	case 500:
 		i.writer.Header().Set("Content-Type", "text/html")
-		i.handler("500")(i.writer, i.request)
+		i.handler("500", nil)(i.writer, i.request)
 		return
 	case 404:
 		i.writer.Header().Set("Content-Type", "text/html")
-		i.handler("404")(i.writer, i.request)
+		i.handler("404", nil)(i.writer, i.request)
 		return
 	case 403:
 		i.writer.Header().Set("Content-Type", "text/html")
-		i.handler("403")(i.writer, i.request)
+		i.handler("403", nil)(i.writer, i.request)
 		return
 	case 401:
 		i.writer.Header().Set("Content-Type", "text/html")
-		i.handler("401")(i.writer, i.request)
+		i.handler("401", nil)(i.writer, i.request)
 		return
 	default:
 		i.writer.WriteHeader(rc)

@@ -15,6 +15,8 @@ type Adventure struct {
 func (Adventure) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").Unique(),
+		field.String("description").Default("No description provided"),
+		field.Float("price").Default(0.00),
 	}
 }
 

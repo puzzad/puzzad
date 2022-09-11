@@ -20,6 +20,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
 	"github.com/golangcollege/sessions"
+	"github.com/greboid/puzzad/ent"
 	"github.com/greboid/puzzad/puzzad"
 	"github.com/greboid/puzzad/puzzad/database"
 	"github.com/rs/zerolog"
@@ -38,9 +39,10 @@ type Webserver struct {
 	templates   *template.Template
 	watcher     *fsnotify.Watcher
 
-	Client      *database.DBClient
-	UserManager *puzzad.UserManager
-	SessionKey  string
+	Client           *database.DBClient
+	UserManager      *puzzad.UserManager
+	AdventureManager *puzzad.AdventureManager
+	SessionKey       string
 }
 
 func (web *Webserver) Init(port int, log *zerolog.Logger) {
@@ -110,23 +112,24 @@ func (web *Webserver) addMiddleWare() {
 }
 
 func (web *Webserver) addRoutes() {
-	web.router.Get("/", web.handleTemplate("index"))
-	web.router.Get("/register", web.handleTemplate("register"))
+	web.router.Get("/", web.handleTemplate("index", nil))
+	web.router.Get("/register", web.handleTemplate("register", nil))
 	web.router.Post("/register", web.handleRegister)
-	web.router.Get("/login", web.handleTemplate("login"))
+	web.router.Get("/login", web.handleTemplate("login", nil))
 	web.router.Post("/login", web.handleLogin)
 	// TODO: Handle this better?
 	web.router.Get("/logout", web.handleLogout)
 	web.router.Post("/logout", web.handleLogout)
-	web.router.Get("/passreset", web.handleTemplate("passreset"))
+	web.router.Get("/passreset", web.handleTemplate("passreset", nil))
 	web.router.Post("/passreset", web.handlePassReset)
-	web.router.Get("/setpass", web.handleTemplate("setpass"))
+	web.router.Get("/setpass", web.handleTemplate("setpass", nil))
 	web.router.Post("/setpass", web.handleSetPass)
 	web.router.With(web.AdminOnly).Mount("/admin", web.adminRoutes())
 	web.router.With(web.AccountOnly).Mount("/account", web.accountRoutes())
-	web.router.Get("/validate", web.handleTemplate("validate"))
+	web.router.Get("/validate", web.handleTemplate("validate", nil))
 	web.router.Post("/validate", web.handleValidate)
-	web.router.Get("/play", web.handleTemplate("play"))
+	web.router.Get("/adventures", web.handleListAdventures)
+	web.router.Get("/play", web.handleTemplate("play", nil))
 	web.router.Post("/play", func(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusInternalServerError)
 	})
@@ -135,13 +138,13 @@ func (web *Webserver) addRoutes() {
 
 func (web *Webserver) adminRoutes() http.Handler {
 	r := chi.NewRouter()
-	r.Get("/", web.handleTemplate("admin"))
+	r.Get("/", web.handleTemplate("admin", nil))
 	return r
 }
 
 func (web *Webserver) accountRoutes() http.Handler {
 	r := chi.NewRouter()
-	r.Get("/", web.handleTemplate("account"))
+	r.Get("/", web.handleTemplate("account", nil))
 	return r
 }
 
@@ -254,4 +257,14 @@ func (web *Webserver) handleLogout(writer http.ResponseWriter, request *http.Req
 	} else {
 		http.Redirect(writer, request, "index.html", http.StatusTemporaryRedirect)
 	}
+}
+
+func (web *Webserver) handleListAdventures(writer http.ResponseWriter, request *http.Request) {
+	as, err := web.AdventureManager.GetAllAdventures(request.Context())
+	if err != nil {
+		// TODO Should probably handle this better
+		log.Error().Err(err).Msg("Unable to load adventure list")
+		as = make([]*ent.Adventure, 0)
+	}
+	web.handleTemplate("adventures", as)(writer, request)
 }

@@ -27,6 +27,34 @@ func (ac *AdventureCreate) SetName(s string) *AdventureCreate {
 	return ac
 }
 
+// SetDescription sets the "description" field.
+func (ac *AdventureCreate) SetDescription(s string) *AdventureCreate {
+	ac.mutation.SetDescription(s)
+	return ac
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (ac *AdventureCreate) SetNillableDescription(s *string) *AdventureCreate {
+	if s != nil {
+		ac.SetDescription(*s)
+	}
+	return ac
+}
+
+// SetPrice sets the "price" field.
+func (ac *AdventureCreate) SetPrice(f float64) *AdventureCreate {
+	ac.mutation.SetPrice(f)
+	return ac
+}
+
+// SetNillablePrice sets the "price" field if the given value is not nil.
+func (ac *AdventureCreate) SetNillablePrice(f *float64) *AdventureCreate {
+	if f != nil {
+		ac.SetPrice(*f)
+	}
+	return ac
+}
+
 // AddGameIDs adds the "game" edge to the Game entity by IDs.
 func (ac *AdventureCreate) AddGameIDs(ids ...int) *AdventureCreate {
 	ac.mutation.AddGameIDs(ids...)
@@ -68,6 +96,7 @@ func (ac *AdventureCreate) Save(ctx context.Context) (*Adventure, error) {
 		err  error
 		node *Adventure
 	)
+	ac.defaults()
 	if len(ac.hooks) == 0 {
 		if err = ac.check(); err != nil {
 			return nil, err
@@ -131,10 +160,28 @@ func (ac *AdventureCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (ac *AdventureCreate) defaults() {
+	if _, ok := ac.mutation.Description(); !ok {
+		v := adventure.DefaultDescription
+		ac.mutation.SetDescription(v)
+	}
+	if _, ok := ac.mutation.Price(); !ok {
+		v := adventure.DefaultPrice
+		ac.mutation.SetPrice(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (ac *AdventureCreate) check() error {
 	if _, ok := ac.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Adventure.name"`)}
+	}
+	if _, ok := ac.mutation.Description(); !ok {
+		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Adventure.description"`)}
+	}
+	if _, ok := ac.mutation.Price(); !ok {
+		return &ValidationError{Name: "price", err: errors.New(`ent: missing required field "Adventure.price"`)}
 	}
 	return nil
 }
@@ -170,6 +217,22 @@ func (ac *AdventureCreate) createSpec() (*Adventure, *sqlgraph.CreateSpec) {
 			Column: adventure.FieldName,
 		})
 		_node.Name = value
+	}
+	if value, ok := ac.mutation.Description(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: adventure.FieldDescription,
+		})
+		_node.Description = value
+	}
+	if value, ok := ac.mutation.Price(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: adventure.FieldPrice,
+		})
+		_node.Price = value
 	}
 	if nodes := ac.mutation.GameIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -226,6 +289,7 @@ func (acb *AdventureCreateBulk) Save(ctx context.Context) ([]*Adventure, error) 
 	for i := range acb.builders {
 		func(i int, root context.Context) {
 			builder := acb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*AdventureMutation)
 				if !ok {
