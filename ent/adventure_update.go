@@ -70,6 +70,20 @@ func (au *AdventureUpdate) AddPrice(f float64) *AdventureUpdate {
 	return au
 }
 
+// SetPublic sets the "public" field.
+func (au *AdventureUpdate) SetPublic(b bool) *AdventureUpdate {
+	au.mutation.SetPublic(b)
+	return au
+}
+
+// SetNillablePublic sets the "public" field if the given value is not nil.
+func (au *AdventureUpdate) SetNillablePublic(b *bool) *AdventureUpdate {
+	if b != nil {
+		au.SetPublic(*b)
+	}
+	return au
+}
+
 // AddGameIDs adds the "game" edge to the Game entity by IDs.
 func (au *AdventureUpdate) AddGameIDs(ids ...int) *AdventureUpdate {
 	au.mutation.AddGameIDs(ids...)
@@ -247,6 +261,13 @@ func (au *AdventureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: adventure.FieldPrice,
 		})
 	}
+	if value, ok := au.mutation.Public(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: adventure.FieldPublic,
+		})
+	}
 	if au.mutation.GameCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -412,6 +433,20 @@ func (auo *AdventureUpdateOne) SetNillablePrice(f *float64) *AdventureUpdateOne 
 // AddPrice adds f to the "price" field.
 func (auo *AdventureUpdateOne) AddPrice(f float64) *AdventureUpdateOne {
 	auo.mutation.AddPrice(f)
+	return auo
+}
+
+// SetPublic sets the "public" field.
+func (auo *AdventureUpdateOne) SetPublic(b bool) *AdventureUpdateOne {
+	auo.mutation.SetPublic(b)
+	return auo
+}
+
+// SetNillablePublic sets the "public" field if the given value is not nil.
+func (auo *AdventureUpdateOne) SetNillablePublic(b *bool) *AdventureUpdateOne {
+	if b != nil {
+		auo.SetPublic(*b)
+	}
 	return auo
 }
 
@@ -620,6 +655,13 @@ func (auo *AdventureUpdateOne) sqlSave(ctx context.Context) (_node *Adventure, e
 			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: adventure.FieldPrice,
+		})
+	}
+	if value, ok := auo.mutation.Public(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: adventure.FieldPublic,
 		})
 	}
 	if auo.mutation.GameCleared() {

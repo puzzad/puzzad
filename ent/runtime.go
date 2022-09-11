@@ -26,6 +26,10 @@ func init() {
 	adventureDescPrice := adventureFields[2].Descriptor()
 	// adventure.DefaultPrice holds the default value on creation for the price field.
 	adventure.DefaultPrice = adventureDescPrice.Default.(float64)
+	// adventureDescPublic is the schema descriptor for public field.
+	adventureDescPublic := adventureFields[3].Descriptor()
+	// adventure.DefaultPublic holds the default value on creation for the public field.
+	adventure.DefaultPublic = adventureDescPublic.Default.(bool)
 	gameFields := schema.Game{}.Fields()
 	_ = gameFields
 	// gameDescCode is the schema descriptor for code field.

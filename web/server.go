@@ -260,7 +260,7 @@ func (web *Webserver) handleLogout(writer http.ResponseWriter, request *http.Req
 }
 
 func (web *Webserver) handleListAdventures(writer http.ResponseWriter, request *http.Request) {
-	as, err := web.AdventureManager.GetAllAdventures(request.Context())
+	as, err := web.AdventureManager.GetAllPublicAdventures(request.Context())
 	if err != nil {
 		// TODO Should probably handle this better
 		log.Error().Err(err).Msg("Unable to load adventure list")

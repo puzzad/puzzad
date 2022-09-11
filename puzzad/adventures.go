@@ -7,7 +7,7 @@ import (
 )
 
 type AdventureDatabase interface {
-	GetAllAdventures(ctx context.Context) ([]*ent.Adventure, error)
+	GetAllPublicAdventures(ctx context.Context) ([]*ent.Adventure, error)
 }
 
 type AdventureManager struct {
@@ -20,6 +20,6 @@ func NewAdventureManager(db AdventureDatabase) *AdventureManager {
 	}
 }
 
-func (am *AdventureManager) GetAllAdventures(ctx context.Context) ([]*ent.Adventure, error) {
-	return am.db.GetAllAdventures(ctx)
+func (am *AdventureManager) GetAllPublicAdventures(ctx context.Context) ([]*ent.Adventure, error) {
+	return am.db.GetAllPublicAdventures(ctx)
 }

@@ -13,6 +13,8 @@ const (
 	FieldDescription = "description"
 	// FieldPrice holds the string denoting the price field in the database.
 	FieldPrice = "price"
+	// FieldPublic holds the string denoting the public field in the database.
+	FieldPublic = "public"
 	// EdgeGame holds the string denoting the game edge name in mutations.
 	EdgeGame = "game"
 	// EdgePuzzles holds the string denoting the puzzles edge name in mutations.
@@ -41,6 +43,7 @@ var Columns = []string{
 	FieldName,
 	FieldDescription,
 	FieldPrice,
+	FieldPublic,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -58,4 +61,6 @@ var (
 	DefaultDescription string
 	// DefaultPrice holds the default value on creation for the "price" field.
 	DefaultPrice float64
+	// DefaultPublic holds the default value on creation for the "public" field.
+	DefaultPublic bool
 )

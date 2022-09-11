@@ -14,6 +14,7 @@ var (
 		{Name: "name", Type: field.TypeString, Unique: true},
 		{Name: "description", Type: field.TypeString, Default: "No description provided"},
 		{Name: "price", Type: field.TypeFloat64, Default: 0},
+		{Name: "public", Type: field.TypeBool, Default: false},
 	}
 	// AdventuresTable holds the schema information for the "adventures" table.
 	AdventuresTable = &schema.Table{

@@ -52,6 +52,6 @@ func (db *DBClient) GetNextPuzzleForAdventure(ctx context.Context, a *ent.Advent
 	return a.QueryPuzzles().Order(ent.Asc("order")).Where(puzzle.OrderGT(current)).First(ctx)
 }
 
-func (db *DBClient) GetAllAdventures(ctx context.Context) ([]*ent.Adventure, error) {
-	return db.entclient.Adventure.Query().All(ctx)
+func (db *DBClient) GetAllPublicAdventures(ctx context.Context) ([]*ent.Adventure, error) {
+	return db.entclient.Adventure.Query().Where(adventure.Public(true)).All(ctx)
 }

@@ -17,6 +17,7 @@ func (Adventure) Fields() []ent.Field {
 		field.String("name").Unique(),
 		field.String("description").Default("No description provided"),
 		field.Float("price").Default(0.00),
+		field.Bool("public").Default(false),
 	}
 }
 

@@ -21,6 +21,8 @@ type Adventure struct {
 	Description string `json:"description,omitempty"`
 	// Price holds the value of the "price" field.
 	Price float64 `json:"price,omitempty"`
+	// Public holds the value of the "public" field.
+	Public bool `json:"public,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AdventureQuery when eager-loading is set.
 	Edges AdventureEdges `json:"edges"`
@@ -60,6 +62,8 @@ func (*Adventure) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case adventure.FieldPublic:
+			values[i] = new(sql.NullBool)
 		case adventure.FieldPrice:
 			values[i] = new(sql.NullFloat64)
 		case adventure.FieldID:
@@ -104,6 +108,12 @@ func (a *Adventure) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field price", values[i])
 			} else if value.Valid {
 				a.Price = value.Float64
+			}
+		case adventure.FieldPublic:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field public", values[i])
+			} else if value.Valid {
+				a.Public = value.Bool
 			}
 		}
 	}
@@ -151,6 +161,9 @@ func (a *Adventure) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("price=")
 	builder.WriteString(fmt.Sprintf("%v", a.Price))
+	builder.WriteString(", ")
+	builder.WriteString("public=")
+	builder.WriteString(fmt.Sprintf("%v", a.Public))
 	builder.WriteByte(')')
 	return builder.String()
 }

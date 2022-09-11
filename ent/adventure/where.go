@@ -100,6 +100,13 @@ func Price(v float64) predicate.Adventure {
 	})
 }
 
+// Public applies equality check predicate on the "public" field. It's identical to PublicEQ.
+func Public(v bool) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPublic), v))
+	})
+}
+
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.Adventure {
 	return predicate.Adventure(func(s *sql.Selector) {
@@ -359,6 +366,20 @@ func PriceLT(v float64) predicate.Adventure {
 func PriceLTE(v float64) predicate.Adventure {
 	return predicate.Adventure(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldPrice), v))
+	})
+}
+
+// PublicEQ applies the EQ predicate on the "public" field.
+func PublicEQ(v bool) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPublic), v))
+	})
+}
+
+// PublicNEQ applies the NEQ predicate on the "public" field.
+func PublicNEQ(v bool) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPublic), v))
 	})
 }
 

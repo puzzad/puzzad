@@ -55,6 +55,20 @@ func (ac *AdventureCreate) SetNillablePrice(f *float64) *AdventureCreate {
 	return ac
 }
 
+// SetPublic sets the "public" field.
+func (ac *AdventureCreate) SetPublic(b bool) *AdventureCreate {
+	ac.mutation.SetPublic(b)
+	return ac
+}
+
+// SetNillablePublic sets the "public" field if the given value is not nil.
+func (ac *AdventureCreate) SetNillablePublic(b *bool) *AdventureCreate {
+	if b != nil {
+		ac.SetPublic(*b)
+	}
+	return ac
+}
+
 // AddGameIDs adds the "game" edge to the Game entity by IDs.
 func (ac *AdventureCreate) AddGameIDs(ids ...int) *AdventureCreate {
 	ac.mutation.AddGameIDs(ids...)
@@ -170,6 +184,10 @@ func (ac *AdventureCreate) defaults() {
 		v := adventure.DefaultPrice
 		ac.mutation.SetPrice(v)
 	}
+	if _, ok := ac.mutation.Public(); !ok {
+		v := adventure.DefaultPublic
+		ac.mutation.SetPublic(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -182,6 +200,9 @@ func (ac *AdventureCreate) check() error {
 	}
 	if _, ok := ac.mutation.Price(); !ok {
 		return &ValidationError{Name: "price", err: errors.New(`ent: missing required field "Adventure.price"`)}
+	}
+	if _, ok := ac.mutation.Public(); !ok {
+		return &ValidationError{Name: "public", err: errors.New(`ent: missing required field "Adventure.public"`)}
 	}
 	return nil
 }
@@ -233,6 +254,14 @@ func (ac *AdventureCreate) createSpec() (*Adventure, *sqlgraph.CreateSpec) {
 			Column: adventure.FieldPrice,
 		})
 		_node.Price = value
+	}
+	if value, ok := ac.mutation.Public(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: adventure.FieldPublic,
+		})
+		_node.Public = value
 	}
 	if nodes := ac.mutation.GameIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
