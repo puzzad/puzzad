@@ -46,6 +46,19 @@ func (db *DBClient) GenerateVerificationCode(ctx context.Context, email string) 
 	return code, nil
 }
 
+func (db *DBClient) VerifyVerificationCode(ctx context.Context, code string) (*ent.User, error) {
+	// TODO Should probably split this up to handle expired verify codes better
+	return db.entclient.User.Query().Where(user.And(user.VerifyCode(code), user.VerifyExpiryGT(time.Now()))).Only(ctx)
+}
+
+func (db *DBClient) InvalidateVerificationCode(ctx context.Context, u *ent.User) error {
+	_, err := db.entclient.User.
+		UpdateOne(u).
+		SetVerifyCode("").
+		Save(ctx)
+	return err
+}
+
 func (db *DBClient) GeneratePasswordResetCode(ctx context.Context, u *ent.User) (string, error) {
 	code := uuid.New().String()
 

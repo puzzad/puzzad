@@ -21,6 +21,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
 	"github.com/golangcollege/sessions"
+	"github.com/greboid/puzzad/ent/user"
 	"github.com/greboid/puzzad/puzzad"
 	"github.com/greboid/puzzad/puzzad/database"
 	"github.com/rs/zerolog"
@@ -153,7 +154,15 @@ func (web *Webserver) addRoutes() {
 }
 
 func (web *Webserver) handleValidate(writer http.ResponseWriter, request *http.Request) {
-	time.Sleep(2 * time.Second)
+	code := request.FormValue("code")
+
+	u, err := web.UserManager.CompleteVerification(request.Context(), code)
+	if err != nil {
+		outputError(web.templates, writer, http.StatusExpectationFailed, "Incorrect verify code")
+	}
+	log.Debug().Str("username", u.Email).Msg("Adding Auth: ")
+	web.sessionSore.Put(request, "username", user.Email)
+
 	writer.WriteHeader(http.StatusTemporaryRedirect)
 	if request.Header.Get("HX-Request") != "" {
 		writer.Header().Set("HX-Redirect", "/index.html")

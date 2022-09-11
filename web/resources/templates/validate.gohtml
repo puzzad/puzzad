@@ -7,6 +7,7 @@
     <p>
         Enter the code you received in the email address below to validate your email address.
     </p>
+    <div id="error"></div>
     <form hx-post="/validate" hx-disable-element="#submit">
         <label for="code">Validation code: </label><input type="text" id="code" name="code" maxlength="20" required value="{{ index .Values "code" 0 }}">
         <button id="submit" type="submit">Validate</button>

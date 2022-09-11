@@ -29,6 +29,9 @@ type UserDatabase interface {
 	SetAdmin(ctx context.Context, u *ent.User, admin bool) error
 	SetStatus(ctx context.Context, u *ent.User, status user.Status) error
 
+	VerifyVerificationCode(ctx context.Context, code string) (*ent.User, error)
+	InvalidateVerificationCode(ctx context.Context, u *ent.User) error
+
 	GeneratePasswordResetCode(ctx context.Context, u *ent.User) (string, error)
 	InvalidatePasswordResetCode(ctx context.Context, u *ent.User) error
 }
@@ -206,11 +209,24 @@ func (um *UserManager) CreateUser(ctx context.Context, email string) error {
 	if err != nil {
 		return err
 	}
-	code, err := um.db.GeneratePasswordResetCode(ctx, u)
+	return um.m.SendPasswordResetLink(ctx, u.Email, u.VerifyCode)
+}
+
+func (um *UserManager) CompleteVerification(ctx context.Context, code string) (*ent.User, error) {
+	// TODO Should probably split this up to handle expired verify codes better
+	u, err := um.db.VerifyVerificationCode(ctx, code)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return um.m.SendPasswordResetLink(ctx, u.Email, code)
+	err = um.db.SetStatus(ctx, u, user.StatusVerified)
+	if err != nil {
+		return nil, err
+	}
+	err = um.db.InvalidateVerificationCode(ctx, u)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
 }
 
 func validateEmailAddress(email string) error {
