@@ -144,6 +144,7 @@ func (web *Webserver) addRoutes() {
 	web.router.Post("/passreset", func(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusInternalServerError)
 	})
+	web.router.With(web.AdminOnly).Mount("/admin", web.adminRoutes())
 	web.router.Get("/validate", web.handleTemplate("validate"))
 	web.router.Post("/validate", web.handleValidate)
 	web.router.Get("/play", web.handleTemplate("play"))
@@ -151,6 +152,12 @@ func (web *Webserver) addRoutes() {
 		writer.WriteHeader(http.StatusInternalServerError)
 	})
 	web.router.Handle("/*", web.static)
+}
+
+func (web *Webserver) adminRoutes() http.Handler {
+	r := chi.NewRouter()
+	r.Get("/", web.handleTemplate("admin"))
+	return r
 }
 
 func (web *Webserver) handleValidate(writer http.ResponseWriter, request *http.Request) {
@@ -192,6 +199,7 @@ func (web *Webserver) handleLogin(writer http.ResponseWriter, request *http.Requ
 
 	log.Debug().Str("username", username).Msg("Adding Auth: ")
 	web.sessionSore.Put(request, "username", u.Email)
+	web.sessionSore.Put(request, "admin", u.Admin)
 	if request.Header.Get("HX-Request") != "" {
 		writer.Header().Set("HX-Redirect", "index.html")
 		writer.WriteHeader(http.StatusTemporaryRedirect)
@@ -267,6 +275,16 @@ func (web *Webserver) handleTemplate(templateName string) func(writer http.Respo
 			log.Error().Err(err).Msg("Unable to serve index page")
 		}
 	}
+}
+
+func (web *Webserver) AdminOnly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if web.sessionSore.GetBool(r, "admin") {
+			next.ServeHTTP(w, r)
+			return
+		}
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	})
 }
 
 func loggerMiddleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
