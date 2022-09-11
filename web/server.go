@@ -58,48 +58,26 @@ func (web *Webserver) Init(port int, log *zerolog.Logger) {
 	}
 }
 
-func getWatcher() *fsnotify.Watcher {
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		log.Fatal().Err(err).Msg("Unable to create template watcher")
-	}
-	return watcher
-}
-
-func (web *Webserver) startWatcher(watcher *fsnotify.Watcher) {
+func (web *Webserver) RunAndWait() error {
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM)
+	signal.Notify(stop, syscall.SIGINT)
+	var servErr error
 	go func() {
-		for {
-			select {
-			case _, ok := <-watcher.Events:
-				if !ok {
-					return
-				}
-				dfs := os.DirFS(filepath.Join("web", "resources", "templates"))
-				templates, err := template.ParseFS(dfs, "*.gohtml")
-				if err != nil {
-					log.Error().Err(err).Msg("Unable to recompile templates")
-				} else {
-					web.templates = templates
-				}
+		if err := web.handler.ListenAndServe(); err != nil {
+			if err != http.ErrServerClosed {
+				servErr = err
 			}
+			close(stop)
 		}
 	}()
-	err := watcher.Add(filepath.Join("web", "resources", "templates"))
-	if err != nil {
-		log.Error().Err(err).Msg("Unable to watch templates path")
+	<-stop
+	if servErr != nil {
+		return servErr
 	}
-}
-
-func (web *Webserver) getTemplates() *template.Template {
-	_, err := os.OpenFile(filepath.Join("web", "resources", "templates"), os.O_RDONLY, 0644)
-	if errors.Is(err, os.ErrNotExist) {
-		pfs, _ := fs.Sub(publicfs, "resources/templates")
-		return template.Must(template.ParseFS(pfs, "*.gohtml"))
-	} else {
-		web.startWatcher(getWatcher())
-		dfs := os.DirFS(filepath.Join("web", "resources", "templates"))
-		return template.Must(template.ParseFS(dfs, "*.gohtml"))
-	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	return web.handler.Shutdown(ctx)
 }
 
 func (web *Webserver) getStaticServer() http.Handler {
@@ -259,28 +237,6 @@ func (web *Webserver) handleSetPass(writer http.ResponseWriter, request *http.Re
 	}
 }
 
-func (web *Webserver) RunAndWait() error {
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, syscall.SIGTERM)
-	signal.Notify(stop, syscall.SIGINT)
-	var servErr error
-	go func() {
-		if err := web.handler.ListenAndServe(); err != nil {
-			if err != http.ErrServerClosed {
-				servErr = err
-			}
-			close(stop)
-		}
-	}()
-	<-stop
-	if servErr != nil {
-		return servErr
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	return web.handler.Shutdown(ctx)
-}
-
 func (web *Webserver) handleLogout(writer http.ResponseWriter, request *http.Request) {
 	log.Debug().Str("username", web.sessionSore.GetString(request, "username")).Msg("Removing Auth: ")
 	web.sessionSore.Destroy(request)
@@ -290,57 +246,4 @@ func (web *Webserver) handleLogout(writer http.ResponseWriter, request *http.Req
 	} else {
 		http.Redirect(writer, request, "index.html", http.StatusTemporaryRedirect)
 	}
-}
-
-func (web *Webserver) handleTemplate(templateName string) func(writer http.ResponseWriter, request *http.Request) {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		err := web.templates.ExecuteTemplate(writer, templateName+".gohtml", struct {
-			Authed bool
-			Values map[string][]string
-		}{
-			Authed: web.sessionSore.GetString(request, "username") != "",
-			Values: request.URL.Query(),
-		})
-		if err != nil {
-			log.Error().Err(err).Msg("Unable to serve index page")
-		}
-	}
-}
-
-func (web *Webserver) AdminOnly(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if web.sessionSore.GetBool(r, "admin") {
-			next.ServeHTTP(w, r)
-			return
-		}
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-	})
-}
-
-func loggerMiddleware(logger *zerolog.Logger) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			wrapper := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
-			defer func() {
-				logger.Info().
-					Timestamp().
-					Str("REMOTE_ADDR", r.RemoteAddr).
-					Str("url", r.URL.Path).
-					Str("Proto", r.Proto).
-					Str("Method", r.Method).
-					Str("User-Agent", r.Header.Get("User-Agent")).
-					Int("status", wrapper.Status()).
-					Msg("incoming_request")
-			}()
-			next.ServeHTTP(wrapper, r)
-		})
-	}
-}
-
-func outputError(t *template.Template, writer http.ResponseWriter, code int, message string) {
-	err := t.ExecuteTemplate(writer, "error.gohtml", message)
-	if err != nil {
-		log.Error().Err(err).Msg("Unable to serve error page")
-	}
-	http.Error(writer, message, code)
 }
