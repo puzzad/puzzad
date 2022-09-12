@@ -17,6 +17,7 @@ var (
 	WebURL        = flag.String("web-url", "http://localhost:3000", "Base URL used for the site")
 	WebPort       = flag.Int("web-port", 3000, "Port for webserver")
 	Debug         = flag.Bool("debug", true, "Enable debug logging")
+	WebLogs       = flag.Bool("weblog", false, "Enable web logging")
 	AdminEmail    = flag.String("admin-email", "", "Default admin email, only used if at least one admin does not exist, must be accompanied by admin-password")
 	AdminPassword = flag.String("admin-password", "", "Default admin password, only used if at least one admin does not exist, must be accompanied by admin-email")
 	SessionKey    = flag.String("session-key", "", "Encryption key for sessions, should be 32 bytes")
@@ -63,6 +64,7 @@ func main() {
 		UserManager:      userManager,
 		SessionKey:       *SessionKey,
 		AdventureManager: adventureManager,
+		EnableLogs:       *WebLogs,
 	}
 
 	server.Init(*WebPort, logger)

@@ -43,6 +43,7 @@ type Webserver struct {
 	UserManager      *puzzad.UserManager
 	AdventureManager *puzzad.AdventureManager
 	SessionKey       string
+	EnableLogs       bool
 }
 
 func (web *Webserver) Init(port int, log *zerolog.Logger) {
@@ -96,7 +97,9 @@ func (web *Webserver) addMiddleWare() {
 	web.router.Use(middleware.RealIP)
 	web.router.Use(middleware.Heartbeat("/ping"))
 	web.router.Use(middleware.Recoverer)
-	web.router.Use(web.loggerMiddleware(web.log))
+	if web.EnableLogs {
+		web.router.Use(web.loggerMiddleware(web.log))
+	}
 	web.router.Use(middleware.Timeout(60 * time.Second))
 	web.router.Use(web.sessionSore.Enable)
 	web.router.Use(web.errorInterceptMiddleWare)
