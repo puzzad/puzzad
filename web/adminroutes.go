@@ -74,9 +74,25 @@ func (web *Webserver) handleAdminPuzzlesCreate(writer http.ResponseWriter, reque
 	aid, err := strconv.Atoi(request.FormValue("aid"))
 	name := request.FormValue("puzzleName")
 	if err != nil {
+		log.Debug().Err(err).Msg("Bad adventure ID")
 		outputError(web.templates, writer, http.StatusBadRequest, "Bad adventure ID")
 		return
 	}
-	web.AdventureManager
-	_, _ = writer.Write([]byte(fmt.Sprintf("%s %s", aid, name)))
+	_, err = web.AdventureManager.CreatePuzzle(request.Context(), aid, name)
+	if err != nil {
+		log.Debug().Err(err).Msg("Unable to create puzzle")
+		outputError(web.templates, writer, http.StatusInternalServerError, "Unable to create puzzle")
+		return
+	}
+	_, p, err := web.AdventureManager.GetAdventureByID(request.Context(), aid)
+	if err != nil {
+		log.Debug().Err(err).Msg("Unable to get updated puzzle")
+		outputError(web.templates, writer, http.StatusInternalServerError, "Unable to get updated puzzle")
+		return
+	}
+	_, _ = writer.Write([]byte("<ol id=\"puzzles\" class=\".sortable\" hx-swap-oob=\"puzzles\">\n"))
+	for index := range p {
+		_, _ = writer.Write([]byte(fmt.Sprintf("<li>%s</li>\n", p[index].Title)))
+	}
+	_, _ = writer.Write([]byte("</ol>\n"))
 }

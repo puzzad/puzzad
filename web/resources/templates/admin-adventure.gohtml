@@ -11,7 +11,7 @@
         <label for="price">Price: </label><input type="number" id="price" name="price" value="{{ .Data.Adventure.Price }}" min="0" max="9999">
         <label for="public">Public: </label><input type="checkbox" id="public" name="public" {{ if .Data.Adventure.Public }}checked{{ end }}>
         <label for="puzzles">Puzzles:</label>
-        <ol class=".sortable">
+        <ol id="puzzles" class=".sortable">
             {{- if not .Data.Puzzles }}
                 <p>No Puzzles.</p>
             {{- end -}}
