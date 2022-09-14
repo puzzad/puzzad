@@ -21,7 +21,7 @@
         </ol>
         <button type="submit">Update</button>
     </form>
-    <form hx-post="/admin/puzzles" hx-disable-element="#submit" hx-swap="none">
+    <form hx-post="/admin/puzzles" hx-disable-element="#submit" hx-swap="none" _="on htmx:afterSwap reset() me">
         <input type="hidden" name="aid" value="{{.Data.Adventure.ID }}">
         <label for="puzzleName">Name: </label><input type="text" id="puzzleName" name="puzzleName">
         <button type="submit">Add Puzzle</button>
