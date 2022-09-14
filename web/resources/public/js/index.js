@@ -12,3 +12,13 @@ document.body.addEventListener('htmx:beforeOnLoad', function (evt) {
         evt.detail.isError = false;
     }
 });
+htmx.onLoad(function(content) {
+    let sortables = document.querySelectorAll(".sortable");
+    for (let i = 0; i < sortables.length; i++) {
+        let sortable = sortables[i];
+        new Sortable(sortable, {
+            animation: 150,
+            ghostClass: 'blue-background-class'
+        });
+    }
+});

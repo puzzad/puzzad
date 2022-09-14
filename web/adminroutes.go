@@ -16,6 +16,7 @@ func (web *Webserver) adminRoutes() http.Handler {
 	r.Get("/adventures", web.handleAdminAdventureList)
 	r.Get("/adventures/{id:[0-9]+}", web.handleAdminAdventureDetails)
 	r.Post("/adventures", web.handleAdminAdventureCreate)
+	r.Patch("/adventures", web.handleAdminAdventureUpdate)
 	r.Post("/puzzles", web.handleAdminPuzzlesCreate)
 	return r
 }
@@ -84,15 +85,20 @@ func (web *Webserver) handleAdminPuzzlesCreate(writer http.ResponseWriter, reque
 		outputError(web.templates, writer, http.StatusInternalServerError, "Unable to create puzzle")
 		return
 	}
-	_, p, err := web.AdventureManager.GetAdventureByID(request.Context(), aid)
-	if err != nil {
-		log.Debug().Err(err).Msg("Unable to get updated puzzle")
-		outputError(web.templates, writer, http.StatusInternalServerError, "Unable to get updated puzzle")
-		return
+	if request.Header.Get("HX-Request") != "" {
+		writer.Header().Set("HX-Redirect", fmt.Sprintf("%s%d", "/admin/adventures/", aid))
+		writer.WriteHeader(http.StatusTemporaryRedirect)
+	} else {
+		http.Redirect(writer, request, fmt.Sprintf("%s%d", "/admin/adventures/", aid), http.StatusTemporaryRedirect)
 	}
-	_, _ = writer.Write([]byte("<ol id=\"puzzles\" class=\".sortable\" hx-swap-oob=\"puzzles\">\n"))
-	for index := range p {
-		_, _ = writer.Write([]byte(fmt.Sprintf("<li>%s</li>\n", p[index].Title)))
-	}
-	_, _ = writer.Write([]byte("</ol>\n"))
+}
+
+func (web *Webserver) handleAdminAdventureUpdate(writer http.ResponseWriter, request *http.Request) {
+	aid := request.FormValue("aid")
+	name := request.FormValue("name")
+	desc := request.FormValue("desc")
+	price := request.FormValue("price")
+	puzzles := request.FormValue("puzzles")
+	// TODO: Actually update this
+	log.Debug().Str("aid", aid).Str("name", name).Str("desc", desc).Str("price", price).Str("puzzles", puzzles).Msg("Values:")
 }

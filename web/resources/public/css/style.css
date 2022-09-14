@@ -95,3 +95,9 @@ div#error p {
     background: var(--background-error);
     color: var(--foreground-error);
 }
+.grow {
+    flex-grow: 1;
+}
+.container {
+    display: flex;
+}

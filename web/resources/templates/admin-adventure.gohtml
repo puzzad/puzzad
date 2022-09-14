@@ -5,25 +5,31 @@
 {{ template "menu.gohtml" . }}
 <article>
     <div id="error"></div>
-    <form>
+    <form hx-patch="/admin/adventures" hx-disable-element="#submit" hx-swap="none" hx-vals="js: puzzles: Array.from(document.getElementById('puzzles').options).map(option => option.value).join((','))">
+        <input type="hidden" id="aid" name="aid" value="{{ .Data.Adventure.ID }}">
         <label for="name">Name: </label><input type="text" id="name" name="name" value="{{ .Data.Adventure.Name }}">
         <label for="desc">Name: </label><textarea id="desc" name="desc" cols="120" rows="5">{{ .Data.Adventure.Description }}</textarea>
         <label for="price">Price: </label><input type="number" id="price" name="price" value="{{ .Data.Adventure.Price }}" min="0" max="9999">
         <label for="public">Public: </label><input type="checkbox" id="public" name="public" {{ if .Data.Adventure.Public }}checked{{ end }}>
         <label for="puzzles">Puzzles:</label>
-        <ol id="puzzles" class=".sortable">
-            {{- if not .Data.Puzzles }}
-                <p>No Puzzles.</p>
-            {{- end -}}
-            {{- range .Data.Puzzles }}
-                <li>{{ .Title }}</li>
-            {{- end }}
-        </ol>
-        <button type="submit">Update</button>
+        <div class="container">
+            <select id="puzzles" class="sortable grow" name="puzzles" multiple>
+                {{- if not .Data.Puzzles }}
+                    <option disabled>No Puzzles.</option>
+                {{- end -}}
+                {{- range .Data.Puzzles }}
+                    <option value="{{ .ID }}" disabled>{{ .Title }}</option>
+                {{- end }}
+            </select>
+            <p>Drag and drop re-order</p>
+        </div>
+
+
+        <button type="submit">Update Adventure</button>
     </form>
-    <form hx-post="/admin/puzzles" hx-disable-element="#submit" hx-swap="none" _="on htmx:afterSwap reset() me">
+    <form hx-post="/admin/puzzles" hx-disable-element="#submit" hx-swap="none">
         <input type="hidden" name="aid" value="{{.Data.Adventure.ID }}">
-        <label for="puzzleName">Name: </label><input type="text" id="puzzleName" name="puzzleName">
+        <label for="puzzleName">Name: </label><input type="text" id="puzzleName" name="puzzleName" required>
         <button type="submit">Add Puzzle</button>
     </form>
 </article>
