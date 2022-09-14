@@ -4,7 +4,27 @@
 </header>
 {{ template "menu.gohtml" . }}
 <article>
-    <p>Adventure: {{ .Data.Adventure }}</p>
-    <p>Puzzles: {{ .Data.Puzzles }}</p>
+    <div id="error"></div>
+    <form>
+        <label for="name">Name: </label><input type="text" id="name" name="name" value="{{ .Data.Adventure.Name }}">
+        <label for="desc">Name: </label><textarea id="desc" name="desc" cols="120" rows="5">{{ .Data.Adventure.Description }}</textarea>
+        <label for="price">Price: </label><input type="number" id="price" name="price" value="{{ .Data.Adventure.Price }}" min="0" max="9999">
+        <label for="public">Public: </label><input type="checkbox" id="public" name="public" {{ if .Data.Adventure.Public }}checked{{ end }}>
+        <label for="puzzles">Puzzles:</label>
+        <ol class=".sortable">
+            {{- if not .Data.Puzzles }}
+                <p>No Puzzles.</p>
+            {{- end -}}
+            {{- range .Data.Puzzles }}
+                <li>{{ .Title }}</li>
+            {{- end }}
+        </ol>
+        <button type="submit">Update</button>
+    </form>
+    <form hx-post="/admin/puzzles" hx-disable-element="#submit" hx-swap="none">
+        <input type="hidden" name="aid" value="{{.Data.Adventure.ID }}">
+        <label for="puzzleName">Name: </label><input type="text" id="puzzleName" name="puzzleName">
+        <button type="submit">Add Puzzle</button>
+    </form>
 </article>
 {{ template "foot.gohtml" . }}

@@ -66,7 +66,7 @@ func (db *DBClient) GetAdventureByID(ctx context.Context, id int) (*ent.Adventur
 	if err != nil {
 		return nil, nil, err
 	}
-	p, err := q.QueryPuzzles().All(ctx)
+	p, err := q.QueryPuzzles().Order(ent.Asc(puzzle.FieldOrder)).All(ctx)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/greboid/puzzad/ent"
+	"github.com/rs/zerolog/log"
 )
 
 func (web *Webserver) adminRoutes() http.Handler {
@@ -14,6 +16,7 @@ func (web *Webserver) adminRoutes() http.Handler {
 	r.Get("/adventures", web.handleAdminAdventureList)
 	r.Get("/adventures/{id:[0-9]+}", web.handleAdminAdventureDetails)
 	r.Post("/adventures", web.handleAdminAdventureCreate)
+	r.Post("/puzzles", web.handleAdminPuzzlesCreate)
 	return r
 }
 
@@ -28,13 +31,28 @@ func (web *Webserver) handleAdminAdventureList(writer http.ResponseWriter, reque
 func (web *Webserver) handleAdminAdventureDetails(writer http.ResponseWriter, request *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(request, "id"))
 	if err != nil {
+		log.Debug().Err(err).Msg("Incorrect adventure ID")
 		http.Error(writer, "Unable to find adventure", http.StatusNotFound)
+		return
 	}
 	adv, p, err := web.AdventureManager.GetAdventureByID(request.Context(), id)
 	if err != nil {
-		http.Error(writer, "Unable to get adventure", http.StatusInternalServerError)
+		if ent.IsNotFound(err) {
+			log.Debug().Err(err).Int("id", id).Msg("Unable to find adventure")
+			http.Error(writer, "Unable to find adventure", http.StatusNotFound)
+		} else {
+			log.Debug().Err(err).Msg("Unable to get adventure")
+			http.Error(writer, "Unable to get adventure", http.StatusInternalServerError)
+		}
+		return
 	}
-	web.handleTemplate("admin-adventure", map[string]interface{}{"Adventure": adv, "Puzzles": p})(writer, request)
+	web.handleTemplate("admin-adventure", struct {
+		Adventure *ent.Adventure
+		Puzzles   []*ent.Puzzle
+	}{
+		Adventure: adv,
+		Puzzles:   p,
+	})(writer, request)
 }
 
 func (web *Webserver) handleAdminAdventureCreate(writer http.ResponseWriter, request *http.Request) {
@@ -50,4 +68,15 @@ func (web *Webserver) handleAdminAdventureCreate(writer http.ResponseWriter, req
 	} else {
 		http.Redirect(writer, request, "/login", http.StatusTemporaryRedirect)
 	}
+}
+
+func (web *Webserver) handleAdminPuzzlesCreate(writer http.ResponseWriter, request *http.Request) {
+	aid, err := strconv.Atoi(request.FormValue("aid"))
+	name := request.FormValue("puzzleName")
+	if err != nil {
+		outputError(web.templates, writer, http.StatusBadRequest, "Bad adventure ID")
+		return
+	}
+	web.AdventureManager
+	_, _ = writer.Write([]byte(fmt.Sprintf("%s %s", aid, name)))
 }
