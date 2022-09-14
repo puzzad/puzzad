@@ -18,7 +18,8 @@ func (web *Webserver) adminRoutes() http.Handler {
 	r.Post("/adventures", web.handleAdminAdventureCreate)
 	r.Patch("/adventures", web.handleAdminAdventureUpdate)
 	r.Post("/puzzles", web.handleAdminPuzzlesCreate)
-	r.Patch("/puzzles/{id:[0-9]+}", web.handleAdminPuzzleEdit)
+	r.Get("/puzzles/{id:[0-9]+}", web.handleAdminPuzzleDetails)
+	r.Patch("/puzzles", web.handleAdminPuzzleEdit)
 	r.Delete("/puzzles/{id:[0-9]+}", web.handleAdminPuzzleDelete)
 	return r
 }
@@ -105,10 +106,54 @@ func (web *Webserver) handleAdminAdventureUpdate(writer http.ResponseWriter, req
 	log.Debug().Str("aid", aid).Str("name", name).Str("desc", desc).Str("price", price).Str("puzzles", puzzles).Msg("Values:")
 }
 
+func (web *Webserver) handleAdminPuzzleDetails(writer http.ResponseWriter, request *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(request, "id"))
+	if err != nil {
+		log.Debug().Err(err).Msg("Incorrect puzzle ID")
+		http.Error(writer, "Unable to find puzzle", http.StatusNotFound)
+		return
+	}
+	p, err := web.AdventureManager.GetPuzzleByID(request.Context(), id)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			log.Debug().Err(err).Int("id", id).Msg("Unable to find puzzle")
+			http.Error(writer, "Unable to find puzzle", http.StatusInternalServerError)
+			return
+		} else {
+			log.Debug().Err(err).Msg("Unable to get puzzle")
+			http.Error(writer, "Unable to find puzzle", http.StatusInternalServerError)
+			return
+		}
+	}
+	web.handleTemplate("admin-puzzle", p)(writer, request)
+}
+
 func (web *Webserver) handleAdminPuzzleEdit(writer http.ResponseWriter, request *http.Request) {
-	log.Debug().Str("id", chi.URLParam(request, "id")).Msg("Editing puzzle")
+	pid := request.FormValue("pid")
+	title := request.FormValue("title :=")
+	answer := request.FormValue("answer")
+	// TODO: Handle editing.  Do we need to edit the order from here too?
+	log.Debug().Str("id", pid).Str("title", title).Str("answer", answer).Msg("Editing puzzle")
 }
 
 func (web *Webserver) handleAdminPuzzleDelete(writer http.ResponseWriter, request *http.Request) {
-	log.Debug().Str("id", chi.URLParam(request, "id")).Msg("Deleting puzzle")
+	pid, err := strconv.Atoi(chi.URLParam(request, "id"))
+	if err != nil {
+		http.Error(writer, "Unable to find puzzle", http.StatusInternalServerError)
+	}
+	log.Debug().Int("id", pid).Msg("Deleting puzzle")
+	if err != nil {
+		http.Error(writer, "Unable to find puzzle", http.StatusInternalServerError)
+	}
+	err = web.AdventureManager.DeletePuzzleByID(request.Context(), pid)
+	if err != nil {
+		http.Error(writer, "Error deleting puzzle", http.StatusInternalServerError)
+	}
+	// TODO: Need to redirect back to the adventure details page really
+	if request.Header.Get("HX-Request") != "" {
+		writer.Header().Set("HX-Redirect", "/admin/adventures/")
+		writer.WriteHeader(http.StatusTemporaryRedirect)
+	} else {
+		http.Redirect(writer, request, "/admin/adventures/", http.StatusTemporaryRedirect)
+	}
 }

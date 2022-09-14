@@ -12,6 +12,9 @@ type AdventureDatabase interface {
 	GetAdventureByID(ctx context.Context, id int) (*ent.Adventure, []*ent.Puzzle, error)
 	CreateAdventure(ctx context.Context, name string) (*ent.Adventure, error)
 	AddPuzzle(ctx context.Context, a *ent.Adventure, order int, title, answer string) (*ent.Puzzle, error)
+	GetPuzzleByID(ctx context.Context, id int) (*ent.Puzzle, error)
+	DeletePuzzleByID(ctx context.Context, id int) error
+	UpdatePuzzle(ctx context.Context, id int, title string, answer string)
 }
 
 type AdventureManager struct {
@@ -46,4 +49,12 @@ func (am *AdventureManager) CreatePuzzle(ctx context.Context, adventureID int, p
 		return nil, err
 	}
 	return am.db.AddPuzzle(ctx, a, len(p), puzzleTitle, "")
+}
+
+func (am *AdventureManager) GetPuzzleByID(ctx context.Context, id int) (*ent.Puzzle, error) {
+	return am.db.GetPuzzleByID(ctx, id)
+}
+
+func (am *AdventureManager) DeletePuzzleByID(ctx context.Context, id int) error {
+	return am.db.DeletePuzzleByID(ctx, id)
 }

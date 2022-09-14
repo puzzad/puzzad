@@ -30,3 +30,11 @@ func (db *DBClient) DeletePuzzle(ctx context.Context, p *ent.Puzzle) error {
 func (db *DBClient) GetPuzzlesForAdventure(ctx context.Context, a *ent.Adventure) ([]*ent.Puzzle, error) {
 	return db.entclient.Adventure.QueryPuzzles(a).All(ctx)
 }
+
+func (db *DBClient) GetPuzzleByID(ctx context.Context, id int) (*ent.Puzzle, error) {
+	return db.entclient.Puzzle.Get(ctx, id)
+}
+
+func (db *DBClient) DeletePuzzleByID(ctx context.Context, id int) error {
+	return db.entclient.Puzzle.DeleteOneID(id).Exec(ctx)
+}
