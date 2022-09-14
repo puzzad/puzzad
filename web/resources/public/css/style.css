@@ -83,6 +83,9 @@ form > button {
     color: var(--input-color);
     border: 1px solid var(--input-border);
 }
+form > input[type=checkbox] {
+    justify-self: left;
+}
 a {
     color: var(--foreground-colour);
 }
