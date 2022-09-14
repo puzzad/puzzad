@@ -36,11 +36,12 @@ header {
 }
 nav {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     list-style: none;
     padding: 1em;
 }
 nav ul {
+    align-self: center;
     padding: 0;
     margin: 0;
 }

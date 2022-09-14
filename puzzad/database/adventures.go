@@ -55,3 +55,20 @@ func (db *DBClient) GetNextPuzzleForAdventure(ctx context.Context, a *ent.Advent
 func (db *DBClient) GetAllPublicAdventures(ctx context.Context) ([]*ent.Adventure, error) {
 	return db.entclient.Adventure.Query().Where(adventure.Public(true)).All(ctx)
 }
+
+func (db *DBClient) GetAllAdventures(ctx context.Context) ([]*ent.Adventure, error) {
+	return db.entclient.Adventure.Query().All(ctx)
+}
+
+func (db *DBClient) GetAdventureByID(ctx context.Context, id int) (*ent.Adventure, []*ent.Puzzle, error) {
+	q := db.entclient.Adventure.Query().Where(adventure.ID(id))
+	a, err := q.Only(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	p, err := q.QueryPuzzles().All(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	return a, p, nil
+}

@@ -62,8 +62,10 @@ func (web *Webserver) handleTemplate(templateName string, data interface{}) func
 			Authed bool
 			Values map[string][]string
 			Data   interface{}
+			Admin  bool
 		}{
 			Authed: web.sessionSore.GetString(request, "username") != "",
+			Admin:  web.sessionSore.GetBool(request, "admin"),
 			Values: request.URL.Query(),
 			Data:   data,
 		})

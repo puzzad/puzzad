@@ -2,7 +2,7 @@
     <ul>
         <li><a href="/">Home</a></li>
         <li><a href="/adventures">Adventures</a></li>
-        {{ if .Authed }}
+        {{ if .Admin }}
             <li><a href="/admin">Admin</a></li>
         {{ end }}
         {{ if .Authed }}
@@ -13,4 +13,15 @@
             <li><a href="/login">Login</a></li>
         {{ end }}
     </ul>
+    {{ if .Admin }}
+        <ul>
+            <li>Admin: </li>
+            <li><a href="/admin/adventures">List Adventures</a></li>
+        </ul>
+    {{ end }}
+    {{ if .Authed }}
+        <ul>
+            <li>Account: </li>
+        </ul>
+    {{ end }}
 </nav>

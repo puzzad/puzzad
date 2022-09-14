@@ -1,0 +1,10 @@
+{{ template "head.gohtml" . }}
+<header>
+    <h1>Puzzad</h1>
+</header>
+{{ template "menu.gohtml" . }}
+<article>
+    <p>Adventure: {{ .Data.Adventure }}</p>
+    <p>Puzzles: {{ .Data.Puzzles }}</p>
+</article>
+{{ template "foot.gohtml" . }}

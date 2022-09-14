@@ -138,18 +138,6 @@ func (web *Webserver) addRoutes() {
 	web.router.Handle("/*", web.static)
 }
 
-func (web *Webserver) adminRoutes() http.Handler {
-	r := chi.NewRouter()
-	r.Get("/", web.handleTemplate("admin", nil))
-	return r
-}
-
-func (web *Webserver) accountRoutes() http.Handler {
-	r := chi.NewRouter()
-	r.Get("/", web.handleTemplate("account", nil))
-	return r
-}
-
 func (web *Webserver) handleValidate(writer http.ResponseWriter, request *http.Request) {
 	code := request.FormValue("code")
 
