@@ -79,15 +79,17 @@ form > textarea,
 form > button {
     grid-column: controls;
     grid-row: auto;
-    background-color: var(--input-background);
-    color: var(--input-color);
-    border: 1px solid var(--input-border);
 }
 form > input[type=checkbox] {
     justify-self: left;
 }
 a {
     color: var(--foreground-colour);
+}
+input, textarea, button {
+    background-color: var(--input-background);
+    border: 1px solid var(--input-border);
+    color: var(--input-color);
 }
 div#error p {
     margin: 0.5em 0;
@@ -100,4 +102,10 @@ div#error p {
 }
 .container {
     display: flex;
+}
+.column {
+    flex-direction: column;
+}
+.handle {
+    cursor: grab;
 }

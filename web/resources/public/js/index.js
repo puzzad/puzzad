@@ -17,6 +17,7 @@ htmx.onLoad(function(content) {
     for (let i = 0; i < sortables.length; i++) {
         let sortable = sortables[i];
         new Sortable(sortable, {
+            handle: '.handle',
             animation: 150,
             ghostClass: 'blue-background-class'
         });

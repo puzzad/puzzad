@@ -18,6 +18,8 @@ func (web *Webserver) adminRoutes() http.Handler {
 	r.Post("/adventures", web.handleAdminAdventureCreate)
 	r.Patch("/adventures", web.handleAdminAdventureUpdate)
 	r.Post("/puzzles", web.handleAdminPuzzlesCreate)
+	r.Patch("/puzzles/{id:[0-9]+}", web.handleAdminPuzzleEdit)
+	r.Delete("/puzzles/{id:[0-9]+}", web.handleAdminPuzzleDelete)
 	return r
 }
 
@@ -101,4 +103,12 @@ func (web *Webserver) handleAdminAdventureUpdate(writer http.ResponseWriter, req
 	puzzles := request.FormValue("puzzles")
 	// TODO: Actually update this
 	log.Debug().Str("aid", aid).Str("name", name).Str("desc", desc).Str("price", price).Str("puzzles", puzzles).Msg("Values:")
+}
+
+func (web *Webserver) handleAdminPuzzleEdit(writer http.ResponseWriter, request *http.Request) {
+	log.Debug().Str("id", chi.URLParam(request, "id")).Msg("Editing puzzle")
+}
+
+func (web *Webserver) handleAdminPuzzleDelete(writer http.ResponseWriter, request *http.Request) {
+	log.Debug().Str("id", chi.URLParam(request, "id")).Msg("Deleting puzzle")
 }
