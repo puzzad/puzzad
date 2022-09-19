@@ -23,6 +23,14 @@ func (db *DBClient) UpdatePuzzle(ctx context.Context, p *ent.Puzzle, title, answ
 	return err
 }
 
+func (db *DBClient) UpdatePuzzleByID(ctx context.Context, id int, title string, answer string) error {
+	_, err := db.entclient.Puzzle.UpdateOneID(id).
+		SetTitle(title).
+		SetAnswer(answer).
+		Save(ctx)
+	return err
+}
+
 func (db *DBClient) DeletePuzzle(ctx context.Context, p *ent.Puzzle) error {
 	return db.entclient.Puzzle.DeleteOne(p).Exec(ctx)
 }

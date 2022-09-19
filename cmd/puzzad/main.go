@@ -48,6 +48,7 @@ func main() {
 		SMTPFrom:     *SmtpFrom,
 		URL:          *WebURL,
 	}
+	mailer.SendPasswordResetLink(context.Background(), "puzzard@greg.holmes.name", "blah")
 	userManager := puzzad.NewUserManager(client, mailer)
 	adventureManager := puzzad.NewAdventureManager(client)
 

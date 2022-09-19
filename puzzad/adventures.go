@@ -14,7 +14,7 @@ type AdventureDatabase interface {
 	AddPuzzle(ctx context.Context, a *ent.Adventure, order int, title, answer string) (*ent.Puzzle, error)
 	GetPuzzleByID(ctx context.Context, id int) (*ent.Puzzle, error)
 	DeletePuzzleByID(ctx context.Context, id int) error
-	UpdatePuzzle(ctx context.Context, id int, title string, answer string)
+	UpdatePuzzleByID(ctx context.Context, id int, title string, answer string) error
 }
 
 type AdventureManager struct {
