@@ -46,6 +46,8 @@ type AdventureMutation struct {
 	price          *float64
 	addprice       *float64
 	public         *bool
+	previewImage   *[]byte
+	intro          *[]byte
 	clearedFields  map[string]struct{}
 	game           map[int]struct{}
 	removedgame    map[int]struct{}
@@ -320,6 +322,78 @@ func (m *AdventureMutation) ResetPublic() {
 	m.public = nil
 }
 
+// SetPreviewImage sets the "previewImage" field.
+func (m *AdventureMutation) SetPreviewImage(b []byte) {
+	m.previewImage = &b
+}
+
+// PreviewImage returns the value of the "previewImage" field in the mutation.
+func (m *AdventureMutation) PreviewImage() (r []byte, exists bool) {
+	v := m.previewImage
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPreviewImage returns the old "previewImage" field's value of the Adventure entity.
+// If the Adventure object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AdventureMutation) OldPreviewImage(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPreviewImage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPreviewImage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPreviewImage: %w", err)
+	}
+	return oldValue.PreviewImage, nil
+}
+
+// ResetPreviewImage resets all changes to the "previewImage" field.
+func (m *AdventureMutation) ResetPreviewImage() {
+	m.previewImage = nil
+}
+
+// SetIntro sets the "intro" field.
+func (m *AdventureMutation) SetIntro(b []byte) {
+	m.intro = &b
+}
+
+// Intro returns the value of the "intro" field in the mutation.
+func (m *AdventureMutation) Intro() (r []byte, exists bool) {
+	v := m.intro
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIntro returns the old "intro" field's value of the Adventure entity.
+// If the Adventure object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AdventureMutation) OldIntro(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIntro is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIntro requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIntro: %w", err)
+	}
+	return oldValue.Intro, nil
+}
+
+// ResetIntro resets all changes to the "intro" field.
+func (m *AdventureMutation) ResetIntro() {
+	m.intro = nil
+}
+
 // AddGameIDs adds the "game" edge to the Game entity by ids.
 func (m *AdventureMutation) AddGameIDs(ids ...int) {
 	if m.game == nil {
@@ -447,7 +521,7 @@ func (m *AdventureMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AdventureMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 6)
 	if m.name != nil {
 		fields = append(fields, adventure.FieldName)
 	}
@@ -459,6 +533,12 @@ func (m *AdventureMutation) Fields() []string {
 	}
 	if m.public != nil {
 		fields = append(fields, adventure.FieldPublic)
+	}
+	if m.previewImage != nil {
+		fields = append(fields, adventure.FieldPreviewImage)
+	}
+	if m.intro != nil {
+		fields = append(fields, adventure.FieldIntro)
 	}
 	return fields
 }
@@ -476,6 +556,10 @@ func (m *AdventureMutation) Field(name string) (ent.Value, bool) {
 		return m.Price()
 	case adventure.FieldPublic:
 		return m.Public()
+	case adventure.FieldPreviewImage:
+		return m.PreviewImage()
+	case adventure.FieldIntro:
+		return m.Intro()
 	}
 	return nil, false
 }
@@ -493,6 +577,10 @@ func (m *AdventureMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldPrice(ctx)
 	case adventure.FieldPublic:
 		return m.OldPublic(ctx)
+	case adventure.FieldPreviewImage:
+		return m.OldPreviewImage(ctx)
+	case adventure.FieldIntro:
+		return m.OldIntro(ctx)
 	}
 	return nil, fmt.Errorf("unknown Adventure field %s", name)
 }
@@ -529,6 +617,20 @@ func (m *AdventureMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPublic(v)
+		return nil
+	case adventure.FieldPreviewImage:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPreviewImage(v)
+		return nil
+	case adventure.FieldIntro:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIntro(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Adventure field %s", name)
@@ -605,6 +707,12 @@ func (m *AdventureMutation) ResetField(name string) error {
 		return nil
 	case adventure.FieldPublic:
 		m.ResetPublic()
+		return nil
+	case adventure.FieldPreviewImage:
+		m.ResetPreviewImage()
+		return nil
+	case adventure.FieldIntro:
+		m.ResetIntro()
 		return nil
 	}
 	return fmt.Errorf("unknown Adventure field %s", name)
@@ -1823,6 +1931,7 @@ type PuzzleMutation struct {
 	answer           *string
 	_order           *int
 	add_order        *int
+	content          *[]byte
 	clearedFields    map[string]struct{}
 	adventure        *int
 	clearedadventure bool
@@ -2057,6 +2166,42 @@ func (m *PuzzleMutation) ResetOrder() {
 	m.add_order = nil
 }
 
+// SetContent sets the "content" field.
+func (m *PuzzleMutation) SetContent(b []byte) {
+	m.content = &b
+}
+
+// Content returns the value of the "content" field in the mutation.
+func (m *PuzzleMutation) Content() (r []byte, exists bool) {
+	v := m.content
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldContent returns the old "content" field's value of the Puzzle entity.
+// If the Puzzle object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PuzzleMutation) OldContent(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldContent is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldContent requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldContent: %w", err)
+	}
+	return oldValue.Content, nil
+}
+
+// ResetContent resets all changes to the "content" field.
+func (m *PuzzleMutation) ResetContent() {
+	m.content = nil
+}
+
 // SetAdventureID sets the "adventure" edge to the Adventure entity by id.
 func (m *PuzzleMutation) SetAdventureID(id int) {
 	m.adventure = &id
@@ -2115,7 +2260,7 @@ func (m *PuzzleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PuzzleMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.title != nil {
 		fields = append(fields, puzzle.FieldTitle)
 	}
@@ -2124,6 +2269,9 @@ func (m *PuzzleMutation) Fields() []string {
 	}
 	if m._order != nil {
 		fields = append(fields, puzzle.FieldOrder)
+	}
+	if m.content != nil {
+		fields = append(fields, puzzle.FieldContent)
 	}
 	return fields
 }
@@ -2139,6 +2287,8 @@ func (m *PuzzleMutation) Field(name string) (ent.Value, bool) {
 		return m.Answer()
 	case puzzle.FieldOrder:
 		return m.Order()
+	case puzzle.FieldContent:
+		return m.Content()
 	}
 	return nil, false
 }
@@ -2154,6 +2304,8 @@ func (m *PuzzleMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldAnswer(ctx)
 	case puzzle.FieldOrder:
 		return m.OldOrder(ctx)
+	case puzzle.FieldContent:
+		return m.OldContent(ctx)
 	}
 	return nil, fmt.Errorf("unknown Puzzle field %s", name)
 }
@@ -2183,6 +2335,13 @@ func (m *PuzzleMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetOrder(v)
+		return nil
+	case puzzle.FieldContent:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetContent(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Puzzle field %s", name)
@@ -2256,6 +2415,9 @@ func (m *PuzzleMutation) ResetField(name string) error {
 		return nil
 	case puzzle.FieldOrder:
 		m.ResetOrder()
+		return nil
+	case puzzle.FieldContent:
+		m.ResetContent()
 		return nil
 	}
 	return fmt.Errorf("unknown Puzzle field %s", name)

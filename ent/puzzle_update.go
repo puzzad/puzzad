@@ -53,6 +53,12 @@ func (pu *PuzzleUpdate) AddOrder(i int) *PuzzleUpdate {
 	return pu
 }
 
+// SetContent sets the "content" field.
+func (pu *PuzzleUpdate) SetContent(b []byte) *PuzzleUpdate {
+	pu.mutation.SetContent(b)
+	return pu
+}
+
 // SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
 func (pu *PuzzleUpdate) SetAdventureID(id int) *PuzzleUpdate {
 	pu.mutation.SetAdventureID(id)
@@ -183,6 +189,13 @@ func (pu *PuzzleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: puzzle.FieldOrder,
 		})
 	}
+	if value, ok := pu.mutation.Content(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Value:  value,
+			Column: puzzle.FieldContent,
+		})
+	}
 	if pu.mutation.AdventureCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -259,6 +272,12 @@ func (puo *PuzzleUpdateOne) SetOrder(i int) *PuzzleUpdateOne {
 // AddOrder adds i to the "order" field.
 func (puo *PuzzleUpdateOne) AddOrder(i int) *PuzzleUpdateOne {
 	puo.mutation.AddOrder(i)
+	return puo
+}
+
+// SetContent sets the "content" field.
+func (puo *PuzzleUpdateOne) SetContent(b []byte) *PuzzleUpdateOne {
+	puo.mutation.SetContent(b)
 	return puo
 }
 
@@ -420,6 +439,13 @@ func (puo *PuzzleUpdateOne) sqlSave(ctx context.Context) (_node *Puzzle, err err
 			Type:   field.TypeInt,
 			Value:  value,
 			Column: puzzle.FieldOrder,
+		})
+	}
+	if value, ok := puo.mutation.Content(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Value:  value,
+			Column: puzzle.FieldContent,
 		})
 	}
 	if puo.mutation.AdventureCleared() {

@@ -69,6 +69,18 @@ func (ac *AdventureCreate) SetNillablePublic(b *bool) *AdventureCreate {
 	return ac
 }
 
+// SetPreviewImage sets the "previewImage" field.
+func (ac *AdventureCreate) SetPreviewImage(b []byte) *AdventureCreate {
+	ac.mutation.SetPreviewImage(b)
+	return ac
+}
+
+// SetIntro sets the "intro" field.
+func (ac *AdventureCreate) SetIntro(b []byte) *AdventureCreate {
+	ac.mutation.SetIntro(b)
+	return ac
+}
+
 // AddGameIDs adds the "game" edge to the Game entity by IDs.
 func (ac *AdventureCreate) AddGameIDs(ids ...int) *AdventureCreate {
 	ac.mutation.AddGameIDs(ids...)
@@ -188,6 +200,14 @@ func (ac *AdventureCreate) defaults() {
 		v := adventure.DefaultPublic
 		ac.mutation.SetPublic(v)
 	}
+	if _, ok := ac.mutation.PreviewImage(); !ok {
+		v := adventure.DefaultPreviewImage
+		ac.mutation.SetPreviewImage(v)
+	}
+	if _, ok := ac.mutation.Intro(); !ok {
+		v := adventure.DefaultIntro
+		ac.mutation.SetIntro(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -203,6 +223,12 @@ func (ac *AdventureCreate) check() error {
 	}
 	if _, ok := ac.mutation.Public(); !ok {
 		return &ValidationError{Name: "public", err: errors.New(`ent: missing required field "Adventure.public"`)}
+	}
+	if _, ok := ac.mutation.PreviewImage(); !ok {
+		return &ValidationError{Name: "previewImage", err: errors.New(`ent: missing required field "Adventure.previewImage"`)}
+	}
+	if _, ok := ac.mutation.Intro(); !ok {
+		return &ValidationError{Name: "intro", err: errors.New(`ent: missing required field "Adventure.intro"`)}
 	}
 	return nil
 }
@@ -262,6 +288,22 @@ func (ac *AdventureCreate) createSpec() (*Adventure, *sqlgraph.CreateSpec) {
 			Column: adventure.FieldPublic,
 		})
 		_node.Public = value
+	}
+	if value, ok := ac.mutation.PreviewImage(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Value:  value,
+			Column: adventure.FieldPreviewImage,
+		})
+		_node.PreviewImage = value
+	}
+	if value, ok := ac.mutation.Intro(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Value:  value,
+			Column: adventure.FieldIntro,
+		})
+		_node.Intro = value
 	}
 	if nodes := ac.mutation.GameIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

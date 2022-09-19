@@ -8,6 +8,7 @@ import (
 	"github.com/greboid/puzzad/ent/adventure"
 	"github.com/greboid/puzzad/ent/game"
 	"github.com/greboid/puzzad/ent/guess"
+	"github.com/greboid/puzzad/ent/puzzle"
 	"github.com/greboid/puzzad/ent/user"
 	"github.com/greboid/puzzad/schema"
 )
@@ -30,6 +31,14 @@ func init() {
 	adventureDescPublic := adventureFields[3].Descriptor()
 	// adventure.DefaultPublic holds the default value on creation for the public field.
 	adventure.DefaultPublic = adventureDescPublic.Default.(bool)
+	// adventureDescPreviewImage is the schema descriptor for previewImage field.
+	adventureDescPreviewImage := adventureFields[4].Descriptor()
+	// adventure.DefaultPreviewImage holds the default value on creation for the previewImage field.
+	adventure.DefaultPreviewImage = adventureDescPreviewImage.Default.([]byte)
+	// adventureDescIntro is the schema descriptor for intro field.
+	adventureDescIntro := adventureFields[5].Descriptor()
+	// adventure.DefaultIntro holds the default value on creation for the intro field.
+	adventure.DefaultIntro = adventureDescIntro.Default.([]byte)
 	gameFields := schema.Game{}.Fields()
 	_ = gameFields
 	// gameDescCode is the schema descriptor for code field.
@@ -47,6 +56,12 @@ func init() {
 	guessDescCreateTime := guessMixinFields0[0].Descriptor()
 	// guess.DefaultCreateTime holds the default value on creation for the create_time field.
 	guess.DefaultCreateTime = guessDescCreateTime.Default.(func() time.Time)
+	puzzleFields := schema.Puzzle{}.Fields()
+	_ = puzzleFields
+	// puzzleDescContent is the schema descriptor for content field.
+	puzzleDescContent := puzzleFields[3].Descriptor()
+	// puzzle.DefaultContent holds the default value on creation for the content field.
+	puzzle.DefaultContent = puzzleDescContent.Default.([]byte)
 	userMixin := schema.User{}.Mixin()
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0

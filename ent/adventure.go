@@ -23,6 +23,10 @@ type Adventure struct {
 	Price float64 `json:"price,omitempty"`
 	// Public holds the value of the "public" field.
 	Public bool `json:"public,omitempty"`
+	// PreviewImage holds the value of the "previewImage" field.
+	PreviewImage []byte `json:"previewImage,omitempty"`
+	// Intro holds the value of the "intro" field.
+	Intro []byte `json:"intro,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AdventureQuery when eager-loading is set.
 	Edges AdventureEdges `json:"edges"`
@@ -62,6 +66,8 @@ func (*Adventure) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case adventure.FieldPreviewImage, adventure.FieldIntro:
+			values[i] = new([]byte)
 		case adventure.FieldPublic:
 			values[i] = new(sql.NullBool)
 		case adventure.FieldPrice:
@@ -115,6 +121,18 @@ func (a *Adventure) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				a.Public = value.Bool
 			}
+		case adventure.FieldPreviewImage:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field previewImage", values[i])
+			} else if value != nil {
+				a.PreviewImage = *value
+			}
+		case adventure.FieldIntro:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field intro", values[i])
+			} else if value != nil {
+				a.Intro = *value
+			}
 		}
 	}
 	return nil
@@ -164,6 +182,12 @@ func (a *Adventure) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("public=")
 	builder.WriteString(fmt.Sprintf("%v", a.Public))
+	builder.WriteString(", ")
+	builder.WriteString("previewImage=")
+	builder.WriteString(fmt.Sprintf("%v", a.PreviewImage))
+	builder.WriteString(", ")
+	builder.WriteString("intro=")
+	builder.WriteString(fmt.Sprintf("%v", a.Intro))
 	builder.WriteByte(')')
 	return builder.String()
 }

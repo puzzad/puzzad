@@ -100,6 +100,13 @@ func Order(v int) predicate.Puzzle {
 	})
 }
 
+// Content applies equality check predicate on the "content" field. It's identical to ContentEQ.
+func Content(v []byte) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldContent), v))
+	})
+}
+
 // TitleEQ applies the EQ predicate on the "title" field.
 func TitleEQ(v string) predicate.Puzzle {
 	return predicate.Puzzle(func(s *sql.Selector) {
@@ -359,6 +366,70 @@ func OrderLT(v int) predicate.Puzzle {
 func OrderLTE(v int) predicate.Puzzle {
 	return predicate.Puzzle(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldOrder), v))
+	})
+}
+
+// ContentEQ applies the EQ predicate on the "content" field.
+func ContentEQ(v []byte) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldContent), v))
+	})
+}
+
+// ContentNEQ applies the NEQ predicate on the "content" field.
+func ContentNEQ(v []byte) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldContent), v))
+	})
+}
+
+// ContentIn applies the In predicate on the "content" field.
+func ContentIn(vs ...[]byte) predicate.Puzzle {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldContent), v...))
+	})
+}
+
+// ContentNotIn applies the NotIn predicate on the "content" field.
+func ContentNotIn(vs ...[]byte) predicate.Puzzle {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldContent), v...))
+	})
+}
+
+// ContentGT applies the GT predicate on the "content" field.
+func ContentGT(v []byte) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldContent), v))
+	})
+}
+
+// ContentGTE applies the GTE predicate on the "content" field.
+func ContentGTE(v []byte) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldContent), v))
+	})
+}
+
+// ContentLT applies the LT predicate on the "content" field.
+func ContentLT(v []byte) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldContent), v))
+	})
+}
+
+// ContentLTE applies the LTE predicate on the "content" field.
+func ContentLTE(v []byte) predicate.Puzzle {
+	return predicate.Puzzle(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldContent), v))
 	})
 }
 

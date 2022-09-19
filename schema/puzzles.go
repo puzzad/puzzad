@@ -17,6 +17,7 @@ func (Puzzle) Fields() []ent.Field {
 		field.String("title"),
 		field.String("answer"),
 		field.Int("order"),
+		field.Bytes("content").Default([]byte("")),
 	}
 }
 

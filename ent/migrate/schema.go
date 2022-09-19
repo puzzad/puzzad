@@ -15,6 +15,8 @@ var (
 		{Name: "description", Type: field.TypeString, Default: "No description provided"},
 		{Name: "price", Type: field.TypeFloat64, Default: 0},
 		{Name: "public", Type: field.TypeBool, Default: false},
+		{Name: "preview_image", Type: field.TypeBytes},
+		{Name: "intro", Type: field.TypeBytes},
 	}
 	// AdventuresTable holds the schema information for the "adventures" table.
 	AdventuresTable = &schema.Table{
@@ -75,6 +77,7 @@ var (
 		{Name: "title", Type: field.TypeString},
 		{Name: "answer", Type: field.TypeString},
 		{Name: "order", Type: field.TypeInt},
+		{Name: "content", Type: field.TypeBytes},
 		{Name: "adventure_puzzles", Type: field.TypeInt, Nullable: true},
 		{Name: "guess_puzzle", Type: field.TypeInt, Nullable: true},
 	}
@@ -86,13 +89,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "puzzles_adventures_puzzles",
-				Columns:    []*schema.Column{PuzzlesColumns[4]},
+				Columns:    []*schema.Column{PuzzlesColumns[5]},
 				RefColumns: []*schema.Column{AdventuresColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "puzzles_guesses_puzzle",
-				Columns:    []*schema.Column{PuzzlesColumns[5]},
+				Columns:    []*schema.Column{PuzzlesColumns[6]},
 				RefColumns: []*schema.Column{GuessesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

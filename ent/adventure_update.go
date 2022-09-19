@@ -84,6 +84,18 @@ func (au *AdventureUpdate) SetNillablePublic(b *bool) *AdventureUpdate {
 	return au
 }
 
+// SetPreviewImage sets the "previewImage" field.
+func (au *AdventureUpdate) SetPreviewImage(b []byte) *AdventureUpdate {
+	au.mutation.SetPreviewImage(b)
+	return au
+}
+
+// SetIntro sets the "intro" field.
+func (au *AdventureUpdate) SetIntro(b []byte) *AdventureUpdate {
+	au.mutation.SetIntro(b)
+	return au
+}
+
 // AddGameIDs adds the "game" edge to the Game entity by IDs.
 func (au *AdventureUpdate) AddGameIDs(ids ...int) *AdventureUpdate {
 	au.mutation.AddGameIDs(ids...)
@@ -268,6 +280,20 @@ func (au *AdventureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: adventure.FieldPublic,
 		})
 	}
+	if value, ok := au.mutation.PreviewImage(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Value:  value,
+			Column: adventure.FieldPreviewImage,
+		})
+	}
+	if value, ok := au.mutation.Intro(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Value:  value,
+			Column: adventure.FieldIntro,
+		})
+	}
 	if au.mutation.GameCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -447,6 +473,18 @@ func (auo *AdventureUpdateOne) SetNillablePublic(b *bool) *AdventureUpdateOne {
 	if b != nil {
 		auo.SetPublic(*b)
 	}
+	return auo
+}
+
+// SetPreviewImage sets the "previewImage" field.
+func (auo *AdventureUpdateOne) SetPreviewImage(b []byte) *AdventureUpdateOne {
+	auo.mutation.SetPreviewImage(b)
+	return auo
+}
+
+// SetIntro sets the "intro" field.
+func (auo *AdventureUpdateOne) SetIntro(b []byte) *AdventureUpdateOne {
+	auo.mutation.SetIntro(b)
 	return auo
 }
 
@@ -662,6 +700,20 @@ func (auo *AdventureUpdateOne) sqlSave(ctx context.Context) (_node *Adventure, e
 			Type:   field.TypeBool,
 			Value:  value,
 			Column: adventure.FieldPublic,
+		})
+	}
+	if value, ok := auo.mutation.PreviewImage(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Value:  value,
+			Column: adventure.FieldPreviewImage,
+		})
+	}
+	if value, ok := auo.mutation.Intro(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Value:  value,
+			Column: adventure.FieldIntro,
 		})
 	}
 	if auo.mutation.GameCleared() {

@@ -107,6 +107,20 @@ func Public(v bool) predicate.Adventure {
 	})
 }
 
+// PreviewImage applies equality check predicate on the "previewImage" field. It's identical to PreviewImageEQ.
+func PreviewImage(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPreviewImage), v))
+	})
+}
+
+// Intro applies equality check predicate on the "intro" field. It's identical to IntroEQ.
+func Intro(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldIntro), v))
+	})
+}
+
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.Adventure {
 	return predicate.Adventure(func(s *sql.Selector) {
@@ -380,6 +394,134 @@ func PublicEQ(v bool) predicate.Adventure {
 func PublicNEQ(v bool) predicate.Adventure {
 	return predicate.Adventure(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldPublic), v))
+	})
+}
+
+// PreviewImageEQ applies the EQ predicate on the "previewImage" field.
+func PreviewImageEQ(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPreviewImage), v))
+	})
+}
+
+// PreviewImageNEQ applies the NEQ predicate on the "previewImage" field.
+func PreviewImageNEQ(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPreviewImage), v))
+	})
+}
+
+// PreviewImageIn applies the In predicate on the "previewImage" field.
+func PreviewImageIn(vs ...[]byte) predicate.Adventure {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldPreviewImage), v...))
+	})
+}
+
+// PreviewImageNotIn applies the NotIn predicate on the "previewImage" field.
+func PreviewImageNotIn(vs ...[]byte) predicate.Adventure {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldPreviewImage), v...))
+	})
+}
+
+// PreviewImageGT applies the GT predicate on the "previewImage" field.
+func PreviewImageGT(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldPreviewImage), v))
+	})
+}
+
+// PreviewImageGTE applies the GTE predicate on the "previewImage" field.
+func PreviewImageGTE(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldPreviewImage), v))
+	})
+}
+
+// PreviewImageLT applies the LT predicate on the "previewImage" field.
+func PreviewImageLT(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldPreviewImage), v))
+	})
+}
+
+// PreviewImageLTE applies the LTE predicate on the "previewImage" field.
+func PreviewImageLTE(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldPreviewImage), v))
+	})
+}
+
+// IntroEQ applies the EQ predicate on the "intro" field.
+func IntroEQ(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldIntro), v))
+	})
+}
+
+// IntroNEQ applies the NEQ predicate on the "intro" field.
+func IntroNEQ(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldIntro), v))
+	})
+}
+
+// IntroIn applies the In predicate on the "intro" field.
+func IntroIn(vs ...[]byte) predicate.Adventure {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldIntro), v...))
+	})
+}
+
+// IntroNotIn applies the NotIn predicate on the "intro" field.
+func IntroNotIn(vs ...[]byte) predicate.Adventure {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldIntro), v...))
+	})
+}
+
+// IntroGT applies the GT predicate on the "intro" field.
+func IntroGT(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldIntro), v))
+	})
+}
+
+// IntroGTE applies the GTE predicate on the "intro" field.
+func IntroGTE(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldIntro), v))
+	})
+}
+
+// IntroLT applies the LT predicate on the "intro" field.
+func IntroLT(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldIntro), v))
+	})
+}
+
+// IntroLTE applies the LTE predicate on the "intro" field.
+func IntroLTE(v []byte) predicate.Adventure {
+	return predicate.Adventure(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldIntro), v))
 	})
 }
 

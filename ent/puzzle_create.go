@@ -38,6 +38,12 @@ func (pc *PuzzleCreate) SetOrder(i int) *PuzzleCreate {
 	return pc
 }
 
+// SetContent sets the "content" field.
+func (pc *PuzzleCreate) SetContent(b []byte) *PuzzleCreate {
+	pc.mutation.SetContent(b)
+	return pc
+}
+
 // SetAdventureID sets the "adventure" edge to the Adventure entity by ID.
 func (pc *PuzzleCreate) SetAdventureID(id int) *PuzzleCreate {
 	pc.mutation.SetAdventureID(id)
@@ -68,6 +74,7 @@ func (pc *PuzzleCreate) Save(ctx context.Context) (*Puzzle, error) {
 		err  error
 		node *Puzzle
 	)
+	pc.defaults()
 	if len(pc.hooks) == 0 {
 		if err = pc.check(); err != nil {
 			return nil, err
@@ -131,6 +138,14 @@ func (pc *PuzzleCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (pc *PuzzleCreate) defaults() {
+	if _, ok := pc.mutation.Content(); !ok {
+		v := puzzle.DefaultContent
+		pc.mutation.SetContent(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (pc *PuzzleCreate) check() error {
 	if _, ok := pc.mutation.Title(); !ok {
@@ -141,6 +156,9 @@ func (pc *PuzzleCreate) check() error {
 	}
 	if _, ok := pc.mutation.Order(); !ok {
 		return &ValidationError{Name: "order", err: errors.New(`ent: missing required field "Puzzle.order"`)}
+	}
+	if _, ok := pc.mutation.Content(); !ok {
+		return &ValidationError{Name: "content", err: errors.New(`ent: missing required field "Puzzle.content"`)}
 	}
 	return nil
 }
@@ -193,6 +211,14 @@ func (pc *PuzzleCreate) createSpec() (*Puzzle, *sqlgraph.CreateSpec) {
 		})
 		_node.Order = value
 	}
+	if value, ok := pc.mutation.Content(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBytes,
+			Value:  value,
+			Column: puzzle.FieldContent,
+		})
+		_node.Content = value
+	}
 	if nodes := pc.mutation.AdventureIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -230,6 +256,7 @@ func (pcb *PuzzleCreateBulk) Save(ctx context.Context) ([]*Puzzle, error) {
 	for i := range pcb.builders {
 		func(i int, root context.Context) {
 			builder := pcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*PuzzleMutation)
 				if !ok {

@@ -13,6 +13,8 @@ const (
 	FieldAnswer = "answer"
 	// FieldOrder holds the string denoting the order field in the database.
 	FieldOrder = "order"
+	// FieldContent holds the string denoting the content field in the database.
+	FieldContent = "content"
 	// EdgeAdventure holds the string denoting the adventure edge name in mutations.
 	EdgeAdventure = "adventure"
 	// Table holds the table name of the puzzle in the database.
@@ -32,6 +34,7 @@ var Columns = []string{
 	FieldTitle,
 	FieldAnswer,
 	FieldOrder,
+	FieldContent,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "puzzles"
@@ -55,3 +58,8 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultContent holds the default value on creation for the "content" field.
+	DefaultContent []byte
+)
