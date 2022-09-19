@@ -1,5 +1,5 @@
-Thank you for choosing signing up to Puzzad.
+Thank you for signing up to Puzzad.  In order to complete your registration you will need to verify your email address, please follow this link: {{ .URL }}/validate?code={{ .Code }}.
 
-Please confirm that this is your email address by clicking on the button below or use this link {{ .URL }}/validate?code={{ .Code }} within 48 hours.
+If you did not initiate this you can safely ignore the email.
 
 Puzzad Team
