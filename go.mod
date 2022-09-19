@@ -10,9 +10,11 @@ require (
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/httprate v0.7.0
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golangcollege/sessions v1.2.0
 	github.com/google/uuid v1.3.0
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
+	github.com/lib/pq v1.10.5
 	github.com/mattn/go-sqlite3 v1.14.15
 	github.com/rs/zerolog v1.28.0
 	github.com/stretchr/testify v1.8.0

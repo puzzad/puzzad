@@ -27,13 +27,22 @@ var (
 	SmtpServer   = flag.String("smtp_server", "", "SMTP Server")
 	SmtpPort     = flag.Int("smtp_port", 25, "SMTP Server port")
 	SmtpFrom     = flag.String("smtp_from", "", "SMTP From address")
+
+	SQLDialect = flag.String("sql-dialect", "sqlite3", "SQL dialect to use: sqlite3, postgres, mysql")
+	SQLDSN     = flag.String("sql-dsn", "file:test.db?mode=rwc&_fk=1&_auto_vacuum=incremental", "DSN to pass to the SQL Driver.  Examples:\n"+
+		"\tMySQL: <user>:<pass>@tcp(<host>:<port>)/<database>?parseTime=True\n"+
+		"\tPSQL: host=<host> port=<port> user=<user> dbname=<database> password=<pass>\n"+
+		"\tSQLite3: file:<file name>?mode=rwc&_fk=1&_auto_vacuum=incremental")
 )
 
 func main() {
 	envflag.Parse()
 	logger := createLogger(*Debug)
-	client := &database.DBClient{}
-	err := client.Init(*Debug)
+	client := &database.DBClient{
+		Dialect: *SQLDialect,
+		DSN:     *SQLDSN,
+	}
+	err := client.Init()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed creating ent client")
 	}
@@ -48,7 +57,6 @@ func main() {
 		SMTPFrom:     *SmtpFrom,
 		URL:          *WebURL,
 	}
-	mailer.SendPasswordResetLink(context.Background(), "puzzard@greg.holmes.name", "blah")
 	userManager := puzzad.NewUserManager(client, mailer)
 	adventureManager := puzzad.NewAdventureManager(client)
 
