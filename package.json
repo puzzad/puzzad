@@ -1,18 +1,17 @@
 {
-  "name": "sveltejs-todo-list",
+  "name": "puzzad",
   "private": true,
-  "version": "2.0.0",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:css\" \"vite\"",
-    "build": "npm run build:css && vite build",
+    "dev": "vite",
+    "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^1.0.1",
     "@tsconfig/svelte": "^3.0.0",
-    "concurrently": "^7.3.0",
     "svelte": "^3.49.0",
     "svelte-check": "^2.8.0",
     "svelte-hcaptcha": "^0.1.1",
