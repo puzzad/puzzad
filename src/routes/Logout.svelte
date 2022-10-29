@@ -5,12 +5,12 @@
     async function signOut() {
         const { error } = await supabase.auth.signOut()
         if (!error) {
-            replace("/");
+            await replace("/");
         }
     }
     import { onMount } from "svelte";
     onMount(async function () {
-        signOut()
+        await signOut()
     });
 </script>
 <section>

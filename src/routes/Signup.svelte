@@ -41,17 +41,11 @@
         padding-right: 1em;
     }
     form > input,
-    form > textarea,
     form > button {
         grid-column: controls;
         grid-row: auto;
         border: none;
         padding: 1em;
-    }
-    div {
-        display: flex;
-        justify-content: center;
-        gap: 1em;
     }
 </style>
 

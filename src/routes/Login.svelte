@@ -1,5 +1,6 @@
 <script lang='ts'>
     import {supabase} from "$lib/db";
+    import {replace} from 'svelte-spa-router'
 
     interface InfoText {
         error: boolean;
@@ -18,10 +19,7 @@
         if (error) {
             infoText = {error: true, text: error.message};
         } else if (!error) {
-            infoText = {
-                error: false,
-                text: "An email has been sent to you for verification!",
-            };
+            await replace('#/')
         }
     };
 </script>
@@ -41,7 +39,6 @@
         padding-right: 1em;
     }
     form > input,
-    form > textarea,
     form > button {
         grid-column: controls;
         grid-row: auto;
@@ -71,11 +68,6 @@
             bind:value={password}
             required
     />
-    {#if !!infoText.text}
-        <section role={infoText.error ? "alert" : null}>
-            {infoText.text}
-        </section>
-    {/if}
     <button
             type='submit'
             on:click={() => handleLogin()}
@@ -83,6 +75,11 @@
         Sign In
     </button>
 </form>
+{#if !!infoText.text}
+    <div role={infoText.error ? "alert" : null}>
+        {infoText.text}
+    </div>
+{/if}
 <div>
     Don't have an account? <a href='#/signup'>Sign up!</a>
 </div>
