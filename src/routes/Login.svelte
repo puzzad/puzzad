@@ -13,7 +13,7 @@
 
     const handleLogin = async () => {
         disabled = true
-        const { user, error, } = await supabase.auth.signInWithPassword({email, password})
+        const {user, error,} = await supabase.auth.signInWithPassword({email, password})
         disabled = false
         if (error) {
             infoText = {error: true, text: error.message};
@@ -30,6 +30,29 @@
     [role='alert'] {
         background: indianred;
     }
+    form {
+        display: grid;
+        grid-template-columns: [labels] auto [controls] 1fr;
+        grid-auto-flow: row;
+    }
+    form > label  {
+        grid-column: labels;
+        grid-row: auto;
+        padding-right: 1em;
+    }
+    form > input,
+    form > textarea,
+    form > button {
+        grid-column: controls;
+        grid-row: auto;
+        border: none;
+        padding: 1em;
+    }
+    div {
+        display: flex;
+        justify-content: center;
+        gap: 1em;
+    }
 </style>
 
 <form on:submit|preventDefault>
@@ -39,8 +62,7 @@
             type='email'
             name='email'
             bind:value={email}
-            required
-    />
+            required />
     <label for='password'>Password:</label>
     <input
             id='password'
@@ -54,16 +76,12 @@
             {infoText.text}
         </section>
     {/if}
-    <div class='col-start-2'>
-        <div>
-            <button
-                    type='submit'
-                    on:click={() => handleLogin()}
-                    disabled={disabled}>
-                Sign In
-            </button>
-        </div>
-    </div>
+    <button
+            type='submit'
+            on:click={() => handleLogin()}
+            disabled={disabled}>
+        Sign In
+    </button>
 </form>
 <div>
     Don't have an account? <a href='#/signup'>Sign up!</a>

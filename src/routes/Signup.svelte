@@ -30,6 +30,29 @@
     [role='alert'] {
         background: indianred;
     }
+    form {
+        display: grid;
+        grid-template-columns: [labels] auto [controls] 1fr;
+        grid-auto-flow: row;
+    }
+    form > label  {
+        grid-column: labels;
+        grid-row: auto;
+        padding-right: 1em;
+    }
+    form > input,
+    form > textarea,
+    form > button {
+        grid-column: controls;
+        grid-row: auto;
+        border: none;
+        padding: 1em;
+    }
+    div {
+        display: flex;
+        justify-content: center;
+        gap: 1em;
+    }
 </style>
 
 <form on:submit|preventDefault>
@@ -54,15 +77,11 @@
             {infoText.text}
         </section>
     {/if}
-    <div class='col-start-2'>
-        <div>
-            <button
-                    type='submit'
-                    on:click={() => handleLogin()}
-                    disabled={disabled}
-                    value='Sign up'>
-                Sign Up
-            </button>
-        </div>
-    </div>
+    <button
+            type='submit'
+            on:click={() => handleLogin()}
+            disabled={disabled}
+            value='Sign up'>
+        Sign Up
+    </button>
 </form>
