@@ -2,9 +2,9 @@
     import {onMount} from "svelte"
     import {supabase} from "$lib/db"
     import type {User} from "@supabase/supabase-js"
-    import Home from "$lib/Home.svelte"
+    import Home from "./routes/Home.svelte"
     import Router from 'svelte-spa-router'
-    import Adventure from "$lib/Adventure.svelte"
+    import Adventure from "./routes/Adventure.svelte"
     import NotFound from "./routes/NotFound.svelte"
     import Login from "./routes/Login.svelte";
     import Logout from "./routes/Logout.svelte";
