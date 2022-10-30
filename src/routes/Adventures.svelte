@@ -1,4 +1,5 @@
 <script>
+    import AdventureBanner from '$lib/AdventureBanner.svelte'
     import {supabase} from '$lib/db'
     import {onMount} from 'svelte'
 
@@ -16,10 +17,7 @@
 </script>
 
 {#each adventures as adventure}
-    <article>
-        <h2>{adventure.name}</h2>
-        <p>{adventure.description}</p>
-    </article>
+    <AdventureBanner name='{adventure.name}' description='{adventure.description}' />
 {:else}
     <p>No Adventures, sorry.</p>
 {/each}
