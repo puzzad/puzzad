@@ -17,7 +17,13 @@
 </script>
 
 {#each adventures as adventure}
-    <AdventureBanner name='{adventure.name}' description='{adventure.description}' />
+    <AdventureBanner
+            name='{adventure.name}'
+            description='{adventure.description}'
+            price='{adventure.price}'
+            code=''
+            status=''
+    />
 {:else}
     <p>No Adventures, sorry.</p>
 {/each}

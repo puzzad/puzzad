@@ -3,6 +3,12 @@
     export let description
     export let code
     export let status
+    export let price
+    if (price > 0) {
+        price = "£" + price
+    } else {
+        price = "Free"
+    }
 </script>
 <style>
     article {
@@ -27,7 +33,9 @@
 
     article div.EXPIRED {
         background: darkslategray;
-    }
+    } article div.PRICE {
+          background: darkslategray;
+      }
 
     article h2 {
         margin: 1rem;
@@ -40,8 +48,10 @@
     }
 </style>
 <article>
-    {#if status}
+    {#if status !== ''}
         <div class='{status}'>{status}</div>
+    {:else if price !== ''}
+        <div class='PRICE'>{price}</div>
     {/if}
     <h2>{name}</h2>
     <p>{description}</p>

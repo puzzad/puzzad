@@ -19,6 +19,7 @@
     This is a list of your games.
     {#each games as game}
         <AdventureBanner
+                price=''
                 status='{game.status}'
                 name='{game.adventures?.name ?? "Unknown"}'
                 description='{game.adventures?.description ?? "Unknown"}'
