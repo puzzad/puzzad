@@ -7,7 +7,7 @@
         let {data: obtained, error} = await supabase
                 .from('games')
                 .select(`
-                    id,status, adventures ( name, description ), status
+                    id,status, adventures ( name, description ), status, code
                 `)
         if (!error) {
             games = obtained
@@ -50,6 +50,8 @@
             <div class='{game.status}'>{game.status}</div>
             <h2>{game.adventures?.name}</h2>
             <p>{game.adventures?.description}</p>
+            <hr>
+            <p>Code: {game.code}</p>
         </article>
     {:else}
         <p>You haven't  purchased any games.</p>
