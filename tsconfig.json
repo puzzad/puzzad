@@ -11,8 +11,9 @@
     "isolatedModules": true,
     "strict": false,
     "paths": {
-			"$lib/*": ["src/lib/*"]
-		}
+      "$lib/*": ["src/lib/*"],
+      "$routes/*": ["src/routes/*"],
+    }
   },
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
   "references": [{ "path": "./tsconfig.node.json" }]

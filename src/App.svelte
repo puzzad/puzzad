@@ -2,15 +2,8 @@
     import {onMount} from "svelte"
     import {supabase} from "$lib/db"
     import type {User} from "@supabase/supabase-js"
-    import Home from "./routes/Home.svelte"
     import Router from 'svelte-spa-router'
-    import Adventure from "./routes/Adventure.svelte"
-    import NotFound from "./routes/NotFound.svelte"
-    import Login from "./routes/Login.svelte";
-    import Logout from "./routes/Logout.svelte";
-    import Adventures from "./routes/Adventures.svelte";
-    import Signup from "./routes/Signup.svelte";
-    import Games from "./routes/Games.svelte";
+    import {wrap} from 'svelte-spa-router/wrap'
 
     let user: User;
 
@@ -31,14 +24,14 @@
         };
     });
     const routes = {
-        '/adventures': Adventures,
-        '/adventure/:name': Adventure,
-        '/games': Games,
-        '/login': Login,
-        '/logout': Logout,
-        '/signup': Signup,
-        '/': Home,
-        '*': NotFound,
+        '/adventures': wrap({ asyncComponent: () => import('./routes/Adventures.svelte')}),
+        '/adventure/:name': wrap({ asyncComponent: () => import('./routes/Adventure.svelte')}),
+        '/games': wrap({ asyncComponent: () => import('./routes/Games.svelte')}),
+        '/login': wrap({ asyncComponent: () => import('./routes/Login.svelte')}),
+        '/logout': wrap({ asyncComponent: () => import('./routes/Logout.svelte')}),
+        '/signup': wrap({ asyncComponent: () => import('./routes/Signup.svelte')}),
+        '/': wrap({ asyncComponent: () => import('./routes/Home.svelte')}),
+        '*': wrap({ asyncComponent: () => import('./routes/NotFound.svelte')}),
     }
 </script>
 <style>
