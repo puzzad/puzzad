@@ -132,7 +132,7 @@ GRANT ALL ON TABLE public.games TO supabase_admin;
 GRANT ALL ON TABLE public.games TO authenticated;
 
 GRANT ALL ON TABLE public.games TO service_role;
-CREATE TRIGGER "SetTeamCode"
+CREATE OR REPLACE TRIGGER "SetTeamCode"
     BEFORE INSERT
     ON public.games
     FOR EACH ROW
