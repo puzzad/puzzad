@@ -18,6 +18,7 @@
 <section>
     This is a list of your games.
     {#each games as game}
+        <a href='/#/game/{game.id}'>
         <AdventureBanner
                 price=''
                 status='{game.status}'
@@ -25,6 +26,7 @@
                 description='{game.adventures?.description ?? "Unknown"}'
                 code='{game.code}'
         />
+        </a>
     {:else}
         <p>You haven't  purchased any games.</p>
     {/each}
