@@ -1,4 +1,5 @@
 <script lang="ts">
+    import classes from './assets/bahunya.min.css'
     import {onMount} from "svelte"
     import {supabase} from "$lib/db"
     import type {User} from "@supabase/supabase-js"
