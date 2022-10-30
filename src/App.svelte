@@ -10,6 +10,7 @@
     import Logout from "./routes/Logout.svelte";
     import Adventures from "./routes/Adventures.svelte";
     import Signup from "./routes/Signup.svelte";
+    import Games from "./routes/Games.svelte";
 
     let user: User;
 
@@ -32,6 +33,7 @@
     const routes = {
         '/adventures': Adventures,
         '/adventure/:name': Adventure,
+        '/games': Games,
         '/login': Login,
         '/logout': Logout,
         '/signup': Signup,
@@ -43,19 +45,24 @@
     nav:first-of-type {
         padding: 0;
     }
-    nav a:last-of-type {
+    nav ul:last-of-type {
         display: flex;
         flex-grow: 2;
         justify-content: end;
     }
 </style>
 <nav>
-    <a href="#/">Puzzad</a>
-    <a href="#/Adventures">Adventures</a>
+    <ul>
+        <li><a href="#/">Puzzad</a></li>
+        <li><a href="#/Adventures">Adventures</a></li>
+    </ul>
+    <ul>
     {#if !user}
-        <a href='#/login'>Login</a>
+        <li><a href='#/login'>Login</a></li>
     {:else}
-        <a href='#/logout'>Logout</a>
+        <li><a href='#/games'>Games</a></li>
+        <li><a href='#/logout'>Logout</a></li>
     {/if}
+    </ul>
 </nav>
 <Router {routes}/>
