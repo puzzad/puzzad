@@ -6,9 +6,9 @@
     let adventures = []
     onMount(async function () {
         let {data: obtained, error} = await supabase
-                .from('adventures')
-                .select(`
-                    id,name,description,price
+            .from('adventures')
+            .select(`
+                    id,name,promoBackground,promoLogo,price
                 `)
         if (!error) {
             adventures = obtained
@@ -18,8 +18,9 @@
 
 {#each adventures as adventure}
     <AdventureBanner
-            name='{adventure.name}'
-            description='{adventure.description}'
+            adventureName='{adventure.name}'
+            backgroundUrl="{adventure.promoBackground}"
+            logoUrl="{adventure.promoLogo}"
             price='{adventure.price}'
             code=''
             status=''
