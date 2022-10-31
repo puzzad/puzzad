@@ -10,7 +10,7 @@
         let {data: game, error} =
                     await supabase.from('games')
                                   .select('puzzle, adventures ( name, description)')
-                                  .eq('id', params.id)
+                                  .eq('code', params.code)
         initial = false
         if (game[0]?.adventures) {
             data.puzzle = game[0]?.puzzle

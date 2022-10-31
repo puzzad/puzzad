@@ -28,7 +28,7 @@
         '/adventures': wrap({ asyncComponent: () => import('./routes/Adventures.svelte')}),
         '/adventure/:name': wrap({ asyncComponent: () => import('./routes/Adventure.svelte')}),
         '/games': wrap({ asyncComponent: () => import('./routes/Games.svelte')}),
-        '/game/:id': wrap({ asyncComponent: () => import('./routes/Game.svelte')}),
+        '/game/:code': wrap({ asyncComponent: () => import('./routes/Game.svelte')}),
         '/login': wrap({ asyncComponent: () => import('./routes/Login.svelte')}),
         '/logout': wrap({ asyncComponent: () => import('./routes/Logout.svelte')}),
         '/signup': wrap({ asyncComponent: () => import('./routes/Signup.svelte')}),
@@ -48,15 +48,15 @@
 </style>
 <nav>
     <ul>
-        <li><a href="#/">Puzzad</a></li>
-        <li><a href="#/Adventures">Adventures</a></li>
+        <li><a href="/#/">Puzzad</a></li>
+        <li><a href="/#/Adventures">Adventures</a></li>
     </ul>
     <ul>
     {#if !user}
         <li><a href='#/login'>Login</a></li>
     {:else}
-        <li><a href='#/games'>Games</a></li>
-        <li><a href='#/logout'>Logout</a></li>
+        <li><a href='/#/games'>Games</a></li>
+        <li><a href='/#/logout'>Logout</a></li>
     {/if}
     </ul>
 </nav>
