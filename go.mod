@@ -3,7 +3,7 @@ module github.com/greboid/puzzad
 go 1.19
 
 require (
-	entgo.io/ent v0.11.3
+	entgo.io/ent v0.11.4
 	github.com/csmith/aca v1.0.0
 	github.com/csmith/envflag v1.0.0
 	github.com/fsnotify/fsnotify v1.6.0
@@ -22,7 +22,7 @@ require (
 )
 
 require (
-	ariga.io/atlas v0.7.2-0.20220927111110-867ee0cca56a // indirect
+	ariga.io/atlas v0.7.3-0.20221011160332-3ca609863edd // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
