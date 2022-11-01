@@ -1,0 +1,36 @@
+{
+  "name": "puzzad",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "devserve": "nodemon --no-warnings server.js",
+    "serve": "nodemon --no-warnings server.js"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^1.0.1",
+    "@tsconfig/svelte": "^3.0.0",
+    "nodemon": "^2.0.20",
+    "svelte": "^3.49.0",
+    "svelte-check": "^2.8.0",
+    "svelte-hcaptcha": "^0.1.1",
+    "svelte-preprocess": "^4.10.7",
+    "svelte-spa-router": "^3.3.0",
+    "tslib": "^2.4.0",
+    "typescript": "^4.7.4",
+    "vite": "^3.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0-rc.9",
+    "body-parser": "^1.20.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^8.5.1",
+    "method-override": "^3.0.0",
+    "svelte-toasts": "^1.1.2"
+  }
+}
