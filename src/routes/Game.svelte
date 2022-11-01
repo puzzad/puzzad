@@ -32,5 +32,5 @@
 {:else}
     <h1>{data.adventure.name}</h1>
     <p>{data.adventure.description}</p>
-    <p>Current puzzle ID: {data.puzzle}</p>
+    <p>Current puzzle ID: <a href="/#/game/{params.code}/{data.puzzle}">{data.puzzle}</a></p>
 {/if}

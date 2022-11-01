@@ -29,6 +29,7 @@
         '/adventure/:name': wrap({ asyncComponent: () => import('./routes/Adventure.svelte')}),
         '/games': wrap({ asyncComponent: () => import('./routes/Games.svelte')}),
         '/game/:code': wrap({ asyncComponent: () => import('./routes/Game.svelte')}),
+        '/game/:code/:puzzle': wrap({ asyncComponent: () => import('./routes/Puzzle.svelte')}),
         '/login': wrap({ asyncComponent: () => import('./routes/Login.svelte')}),
         '/logout': wrap({ asyncComponent: () => import('./routes/Logout.svelte')}),
         '/signup': wrap({ asyncComponent: () => import('./routes/Signup.svelte')}),
