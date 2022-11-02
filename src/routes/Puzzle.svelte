@@ -17,27 +17,31 @@
     onMount(async function () {
         let {data: puzzle, error} =
             await supabase.from('puzzles')
-                .select('title, content, next, adventure (name)')
+                .select('title, content, next, storage_slug, adventure (name)')
                 .eq('id', params.puzzle)
-        initial = false
-        if (puzzle.length > 0) {
-            data = puzzle[0]
 
-            guessesChannel = supabase
-                .channel('public:guesses:game=eq.' + params.code)
-                .on('postgres_changes', {
-                    event: 'INSERT',
-                    schema: 'public',
-                    table: 'guesses',
-                    filter: 'game=eq.' + params.code
-                }, handleStreamedGuess)
-                .subscribe()
+        if (puzzle.length > 0) {
+            const urls = puzzle[0].content.match(/\$[^$]+?\$/g)
+            for (let i = 0; i < urls.length; i++) {
+                const { data: { signedUrl: url }, error } = await supabase
+                    .storage
+                    .from('puzzles')
+                    .createSignedUrl(puzzle[0].storage_slug + '/' + urls[i].substring(1,urls[i].length-1), 60*60)
+
+                puzzle[0].content = puzzle[0].content.replaceAll(urls[0], url)
+            }
+
+            data = puzzle[0]
+            await startMonitoringGuesses()
         } else {
             error = "Unable to find puzzle"
         }
+
         if (error) {
             displayError = error
         }
+
+        initial = false
     })
 
     onDestroy(async function () {
@@ -45,6 +49,18 @@
             await supabase.removeChannel(guessesChannel)
         }
     })
+
+    const startMonitoringGuesses = async function () {
+        guessesChannel = await supabase
+            .channel('public:guesses:game=eq.' + params.code)
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'guesses',
+                filter: 'game=eq.' + params.code
+            }, handleStreamedGuess)
+            .subscribe()
+    }
 
     const handleStreamedGuess = function (payload) {
         if (payload.new.correct) {
@@ -142,7 +158,7 @@
     <p>{displayError}</p>
 {:else}
     <h1>{data.adventure.name}: {data.title}</h1>
-    <p>{data.content}</p>
+    {@html data.content}
     <section class="answer">
         <form on:submit|preventDefault={() => handleGuess()}>
             <fieldset>
