@@ -2,8 +2,10 @@
     export let params = {}
     import {supabase} from '$lib/db'
     import Spinner from '$lib/Spinner.svelte'
-    import {onMount, onDestroy} from 'svelte'
+    import {onDestroy} from 'svelte'
     import {toasts, ToastContainer, FlatToast} from "svelte-toasts";
+    import {Confetti} from "svelte-confetti";
+    import {replace} from 'svelte-spa-router'
 
     let data = {}
     let guess = ''
@@ -12,40 +14,80 @@
     let initial = true
     let displayError = null
     let guessesChannel = null
-    $: disableInput = checkingGuess || solved
 
-    onMount(async function () {
-        let {data: puzzle, error} =
-            await supabase.from('puzzles')
-                .select('title, content, next, storage_slug, adventure (name)')
-                .eq('id', params.puzzle)
+    $: if (params.code && params.puzzle) {
+        load()
+    }
 
-        if (puzzle.length > 0) {
-            const urls = puzzle[0].content.match(/\$[^$]+?\$/g)
-            for (let i = 0; i < urls.length; i++) {
-                const { data: { signedUrl: url }, error } = await supabase
-                    .storage
-                    .from('puzzles')
-                    .createSignedUrl(puzzle[0].storage_slug + '/' + urls[i].substring(1,urls[i].length-1), 60*60)
+    const load = () => {
+        reset()
+        supabase.from('puzzles')
+            .select('title, content, next, storage_slug, adventure (name)')
+            .eq('id', params.puzzle)
+            .then(checkQueryResults)
+            .then(obtainUrlReplacements)
+            .then(performUrlReplacements)
+            .then((puzzle) => data = puzzle)
+            .catch((error) => displayError = error)
+            .finally(() => {
+                if (!guessesChannel) {
+                    startMonitoringGuesses()
+                }
+                initial = false
+            })
+    }
 
-                puzzle[0].content = puzzle[0].content.replaceAll(urls[0], url)
+    const reset = () => {
+        console.log("Resetting...")
+        initial = true
+        displayError = null
+        solved = false
+        guess = ''
+        checkingGuess = false
+    }
+
+    const checkQueryResults = ({data, error}) => {
+        if (error) {
+            throw error
+        } else if (data.length === 0) {
+            throw 'Puzzle not found'
+        } else {
+            return data[0]
+        }
+    }
+
+    const obtainUrlReplacements = (puzzle) => {
+        let res = [puzzle]
+        const urls = puzzle.content.match(/\$[^$]+?\$/g)
+        if (urls) {
+            urls.forEach((slug) => {
+                res.push(
+                    slug,
+                    supabase
+                        .storage
+                        .from('puzzles')
+                        .createSignedUrl(puzzle.storage_slug + '/' + slug.substring(1, slug.length - 1), 60 * 60),
+                )
+            })
+        }
+        return Promise.all(res)
+    }
+
+    const performUrlReplacements = (results) => {
+        let [puzzle, ...urls] = results
+        for (let i = 0; i < urls.length; i += 2) {
+            const {data: {signedUrl}, error} = urls[1]
+            if (error) {
+                throw error
             }
 
-            data = puzzle[0]
-            await startMonitoringGuesses()
-        } else {
-            error = "Unable to find puzzle"
+            puzzle.content = puzzle.content.replace(urls[i], signedUrl)
         }
-
-        if (error) {
-            displayError = error
-        }
-
-        initial = false
-    })
+        return puzzle
+    }
 
     onDestroy(async function () {
-        if (guessesChannel != null) {
+        if (guessesChannel) {
             await supabase.removeChannel(guessesChannel)
         }
     })
@@ -63,22 +105,18 @@
     }
 
     const handleStreamedGuess = function (payload) {
-        if (payload.new.correct) {
-            solved = true;
-
-            toasts.add({
-                title: 'Correct guess!',
-                description: payload.new.content,
-                duration: 0,
-                type: 'success',
-            });
-        } else {
-            toasts.add({
-                title: 'Incorrect guess',
-                description: payload.new.content,
-                duration: 10000,
-                type: 'error',
-            });
+        console.log(payload, params.puzzle)
+        if (payload.new.puzzle.toString() === params.puzzle) {
+            if (payload.new.correct) {
+                solved = true
+            } else {
+                toasts.add({
+                    title: 'Incorrect guess',
+                    description: payload.new.content,
+                    duration: 10000,
+                    type: 'error',
+                });
+            }
         }
     }
 
@@ -88,6 +126,14 @@
             .insert({content: guess, puzzle: params.puzzle, game: params.code})
         checkingGuess = false
         guess = ''
+    }
+
+    const goToNextPuzzle = async function () {
+        await replace('/game/' + params.code + '/' + data.next)
+    }
+
+    const goToGamePage = async function () {
+        await replace('/game/' + params.code)
     }
 </script>
 
@@ -149,25 +195,97 @@
         padding: 0 5px;
         font-weight: bold;
     }
+
+    dialog {
+        position: fixed;
+        padding: 3em;
+        top: 30vh;
+        left: 30vh;
+        right: 30vh;
+        background: linear-gradient(to top, #106310, #3C8E2B);
+        border-radius: 10px;
+        text-align: center;
+        z-index: 1001;
+    }
+
+    dialog[open] {
+        animation: show 200ms linear;
+    }
+
+    @keyframes show {
+        from {
+            transform: scale(0.001);
+        }
+        to {
+            transform: scale(1);
+        }
+    }
+
+    dialog h3 {
+        margin: 0 0 1em 0;
+    }
+
+    dialog p {
+        margin: 0 0 2em 0;
+    }
+
+    dialog button {
+        width: 100%;
+        text-transform: uppercase;
+        font-weight: bold;
+        font-size: x-large;
+        font-variant: all-small-caps;
+    }
+
+    .confetti-bg {
+        position: fixed;
+        top: -50px;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        overflow: hidden;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+    }
 </style>
 
 {#if initial}
     <Spinner/>
 {:else if displayError || !data}
-    <h1>Error finding puzzle</h1>
+    <h2>Error finding puzzle</h2>
     <p>{displayError}</p>
 {:else}
-    <h1>{data.adventure.name}: {data.title}</h1>
+    <h2>{data.adventure.name}: {data.title}</h2>
     {@html data.content}
     <section class="answer">
         <form on:submit|preventDefault={() => handleGuess()}>
             <fieldset>
                 <legend>Enter a guess</legend>
-                <input type="text" bind:value={guess} disabled={disableInput}>
-                <input type="submit" value="Submit" disabled={disableInput}>
+                <input type="text" bind:value={guess} disabled={checkingGuess}>
+                <input type="submit" value="Submit" disabled={checkingGuess}>
             </fieldset>
         </form>
     </section>
+
+    <dialog open={solved}>
+        <h3>Congratulations</h3>
+        {#if data.next}
+            <p>You have completed this step in the adventure!</p>
+            <button on:click={() => goToNextPuzzle()}>Next puzzle &raquo;</button>
+        {:else}
+            <p>You have completed the adventure!</p>
+            <button on:click={() => goToGamePage()}>Continue &raquo;</button>
+        {/if}
+    </dialog>
+
+    {#if solved}
+        <div class="confetti-bg">
+            <Confetti x={[-5, 5]} y={[0, 0.1]} delay={[0, 2000]} infinite duration=5000 amount=400
+                      fallDistance="110vh"/>
+        </div>
+    {/if}
 
     <ToastContainer placement="bottom-right" theme="dark" let:data={data}>
         <FlatToast {data}/>
