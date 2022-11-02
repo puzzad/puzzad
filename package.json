@@ -7,14 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json",
-    "devserve": "nodemon --no-warnings server.js",
-    "serve": "nodemon --no-warnings server.js"
+    "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^1.1.0",
     "@tsconfig/svelte": "^3.0.0",
-    "nodemon": "^2.0.20",
     "svelte": "^3.52.0",
     "svelte-check": "^2.9.2",
     "svelte-hcaptcha": "^0.1.1",
@@ -26,11 +23,6 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.5",
-    "body-parser": "^1.20.1",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "jsonwebtoken": "^8.5.1",
-    "method-override": "^3.0.0",
     "svelte-confetti": "^1.2.0",
     "svelte-toasts": "^1.1.2"
   }
