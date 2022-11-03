@@ -74,6 +74,7 @@
     <h1><img src="{data.adventures.promoLogo}" alt="{data.adventures.name}"></h1>
     {#if data.status === 'EXPIRED'}
         <p>Congratulations! You finished the adventure!</p>
+        <p>You took {Math.round((new Date(data.endTime).getTime() - new Date(data.startTime).getTime())/10/60)/100} minutes!</p>
     {:else if data.status === 'PAID'}
         <p>
             You've not yet started your adventure! Remember, it's dangerous to go alone.
