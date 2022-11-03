@@ -22,6 +22,7 @@
 {#if initial}
     <Spinner />
 {:else}
+    <h2>Which adventure would you like to go on?</h2>
     {#each adventures as adventure}
         <AdventureBanner
                 adventureName='{adventure.name}'
