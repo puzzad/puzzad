@@ -1,1 +1,0 @@
-import{S as a,i,s as r,l as c,a as l,n,d as m}from"./index.957abd27.js";function u(s){let e;return{c(){e=c("section"),e.textContent="Home."},m(t,o){l(t,e,o)},p:n,i:n,o:n,d(t){t&&m(e)}}}class p extends a{constructor(e){super(),i(this,e,null,u,r,{})}}export{p as default};
