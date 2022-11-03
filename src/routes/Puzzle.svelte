@@ -140,7 +140,7 @@
 </script>
 
 <style>
-    section.tip {
+    :global(section.tip) {
         position: relative;
         border-top: 10px solid #e3bc5e;
         border-bottom: 2px solid #e3bc5e;
@@ -148,7 +148,7 @@
         padding: 0 0.7em;
     }
 
-    section.tip::before {
+    :global(section.tip::before) {
         float: right;
         border-bottom-right-radius: 5px;
         border-bottom-left-radius: 5px;
@@ -161,7 +161,7 @@
         color: black;
     }
 
-    section.story {
+    :global(section.story) {
         position: relative;
         border-top: 10px solid #1c76c5;
         border-bottom: 2px solid #1c76c5;
@@ -169,7 +169,7 @@
         padding: 0 0.7em;
     }
 
-    section.story::before {
+    :global(section.story::before) {
         float: right;
         border-bottom-right-radius: 5px;
         border-bottom-left-radius: 5px;
