@@ -40,6 +40,31 @@
         await push('/game/' + params.code + '/' + data.puzzle)
     }
 </script>
+
+<style>
+    code {
+        display: block;
+        background-image: url('../assets/code-bg.png');
+        background-color: transparent;
+        color: black;
+        text-align: center;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        padding: 70px 0;
+        font-size: xxx-large;
+        font-family: monospace;
+        margin: 1em;
+    }
+
+    button {
+        width: 100%;
+        margin: 1em 0;
+        font-size: x-large;
+        padding: 0.5em;
+    }
+</style>
+
 {#if initial}
     <Spinner/>
 {:else if displayError || !data}
