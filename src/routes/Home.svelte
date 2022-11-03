@@ -54,7 +54,7 @@
     }
 
     #play {
-        background-color: #410079;
+        background-color: #39254D;
         display: flex;
         flex-direction: column;
         align-items: stretch;
