@@ -21,26 +21,30 @@
     }
 
     const load = () => {
-        reset()
-        getGameClient(params.code)
-            .then((client) => {
-                gameClient = client
-                return client.from('puzzles')
-                    .select('title, content, next, storage_slug, adventure (name)')
-                    .eq('id', params.puzzle)
-            })
-            .then(checkQueryResults)
-            .then(obtainUrlReplacements)
-            .then(performUrlReplacements)
-            .then((puzzle) => data = puzzle)
-            .then(() => {
-                if (!guessesChannel) {
-                    startMonitoringGuesses()
-                }
-                initial = false
-            })
-            .then(refreshHints)
-            .catch(() => replace('/game/' + params.code))
+        try {
+            reset()
+            getGameClient(params.code)
+                .then((client) => {
+                    gameClient = client
+                    return client.from('puzzles')
+                        .select('title, content, next, storage_slug, adventure (name)')
+                        .eq('id', params.puzzle)
+                })
+                .then(checkQueryResults)
+                .then(obtainUrlReplacements)
+                .then(performUrlReplacements)
+                .then((puzzle) => data = puzzle)
+                .then(() => {
+                    if (!guessesChannel) {
+                        startMonitoringGuesses()
+                    }
+                    initial = false
+                })
+                .then(refreshHints)
+                .catch(() => replace('/game/' + params.code))
+        } catch (e) {
+            replace('/game/' + params.code)
+        }
     }
 
     const reset = () => {

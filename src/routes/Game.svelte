@@ -11,7 +11,13 @@
     let gc
 
     onMount(async function () {
-        gc = await getGameClient(params.code)
+        try {
+            gc = await getGameClient(params.code)
+        } catch (e) {
+            displayError = e.message || e
+            initial = false
+            return
+        }
 
         let {data: game, error} =
             await gc.from('games')
