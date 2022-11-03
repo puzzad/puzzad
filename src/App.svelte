@@ -1,5 +1,6 @@
 <script lang="ts">
     import classes from './assets/bahunya.min.css'
+    import logo from './assets/logo.png'
     import {onMount} from "svelte"
     import {supabase} from "$lib/db"
     import type {User} from "@supabase/supabase-js"
@@ -38,25 +39,64 @@
     }
 </script>
 <style>
-    nav:first-of-type {
-        padding: 0;
+    nav {
+        padding: 0 0 2px 0;
+        align-items: stretch;
     }
-    nav ul:last-of-type {
+
+    nav ul {
         display: flex;
+        align-items: stretch;
+    }
+
+    nav ul:first-of-type {
+        margin-left: 1em;
+    }
+
+    nav ul:last-of-type {
         flex-grow: 2;
         justify-content: end;
     }
+
+    nav li {
+        display: flex;
+        flex-direction: column;
+        justify-content: end;
+    }
+
+    nav li a {
+        margin-bottom: 0;
+        border-bottom: 1px dashed var(--links);
+        font-variant: all-small-caps;
+        font-size: large;
+        line-height: 1em;
+    }
+
+    nav li a:hover {
+        text-decoration: none;
+        filter: brightness(1.5);
+    }
+
+    h1, h1 a {
+        margin: 0;
+        padding: 0;
+        line-height: 0;
+    }
+
+    h1 img {
+        height: 1em;
+    }
 </style>
 <nav>
+    <h1><a href="/#/"><img src="{logo}" alt="Puzzad"></a></h1>
     <ul>
-        <li><a href="/#/">Puzzad</a></li>
-        <li><a href="/#/Adventures">Adventures</a></li>
+        <li><a href="/#/Adventures">Browse adventures</a></li>
     </ul>
     <ul>
     {#if !user}
         <li><a href='#/login'>Login</a></li>
     {:else}
-        <li><a href='/#/games'>Games</a></li>
+        <li><a href='/#/games'>My Games</a></li>
         <li><a href='/#/logout'>Logout</a></li>
     {/if}
     </ul>
