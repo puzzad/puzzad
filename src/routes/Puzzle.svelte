@@ -1,6 +1,6 @@
 <script>
     export let params = {}
-    import {supabase} from '$lib/db'
+    import {getGameClient} from '$lib/db'
     import Spinner from '$lib/Spinner.svelte'
     import {onDestroy} from 'svelte'
     import {toasts, ToastContainer, FlatToast} from "svelte-toasts";
@@ -14,6 +14,7 @@
     let initial = true
     let displayError = null
     let guessesChannel = null
+    let gameClient = null
 
     $: if (params.code && params.puzzle) {
         load()
@@ -21,9 +22,13 @@
 
     const load = () => {
         reset()
-        supabase.from('puzzles')
-            .select('title, content, next, storage_slug, adventure (name)')
-            .eq('id', params.puzzle)
+        getGameClient(params.code)
+            .then((client) => {
+                gameClient = client
+                return client.from('puzzles')
+                    .select('title, content, next, storage_slug, adventure (name)')
+                    .eq('id', params.puzzle)
+            })
             .then(checkQueryResults)
             .then(obtainUrlReplacements)
             .then(performUrlReplacements)
@@ -63,7 +68,7 @@
             urls.forEach((slug) => {
                 res.push(
                     slug,
-                    supabase
+                    gameClient
                         .storage
                         .from('puzzles')
                         .createSignedUrl(puzzle.storage_slug + '/' + slug.substring(1, slug.length - 1), 60 * 60),
@@ -88,12 +93,12 @@
 
     onDestroy(async function () {
         if (guessesChannel) {
-            await supabase.removeChannel(guessesChannel)
+            await gameClient.removeChannel(guessesChannel)
         }
     })
 
     const startMonitoringGuesses = async function () {
-        guessesChannel = await supabase
+        guessesChannel = await gameClient
             .channel('public:guesses:game=eq.' + params.code)
             .on('postgres_changes', {
                 event: 'INSERT',
@@ -105,7 +110,6 @@
     }
 
     const handleStreamedGuess = function (payload) {
-        console.log(payload, params.puzzle)
         if (payload.new.puzzle.toString() === params.puzzle) {
             if (payload.new.correct) {
                 solved = true
@@ -122,7 +126,7 @@
 
     const handleGuess = async function () {
         checkingGuess = true
-        await supabase.from('guesses')
+        await gameClient.from('guesses')
             .insert({content: guess, puzzle: params.puzzle, game: params.code})
         checkingGuess = false
         guess = ''

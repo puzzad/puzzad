@@ -1,23 +1,32 @@
 <script>
     export let params = {}
-    import {supabase} from '$lib/db'
+    import {getGameClient} from '$lib/db'
     import Spinner from '$lib/Spinner.svelte'
     import {onMount} from 'svelte'
+    import {push} from 'svelte-spa-router'
 
     let data = {}
     let initial = true
     let displayError
     onMount(async function () {
+        const gameclient = await getGameClient(params.code)
+
         let {data: game, error} =
-                    await supabase.from('games')
+                    await gameclient.from('games')
                                   .select('puzzle, adventures ( name, description)')
                                   .eq('code', params.code)
-        initial = false
+
         if (game[0]?.adventures) {
             data.puzzle = game[0]?.puzzle
             data.adventure = game[0]?.adventures
+            if (data.puzzle) {
+                await push('/game/' + params.code + '/' + data.puzzle)
+            } else {
+                initial = false
+            }
         } else {
             error = "Unable to find game"
+            initial = false
         }
         if (error) {
             displayError = error
