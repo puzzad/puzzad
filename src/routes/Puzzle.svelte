@@ -12,7 +12,6 @@
     let solved = false
     let checkingGuess = false
     let initial = true
-    let displayError = null
     let guessesChannel = null
     let gameClient = null
 
@@ -33,19 +32,18 @@
             .then(obtainUrlReplacements)
             .then(performUrlReplacements)
             .then((puzzle) => data = puzzle)
-            .catch((error) => displayError = error)
-            .finally(() => {
+            .then(() => {
                 if (!guessesChannel) {
                     startMonitoringGuesses()
                 }
                 initial = false
             })
+            .catch(() => replace('/game/' + params.code))
     }
 
     const reset = () => {
         console.log("Resetting...")
         initial = true
-        displayError = null
         solved = false
         guess = ''
         checkingGuess = false
@@ -257,9 +255,6 @@
 
 {#if initial}
     <Spinner/>
-{:else if displayError || !data}
-    <h2>Error finding puzzle</h2>
-    <p>{displayError}</p>
 {:else}
     <h2>{data.adventure.name}: {data.title}</h2>
     {@html data.content}
