@@ -9,7 +9,7 @@ export const supabase = createClient<Database>(
 
 export function getGameClient(gameCode: string): PromiseLike<SupabaseClient> {
     const existingKey = localStorage.getItem('puzzad-game-token')
-    const tokenPromise = (existingKey && isValidToken(existingKey)) ?
+    const tokenPromise = (existingKey && isValidToken(existingKey, gameCode)) ?
         Promise.resolve(existingKey) :
         supabase.rpc('getteamcodejwt', {teamcode: gameCode})
             .then(({data: code, error}) => {
@@ -43,11 +43,11 @@ export function getGameClient(gameCode: string): PromiseLike<SupabaseClient> {
     )
 }
 
-function isValidToken(token: string): boolean {
+function isValidToken(token: string, code: string): boolean {
     if (!token) {
         return false
     }
 
     const payload = decodeJWTPayload(token)
-    return payload.exp > (Date.now() / 1000 + 60 * 60)
+    return payload.exp > (Date.now() / 1000 + 60 * 60) && payload.code == code
 }

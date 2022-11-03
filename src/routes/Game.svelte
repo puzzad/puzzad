@@ -8,38 +8,65 @@
     let data = {}
     let initial = true
     let displayError
+    let gc
+
     onMount(async function () {
-        const gameclient = await getGameClient(params.code)
+        gc = await getGameClient(params.code)
 
         let {data: game, error} =
-                    await gameclient.from('games')
-                                  .select('puzzle, adventures ( name, description)')
-                                  .eq('code', params.code)
+            await gc.from('games')
+                .select('status, puzzle, startTime, endTime, adventures ( name, promoLogo, description)')
+                .eq('code', params.code)
 
         if (game[0]?.adventures) {
-            data.puzzle = game[0]?.puzzle
-            data.adventure = game[0]?.adventures
-            if (data.puzzle) {
-                await push('/game/' + params.code + '/' + data.puzzle)
-            } else {
-                initial = false
-            }
+            data = game[0]
         } else {
             error = "Unable to find game"
-            initial = false
         }
         if (error) {
             displayError = error
         }
+        initial = false
     })
+
+    const handleStartAdventure = async function() {
+        let { data: puzzle } = await gc.rpc('startadventure')
+        if (puzzle) {
+            await push('/game/' + params.code + '/' + puzzle)
+        }
+    }
+
+    const handleContinueAdventure = async function() {
+        await push('/game/' + params.code + '/' + data.puzzle)
+    }
 </script>
 {#if initial}
-    <Spinner />
+    <Spinner/>
 {:else if displayError || !data}
     <h1>Error finding game</h1>
     <p>{displayError}</p>
 {:else}
-    <h1>{data.adventure.name}</h1>
-    <p>{data.adventure.description}</p>
-    <p>Current puzzle ID: <a href="/#/game/{params.code}/{data.puzzle}">{data.puzzle}</a></p>
+    <h1><img src="{data.adventures.promoLogo}" alt="{data.adventures.name}"></h1>
+    {#if data.status === 'EXPIRED'}
+        <p>Congratulations! You finished the adventure!</p>
+    {:else if data.status === 'PAID'}
+        <p>
+            You've not yet started your adventure! Remember, it's dangerous to go alone.
+            Take this if you want to recruit others to help you:
+        </p>
+        <code>
+            {params.code}
+        </code>
+        <p>
+            Once you're ready, press below to go to the first puzzle in the adventure!
+        </p>
+        <button on:click={() => handleStartAdventure()}>
+            Begin the adventure!
+        </button>
+    {:else if data.status === 'ACTIVE'}
+        <p>This adventure is already in progress!</p>
+        <button on:click={() => handleContinueAdventure()}>
+            Go to the current puzzle
+        </button>
+    {/if}
 {/if}
