@@ -30,31 +30,50 @@
     [role='alert'] {
         background: indianred;
     }
-    form {
-        display: grid;
-        grid-template-columns: [labels] auto [controls] 1fr;
-        grid-auto-flow: row;
+    @media (max-width: 480px) {
+        form {
+            display: grid;
+            grid-template-columns: auto;
+            grid-auto-flow: row;
+        }
+        form > label  {
+            grid-row: auto;
+        }
+        form > input,
+        form > button {
+            grid-row: auto;
+            padding: 1em;
+            margin: .5em 0 .5em 0;
+        }
     }
-    form > label  {
-        grid-column: labels;
-        grid-row: auto;
-        padding-right: 1em;
-    }
-    form > input,
-    form > button {
-        grid-column: controls;
-        grid-row: auto;
-        border: none;
-        padding: 1em;
-    }
-    section {
-        grid-column: controls;
-        grid-row: auto;
-        margin: 0;
-        padding: 1em;
-        border-radius: 6px;
-        text-align: center;
-        line-height: normal;
+
+    @media (min-width: 480px) {
+        form {
+            display: grid;
+            grid-template-columns: [labels] 1fr [controls] auto;
+            grid-auto-flow: row;
+        }
+        form > label  {
+            grid-column: labels;
+            grid-row: auto;
+            padding-right: 1em;
+        }
+        form > input,
+        form > button {
+            grid-column: controls;
+            grid-row: auto;
+            border: none;
+            padding: 1em;
+        }
+        section {
+            grid-column: controls;
+            grid-row: auto;
+            margin: 0;
+            padding: 1em;
+            border-radius: 6px;
+            text-align: center;
+            line-height: normal;
+        }
     }
 </style>
 
