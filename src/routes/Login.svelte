@@ -72,6 +72,14 @@
             text-align: center;
             line-height: normal;
         }
+        div {
+            grid-column: controls;
+            grid-row: auto;
+            margin: 0;
+            padding: 1em;
+            border-radius: 6px;
+            text-align: center;
+        }
     }
 </style>
 
@@ -97,12 +105,12 @@
             disabled={disabled}>
         Sign In
     </button>
-</form>
-{#if !!infoText.text}
-    <div role={infoText.error ? "alert" : null}>
-        {infoText.text}
+    {#if !!infoText.text}
+        <div role={infoText.error ? "alert" : null}>
+            {infoText.text}
+        </div>
+    {/if}
+    <div>
+        Don't have an account? <a href='#/signup'>Sign up!</a>
     </div>
-{/if}
-<div>
-    Don't have an account? <a href='#/signup'>Sign up!</a>
-</div>
+</form>
