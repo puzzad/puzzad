@@ -223,6 +223,11 @@
         color: white;
     }
 
+    @media (max-width: 480px) {
+        section.answer fieldset {
+            flex-direction: column;
+        }
+    }
     section.answer fieldset {
         display: flex;
     }
