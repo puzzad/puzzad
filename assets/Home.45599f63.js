@@ -1,4 +1,4 @@
-import{S as A,i as q,s as L,h as n,j as v,r as t,a as z,w as a,a3 as C,C as H,a4 as P,n as I,d as b,_ as T,B as $}from"./index.ba6a3358.js";function j(p){let l,h,e,i,y,r,f,w,u,o,x,c,_,d,g,k;return{c(){l=n("h2"),l.textContent="Puzzad: Puzzle Adventures",h=v(),e=n("main"),i=n("section"),i.innerHTML=`<h3 class="svelte-zxgmb4">Ready to start an adventure?</h3> 
+import{S as A,i as q,s as L,h as n,j as v,r as t,a as z,w as a,a3 as C,C as H,a4 as P,n as I,d as b,_ as T,B as $}from"./index.3e6f2b16.js";function j(p){let l,h,e,i,y,r,f,w,u,o,x,c,_,d,g,k;return{c(){l=n("h2"),l.textContent="Puzzad: Puzzle Adventures",h=v(),e=n("main"),i=n("section"),i.innerHTML=`<h3 class="svelte-zxgmb4">Ready to start an adventure?</h3> 
         <a href="/#/Adventures" class="svelte-zxgmb4">Let&#39;s go \xBB</a>`,y=v(),r=n("section"),f=n("h3"),f.textContent="Got a game code?",w=v(),u=n("form"),o=n("input"),x=v(),c=n("input"),_=v(),d=n("section"),d.innerHTML=`<h3 class="svelte-zxgmb4">What is a puzzle adventure?</h3> 
         <p>A puzzle adventure is part escape room, part puzzle hunt.
             Each adventure is a story interleaved with a variety of puzzles.
