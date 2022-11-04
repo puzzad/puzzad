@@ -10,6 +10,7 @@
     nav {
         padding: 0 0 2px 0;
         align-items: stretch;
+        display: flex;
     }
 
     nav ul {
@@ -61,10 +62,6 @@
         justify-content: end;
         padding-right: 1em;
         padding-top: 0.5em;
-    }
-
-    .dropdown {
-        display: block;
     }
 
     dialog[open] {
