@@ -2,6 +2,7 @@
     export let user
     export let logo
     let dropdownMenu = false
+    dropdownMenu = window.matchMedia('(max-width: 480px)').matches
     window.matchMedia('(max-width: 480px)').addEventListener('change', ev => dropdownMenu = ev.matches)
     let showDropdownMenu = false
     const handleMobileIconClick = () => showDropdownMenu = !showDropdownMenu
