@@ -86,7 +86,7 @@
     const performUrlReplacements = (results) => {
         let [puzzle, ...urls] = results
         for (let i = 0; i < urls.length; i += 2) {
-            const {data: {signedUrl}, error} = urls[1]
+            const {data: {signedUrl}, error} = urls[i + 1]
             if (error) {
                 throw error
             }
@@ -337,7 +337,9 @@
             <h4>{hint.title}</h4>
             {#if hint.locked}
                 <div class="locked">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                        laboris nisi ut aliquip ex ea commodo consequat.</p>
                     <button on:click={() => requestHint(hint.id)}>Reveal this hint</button>
                 </div>
             {:else}
