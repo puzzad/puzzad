@@ -7,6 +7,7 @@
 
     let data = {}
     let initial = true
+    let stats
     let displayError
     let gc
 
@@ -26,6 +27,22 @@
 
         if (game[0]?.adventures) {
             data = game[0]
+            stats = gc.rpc('getstats', {gamecode: params.code})
+                .then(({data: stats, error}) => {
+                    if (error) {
+                        return []
+                    } else {
+                        return stats
+                    }
+                })
+                .then((rows) => {
+                    let lastTime = data.startTime
+                    rows.forEach((r) => {
+                        r.time = delta(lastTime, r.solvetime)
+                        lastTime = r.solvetime
+                    })
+                    return rows
+                })
         } else {
             error = "Unable to find game"
         }
@@ -35,15 +52,36 @@
         initial = false
     })
 
-    const handleStartAdventure = async function() {
-        let { data: puzzle } = await gc.rpc('startadventure')
+    const handleStartAdventure = async function () {
+        let {data: puzzle} = await gc.rpc('startadventure')
         if (puzzle) {
             await push('/game/' + params.code + '/' + puzzle)
         }
     }
 
-    const handleContinueAdventure = async function() {
+    const handleContinueAdventure = async function () {
         await push('/game/' + params.code + '/' + data.puzzle)
+    }
+
+    const delta = function (start, end) {
+        const diff = ((new Date(end)).getTime() - (new Date(start)).getTime()) / 1000
+        const text = (value, label) => {
+            const rounded = Math.floor(value)
+            if (rounded === 1) {
+                return `${rounded} ${label}`
+            } else if (rounded > 1) {
+                return `${rounded} ${label}s`
+            } else {
+                return ''
+            }
+        }
+
+        return [
+            text(diff % 60, 'second'),
+            text((diff / 60) % 60, 'minute'),
+            text((diff / 3600) % 24, 'hour'),
+            text(diff / 86400, 'day')
+        ].filter((t) => t !== '').reverse().join(', ')
     }
 </script>
 
@@ -80,7 +118,27 @@
     <h1><img src="{data.adventures.promoLogo}" alt="{data.adventures.name}"></h1>
     {#if data.status === 'EXPIRED'}
         <p>Congratulations! You finished the adventure!</p>
-        <p>You took {Math.round((new Date(data.endTime).getTime() - new Date(data.startTime).getTime())/10/60)/100} minutes!</p>
+        <p>You took {delta(data.startTime, data.endTime)}!</p>
+        {#await stats then puzzles}
+            <table class="stats">
+                <thead>
+                <tr>
+                    <th>Puzzle</th>
+                    <th>Time</th>
+                    <th>Hints</th>
+                </tr>
+                </thead>
+                <tbody>
+                {#each puzzles as puzzle}
+                    <tr>
+                        <td>{puzzle.title}</td>
+                        <td class="time">{puzzle.time}</td>
+                        <td>{puzzle.hints}</td>
+                    </tr>
+                {/each}
+                </tbody>
+            </table>
+        {/await}
     {:else if data.status === 'PAID'}
         <p>
             You've not yet started your adventure! Remember, it's dangerous to go alone.
