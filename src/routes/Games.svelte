@@ -17,26 +17,56 @@
             games = obtained
         }
     })
+
+    const quotes = [
+        '“Never say \'no\' to adventures. Always say \'yes,\' otherwise you\'ll lead a very dull life.”\n― Ian Fleming',
+        '“If happiness is the goal – and it should be, then adventures should be a priority.”\n― Richard Branson',
+        '“Let us step into the night and pursue that flighty temptress, adventure“\n― J K Rowling',
+        '“Life is either a daring adventure or nothing at all.”\n― Helen Keller',
+        '“Adventure is worthwhile in itself.”\n― Amelia Earhart',
+        '“Never fear quarrels, but seek hazardous adventures.”\n― Alexandre Dumas',
+        '“When you see someone putting on his Big Boots, you can be pretty sure that an Adventure is going to happen.”\n― A.A. Milne',
+        '“We are plain quiet folk and have no use for adventures. Nasty disturbing uncomfortable things! Make you late for dinner!”\n― J.R.R. Tolkien',
+        '“Make your choice, adventurous Stranger,\nStrike the bell and bide the danger,\nOr wonder, till it drives you mad,\nWhat would have followed if you had.”\n― C.S. Lewis'
+    ]
+    const selectedQuote = quotes[Math.floor(Math.random() * quotes.length)];
 </script>
 
+<style>
+    blockquote {
+        white-space: pre-line;
+        font-size: xx-large;
+        font-style: italic;
+        border: 0;
+        background-color: #222222;
+        border-radius: 15px;
+        padding: 1em;
+        margin: 0;
+    }
+</style>
+
 <section>
-    This is a list of your games.
     {#if initial}
         <Spinner />
     {:else}
+        <h2>Your adventures</h2>
         {#each games as game}
-            <a href='/#/game/{game.id}'>
-                <AdventureBanner
-                        price=''
-                        status='{game.status}'
-                        adventureName='{game.adventures?.name ?? "Unknown"}'
-                        backgroundUrl='{game.adventures?.promoBackground}'
-                        logoUrl='{game.adventures?.promoLogo}'
-                        code='{game.code}'
-                />
-            </a>
+            <AdventureBanner
+                    price=''
+                    status='{game.status}'
+                    adventureName='{game.adventures?.name ?? "Unknown"}'
+                    backgroundUrl='{game.adventures?.promoBackground}'
+                    logoUrl='{game.adventures?.promoLogo}'
+                    code='{game.code}'
+            />
         {:else}
-            <p>You haven't purchased any games.</p>
+            <blockquote>{selectedQuote}</blockquote>
+            <p>
+                You aren't part of any adventures! You can
+                <a href="/#/Adventures">browse the available adventures</a>, or if you
+                want to join a friend you can <a href="/#/">enter the game code</a> to
+                jump straight in.
+            </p>
         {/each}
     {/if}
 </section>
