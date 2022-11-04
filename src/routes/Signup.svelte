@@ -50,7 +50,7 @@
     @media (min-width: 480px) {
         form {
             display: grid;
-            grid-template-columns: [labels] 1fr [controls] auto;
+            grid-template-columns: [labels] auto [controls] 1fr;
             grid-auto-flow: row;
         }
         form > label  {
