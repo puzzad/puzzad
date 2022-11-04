@@ -369,7 +369,7 @@
     </section>
 
     <dialog open={solved}>
-        <h3>{congratsMessages}</h3>
+        <h3>{congratsMessage}</h3>
         {#if data.next}
             <p>You have completed this step in the adventure!</p>
             <button on:click={() => goToNextPuzzle()}>Next puzzle &raquo;</button>
