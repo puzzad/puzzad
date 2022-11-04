@@ -9,9 +9,22 @@
 </script>
 <style>
     main {
-        display: grid;
-        grid-template-columns: 60% 40%;
+        grid-template-columns: 50% 40%;
         gap: 2em;
+    }
+
+    @media (min-width: 480px) {
+        main {
+            display: grid;
+        }
+    }
+    @media (max-width: 480px) {
+        #play {
+            margin-bottom: 2em;
+        }
+        #hero {
+            margin-bottom: 2em;
+        }
     }
 
     section {
@@ -25,6 +38,9 @@
     }
 
     #hero {
+        display: flex;
+        flex-direction: column;
+        align-items: end;
         background-image: url('../assets/hero.jpg');
         background-repeat: no-repeat;
         background-size: cover;
@@ -33,7 +49,6 @@
     }
 
     #hero h3 {
-        position: absolute;
         left: 30%;
         right: 0.5em;
         top: 0.5em;
@@ -45,7 +60,6 @@
     }
 
     #hero a {
-        position: absolute;
         bottom: 1em;
         right: 1em;
         font-size: large;
