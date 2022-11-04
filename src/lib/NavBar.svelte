@@ -8,14 +8,14 @@
 </script>
 <style>
     nav {
-        padding: 0 0 2px 0;
         align-items: stretch;
         display: flex;
+        padding: 0 0 2px 0;
     }
 
     nav ul {
-        display: flex;
         align-items: stretch;
+        display: flex;
     }
 
     nav ul:first-of-type {
@@ -34,22 +34,22 @@
     }
 
     nav li a {
-        margin-bottom: 0;
         border-bottom: 1px dashed var(--links);
-        font-variant: all-small-caps;
         font-size: large;
+        font-variant: all-small-caps;
         line-height: 1em;
+        margin-bottom: 0;
     }
 
     nav li a:hover {
-        text-decoration: none;
         filter: brightness(1.5);
+        text-decoration: none;
     }
 
     h1, h1 a {
+        line-height: 0;
         margin: 0;
         padding: 0;
-        line-height: 0;
     }
 
     h1 img {
@@ -76,11 +76,20 @@
             transform: scale(1);
         }
     }
+    .hamburgercontainer:hover {
+        cursor: pointer;
+    }
+    .hamburger{
+        box-shadow: inset 0 0 0 32px,0 -6px,0 6px;
+        height: 2px;
+        margin: 16px 7px;
+        width: 20px;
+    }
 </style>
 <nav>
-    <h1><a href='/#/'><img src='{logo}' alt='Puzzad'></a></h1>
+    <h1><a href='/#/'><img alt='Puzzad' src='{logo}'></a></h1>
     {#if dropdownMenu}
-        <div on:click={handleMobileIconClick}>🍔</div>
+        <div class='hamburgercontainer' on:click={handleMobileIconClick}><span class='hamburger'></span></div>
         <dialog open='{showDropdownMenu}' on:click={() => showDropdownMenu=false}>
             <ul class='{showDropdownMenu ? "dropdown" : ""}'>
                 <li><a href='/#/Adventures'>Browse adventures</a></li>
