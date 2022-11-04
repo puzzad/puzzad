@@ -158,6 +158,26 @@
     const goToGamePage = async function () {
         await replace('/game/' + params.code)
     }
+
+    const hintMessages = [
+        'Need a hint? Browse our extensive collection below!',
+        'Not sure where to go? Try one of our finest hints!',
+        'Get your hints here! Freshly plucked from the hint tree!',
+        'Psst... Can I interest you in a hint?',
+        'We\'ve got the finest hints in all the land. Don\'t believe me? Try one for free!',
+        'Struggling? In a rush? Why not take one of our hand-picked, artisanal hints?',
+    ]
+    const hintMessage = hintMessages[Math.floor(Math.random() * hintMessages.length)];
+
+    const congratsMessages = [
+        'Congratulations!',
+        'Well done!',
+        'You did it!',
+        'Huzzah!',
+        'Good job!',
+        'Nice work!',
+    ]
+    const congratsMessage = congratsMessages[Math.floor(Math.random() * congratsMessages.length)];
 </script>
 
 <style>
@@ -332,7 +352,7 @@
     </section>
 
     <section class="hints">
-        <p>Need a hint? Browse our extensive collection below!</p>
+        <p>{hintMessage}</p>
         {#each hints as hint}
             <h4>{hint.title}</h4>
             {#if hint.locked}
@@ -349,7 +369,7 @@
     </section>
 
     <dialog open={solved}>
-        <h3>Congratulations</h3>
+        <h3>{congratsMessages}</h3>
         {#if data.next}
             <p>You have completed this step in the adventure!</p>
             <button on:click={() => goToNextPuzzle()}>Next puzzle &raquo;</button>
