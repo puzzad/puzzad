@@ -47,6 +47,15 @@
         border: none;
         padding: 1em;
     }
+    section {
+        grid-column: controls;
+        grid-row: auto;
+        margin: 0;
+        padding: 1em;
+        border-radius: 6px;
+        text-align: center;
+        line-height: normal;
+    }
 </style>
 
 <form on:submit|preventDefault>
@@ -66,11 +75,6 @@
             bind:value={password}
             required
     />
-    {#if !!infoText.text}
-        <section role={infoText.error ? "alert" : null}>
-            {infoText.text}
-        </section>
-    {/if}
     <button
             type='submit'
             on:click={() => handleLogin()}
@@ -78,4 +82,9 @@
             value='Sign up'>
         Sign Up
     </button>
+    {#if !!infoText.text}
+        <section role={infoText.error ? "alert" : null}>
+            {infoText.text}
+        </section>
+    {/if}
 </form>
