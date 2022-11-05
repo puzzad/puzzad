@@ -16,5 +16,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: >-
-          docker run --rm --volume ${{ github.workspace }}/migrations:/migrations:ro
-          migrate/migrate -path=/migrations/ -database ${{ env.PGURL }} up
+          docker run --rm --volume ${{ github.workspace }}/migrations:/migrations:ro migrate/migrate -path=/migrations/ -database ${{ env.PGURL }} up
