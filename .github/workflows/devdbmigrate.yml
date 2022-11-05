@@ -16,4 +16,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: >-
-          docker run --rm --volume ${{ github.workspace }}/migrations:/migrations:ro migrate/migrate -path=/migrations/ -database ${{ env.PGURL }} up
+          docker run --rm --volume ${{ github.workspace }}/migrations:/migrations:ro ghcr.io/greboid/migrate/migrate:latest -path=/migrations/ -database ${{ env.PGURL }}?sslmode=disable\&x-migrations-table=\"supabase_migrations\".\"schema_migrations\"\&x-migrations-table-quoted=true up
