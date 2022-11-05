@@ -47,6 +47,54 @@
         background: var(--background);
         -webkit-appearance: menulist;
     }
+    [role='alert'] {
+        background: indianred;
+    }
+    @media (max-width: 480px) {
+        form.basic {
+            display: grid;
+            grid-template-columns: auto;
+            grid-auto-flow: row;
+        }
+        form.basic > label  {
+            grid-row: auto;
+        }
+        form.basic > input,
+        form.basic > button {
+            grid-row: auto;
+            padding: 1em;
+            margin: .5em 0 .5em 0;
+        }
+    }
+
+    @media (min-width: 480px) {
+        form.basic {
+            display: grid;
+            grid-template-columns: [labels] auto [controls] 1fr;
+            grid-auto-flow: row;
+        }
+        form.basic > label  {
+            grid-column: labels;
+            grid-row: auto;
+            padding-right: 1em;
+        }
+        form.basic > input,
+        form.basic > button {
+            grid-column: controls;
+            grid-row: auto;
+            border: none;
+            padding: 1em;
+        }
+        form.basic > section {
+            grid-column: controls;
+            grid-row: auto;
+            margin: 0;
+            padding: 1em;
+            border-radius: 6px;
+            text-align: center;
+            line-height: normal;
+        }
+    }
 </style>
 <NavBar user='{user}' logo='{logo}' />
 <Router {routes}/>
