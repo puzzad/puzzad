@@ -10,7 +10,7 @@
         let {data: obtained, error} = await supabase
                 .from('games')
                 .select(`
-                    id,status, adventures ( name, promoBackground, promoLogo ), status, code
+                    id,status, adventures ( name ), status, code
                 `)
         if (!error) {
             initial = false
@@ -55,8 +55,6 @@
                     price=''
                     status='{game.status}'
                     adventureName='{game.adventures?.name ?? "Unknown"}'
-                    backgroundUrl='{game.adventures?.promoBackground}'
-                    logoUrl='{game.adventures?.promoLogo}'
                     code='{game.code}'
             />
         {:else}

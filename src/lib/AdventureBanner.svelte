@@ -1,7 +1,7 @@
 <script lang="ts">
+    import {supabase} from "$lib/db";
+
     export let adventureName
-    export let backgroundUrl
-    export let logoUrl
     export let code
     export let status
     export let price
@@ -10,6 +10,13 @@
     } else {
         price = "Free"
     }
+
+    let backgroundUrl = adventureName && supabase.storage.from('adventures')
+        .getPublicUrl(adventureName + '/background.jpg')
+        .data.publicUrl
+    let logoUrl = adventureName && supabase.storage.from('adventures')
+        .getPublicUrl(adventureName + '/logo.png')
+        .data.publicUrl
 </script>
 <style>
     a {

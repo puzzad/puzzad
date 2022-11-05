@@ -10,7 +10,7 @@
         let {data: obtained, error} = await supabase
                 .from('adventures')
                 .select(`
-                    id,name,promoBackground,promoLogo,price
+                    id,name,price
                 `)
         if (!error) {
             initial = false
@@ -26,8 +26,6 @@
     {#each adventures as adventure}
         <AdventureBanner
                 adventureName='{adventure.name}'
-                backgroundUrl='{adventure.promoBackground}'
-                logoUrl='{adventure.promoLogo}'
                 price='{adventure.price}'
                 code=''
                 status=''

@@ -7,7 +7,7 @@
 
     let details = supabase
         .from('adventures')
-        .select(`id,name,description,promoBackground,promoLogo,price`)
+        .select(`id,name,description,price`)
         .eq('name', params.name)
         .then(({data, error}) => {
             if (error) {
@@ -27,12 +27,16 @@
             }
         }
     }
+
+    let logoUrl = params.name && supabase.storage.from('adventures')
+        .getPublicUrl(params.name + '/logo.png')
+        .data.publicUrl
 </script>
 
 {#await details}
     <Spinner />
 {:then details}
-    <h2><img src="{details.promoLogo}" alt="{details.name}"></h2>
+    <h2><img src="{logoUrl}" alt="{details.name}"></h2>
     <section>
     {@html details.description}
     </section>
