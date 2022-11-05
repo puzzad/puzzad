@@ -11,10 +11,10 @@ jobs:
     name: Run Database migrations
     runs-on: ubuntu-latest
     env:
-      PGPASSWORD: {{ secrets.DEV_PG_PASS }}
-      PGURL: {{ secrets.DB_PG_URL }}
+      PGPASSWORD: ${{ secrets.DEV_PG_PASS }}
+      PGURL: ${{ secrets.DB_PG_URL }}
     steps:
       - uses: actions/checkout@v2
       - run: >-
           docker run --rm --volume ${{ github.workspace }}/migrations:/migrations:ro
-          migrate/migrate -path=/migrations/ -database {{ env.PGURL }} up
+          migrate/migrate -path=/migrations/ -database ${{ env.PGURL }} up
