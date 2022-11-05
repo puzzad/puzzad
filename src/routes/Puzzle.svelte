@@ -8,6 +8,7 @@
     import {toasts, ToastContainer, FlatToast} from "svelte-toasts";
     import {Confetti} from "svelte-confetti";
     import {replace} from 'svelte-spa-router'
+    import Hints from "$lib/Hints.svelte";
 
     let data = {}
     let guess = ''
@@ -16,7 +17,7 @@
     let initial = true
     let guessesChannel = null
     let gameClient = null
-    let hints = []
+    let hints
 
     $: if (params.code && params.puzzle) {
         load()
@@ -42,7 +43,6 @@
                     }
                     initial = false
                 })
-                .then(refreshHints)
                 .catch(() => replace('/game/' + params.code))
         } catch (e) {
             replace('/game/' + params.code)
@@ -55,7 +55,6 @@
         solved = false
         guess = ''
         checkingGuess = false
-        hints = []
     }
 
     const checkQueryResults = ({data, error}) => {
@@ -98,14 +97,6 @@
         return puzzle
     }
 
-    const refreshHints = async () => {
-        const {data, error} = await gameClient.rpc('gethints', {puzzleid: params.puzzle, gamecode: params.code})
-        if (error) {
-            throw error
-        }
-        hints = data
-    }
-
     onDestroy(async function () {
         if (guessesChannel) {
             await gameClient.removeChannel(guessesChannel)
@@ -127,7 +118,7 @@
     const handleStreamedGuess = function (payload) {
         if (payload.new.puzzle.toString() === params.puzzle) {
             if (payload.new.content === '*hint') {
-                refreshHints()
+                hints.refresh()
             } else if (payload.new.correct) {
                 solved = true
             } else {
@@ -147,10 +138,6 @@
             .insert({content: guess, puzzle: params.puzzle, game: params.code})
         checkingGuess = false
         guess = ''
-    }
-
-    const requestHint = async function (id) {
-        await gameClient.rpc('requesthint', {puzzleid: params.puzzle, gamecode: params.code, hintid: id})
     }
 
     const goToNextPuzzle = async function () {
@@ -236,56 +223,6 @@
         flex-grow: 1;
     }
 
-    section.hints {
-        position: relative;
-        border-top: 10px solid #333333;
-        border-bottom: 2px solid #333333;
-        background-color: rgba(51, 51, 51, .3);
-        padding: 0 0.7em;
-    }
-
-    section.hints::before {
-        float: right;
-        border-bottom-right-radius: 5px;
-        border-bottom-left-radius: 5px;
-        padding: 5px 10px;
-        margin: 0 20px;
-        content: "💡 hints";
-        font-weight: bold;
-        font-variant: small-caps;
-        background-color: #333333;
-        color: white;
-    }
-
-    section.hints h4 {
-        border-bottom: 2px solid #e3bc5e;
-        font-variant: small-caps;
-        text-transform: lowercase;
-        padding: 0;
-        margin: 0;
-        font-weight: bold;
-    }
-
-    .locked {
-        position: relative;
-    }
-
-    .locked p {
-        filter: blur(5px);
-    }
-
-    .locked button {
-        display: block;
-        position: absolute;
-        top: 25%;
-        bottom: 25%;
-        left: 25%;
-        right: 25%;
-        width: 50%;
-        height: 50%;
-        text-align: center;
-    }
-
     dialog {
         position: fixed;
         padding: 3em;
@@ -356,22 +293,7 @@
         </form>
     </section>
 
-    <section class="hints">
-        <p><RandomText options={hintMessages}></RandomText></p>
-        {#each hints as hint}
-            <h4>{hint.title}</h4>
-            {#if hint.locked}
-                <div class="locked">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                        laboris nisi ut aliquip ex ea commodo consequat.</p>
-                    <button on:click={() => requestHint(hint.id)}>Reveal this hint</button>
-                </div>
-            {:else}
-                <p>{hint.message}</p>
-            {/if}
-        {/each}
-    </section>
+    <Hints bind:gameCode={params.code} bind:puzzleId={params.puzzle} bind:this={hints}></Hints>
 
     <dialog open={solved}>
         <h3><RandomText options={congratsMessages}></RandomText></h3>
