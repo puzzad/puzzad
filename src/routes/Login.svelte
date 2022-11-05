@@ -1,30 +1,31 @@
 <script lang='ts'>
     import {supabase} from "$lib/db";
     import {replace} from 'svelte-spa-router'
-
-    interface InfoText {
-        error: boolean;
-        text: string | null;
-    }
+    import {toasts, ToastContainer, FlatToast} from "svelte-toasts";
 
     let email: string = "";
     let password: string = "";
-    let infoText: InfoText = {error: null, text: null};
     let disabled = false
+    let data = {}
 
     const handleLogin = async () => {
         disabled = true
-        const {user, error,} = await supabase.auth.signInWithPassword({email, password})
+        const {error} = await supabase.auth.signInWithPassword({email, password})
         disabled = false
         if (error) {
-            infoText = {error: true, text: error.message};
-        } else if (!error) {
+            toasts.add({
+                title: 'Login',
+                description: error.message,
+                duration: 10000,
+                type: 'error',
+            })
+        } else {
             await replace('#/')
         }
     };
 </script>
 
-<form class='basic' on:submit|preventDefault>
+<form class='basic' on:submit|preventDefault={handleLogin}>
     <label for='email'>Email:</label>
     <input
             id='email'
@@ -42,16 +43,13 @@
     />
     <button
             type='submit'
-            on:click={() => handleLogin()}
             disabled={disabled}>
         Sign In
     </button>
-    {#if !!infoText.text}
-        <section role={infoText.error ? "alert" : null}>
-            {infoText.text}
-        </section>
-    {/if}
     <section>
         Don't have an account? <a href='#/signup'>Sign up!</a>
     </section>
 </form>
+<ToastContainer placement="bottom-right" theme="dark" let:data={data}>
+    <FlatToast {data}/>
+</ToastContainer>
