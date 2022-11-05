@@ -167,6 +167,8 @@ ALTER TABLE ONLY "public"."puzzles"
     ADD CONSTRAINT "unique_slug" UNIQUE ("storage_slug");
 ALTER TABLE ONLY "internal"."answers"
     ADD CONSTRAINT "answers_puzzle_fkey" FOREIGN KEY ("puzzle") REFERENCES "public"."puzzles"("id");
+ALTER TABLE "internal"."answers"
+    ADD CONSTRAINT "unique_answer" UNIQUE ("puzzle", "answer");
 ALTER TABLE ONLY "internal"."hints"
     ADD CONSTRAINT "hints_puzzle_fkey" FOREIGN KEY ("puzzle") REFERENCES "public"."puzzles"("id");
 ALTER TABLE ONLY "internal"."usedhints"
