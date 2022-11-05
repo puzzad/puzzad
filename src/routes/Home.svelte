@@ -41,6 +41,7 @@
         display: flex;
         flex-direction: column;
         align-items: end;
+        justify-content: space-between;
         background-image: url('../assets/hero.jpg');
         background-repeat: no-repeat;
         background-size: cover;
