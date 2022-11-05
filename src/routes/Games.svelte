@@ -3,6 +3,7 @@
     import {supabase} from '$lib/db'
     import Spinner from '$lib/Spinner.svelte'
     import {onMount} from 'svelte'
+    import RandomText from "$lib/RandomText.svelte";
 
     let games = []
     let initial = true
@@ -29,7 +30,6 @@
         '“We are plain quiet folk and have no use for adventures. Nasty disturbing uncomfortable things! Make you late for dinner!”\n― J.R.R. Tolkien',
         '“Make your choice, adventurous Stranger,\nStrike the bell and bide the danger,\nOr wonder, till it drives you mad,\nWhat would have followed if you had.”\n― C.S. Lewis'
     ]
-    const selectedQuote = quotes[Math.floor(Math.random() * quotes.length)];
 </script>
 
 <style>
@@ -58,7 +58,7 @@
                     code='{game.code}'
             />
         {:else}
-            <blockquote>{selectedQuote}</blockquote>
+            <blockquote><RandomText options={quotes}></RandomText></blockquote>
             <p>
                 You aren't part of any adventures! You can
                 <a href="/#/Adventures">browse the available adventures</a>, or if you

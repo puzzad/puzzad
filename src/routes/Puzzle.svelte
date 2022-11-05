@@ -1,4 +1,6 @@
 <script>
+    import RandomText from "$lib/RandomText.svelte";
+
     export let params = {}
     import {getGameClient} from '$lib/db'
     import Spinner from '$lib/Spinner.svelte'
@@ -167,7 +169,6 @@
         'We\'ve got the finest hints in all the land. Don\'t believe me? Try one for free!',
         'Struggling? In a rush? Why not take one of our hand-picked, artisanal hints?',
     ]
-    const hintMessage = hintMessages[Math.floor(Math.random() * hintMessages.length)];
 
     const congratsMessages = [
         'Congratulations!',
@@ -177,7 +178,6 @@
         'Good job!',
         'Nice work!',
     ]
-    const congratsMessage = congratsMessages[Math.floor(Math.random() * congratsMessages.length)];
 </script>
 
 <style>
@@ -357,7 +357,7 @@
     </section>
 
     <section class="hints">
-        <p>{hintMessage}</p>
+        <p><RandomText options={hintMessages}></RandomText></p>
         {#each hints as hint}
             <h4>{hint.title}</h4>
             {#if hint.locked}
@@ -374,7 +374,7 @@
     </section>
 
     <dialog open={solved}>
-        <h3>{congratsMessage}</h3>
+        <h3><RandomText options={congratsMessages}></RandomText></h3>
         {#if data.next}
             <p>You have completed this step in the adventure!</p>
             <button on:click={() => goToNextPuzzle()}>Next puzzle &raquo;</button>
