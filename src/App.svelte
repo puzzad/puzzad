@@ -39,5 +39,14 @@
         '*': wrap({ asyncComponent: () => import('./routes/NotFound.svelte')}),
     }
 </script>
+<style global>
+    table {
+        display: table;
+    }
+    select {
+        background: var(--background);
+        -webkit-appearance: menulist;
+    }
+</style>
 <NavBar user='{user}' logo='{logo}' />
 <Router {routes}/>
