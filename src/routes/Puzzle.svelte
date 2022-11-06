@@ -2,7 +2,7 @@
     import RandomText from "$lib/RandomText.svelte";
 
     export let params = {}
-    import {getGameClient} from '$lib/db'
+    import {getGameClient, getRealTimeClient} from '$lib/db'
     import Spinner from '$lib/Spinner.svelte'
     import {onDestroy} from 'svelte'
     import {toasts, ToastContainer, FlatToast} from "svelte-toasts";
@@ -15,7 +15,7 @@
     let solved = false
     let checkingGuess = false
     let initial = true
-    let guessesChannel = null
+    let realTimeClient = null
     let gameClient = null
     let hints
 
@@ -38,9 +38,7 @@
                 .then(performUrlReplacements)
                 .then((puzzle) => data = puzzle)
                 .then(() => {
-                    if (!guessesChannel) {
-                        startMonitoringGuesses()
-                    }
+                    startMonitoringGuesses()
                     initial = false
                 })
                 .catch(() => replace('/game/' + params.code))
@@ -97,14 +95,19 @@
         return puzzle
     }
 
-    onDestroy(async function () {
-        if (guessesChannel) {
-            await gameClient.removeChannel(guessesChannel)
+    onDestroy(function () {
+        if (realTimeClient) {
+            realTimeClient.disconnect()
         }
     })
 
     const startMonitoringGuesses = async function () {
-        guessesChannel = await gameClient
+        if (realTimeClient) {
+            return
+        }
+
+        realTimeClient = await getRealTimeClient(params.code)
+        await realTimeClient
             .channel('public:guesses:game=eq.' + params.code)
             .on('postgres_changes', {
                 event: 'INSERT',
@@ -206,6 +209,7 @@
             flex-direction: column;
         }
     }
+
     section.answer fieldset {
         display: flex;
     }
@@ -287,7 +291,9 @@
     <Hints bind:gameCode={params.code} bind:puzzleId={params.puzzle} bind:this={hints}></Hints>
 
     <dialog open={solved}>
-        <h3><RandomText options={congratsMessages}></RandomText></h3>
+        <h3>
+            <RandomText options={congratsMessages}></RandomText>
+        </h3>
         {#if data.next}
             <p>You have completed this step in the adventure!</p>
             <button on:click={() => goToNextPuzzle()}>Next puzzle &raquo;</button>
