@@ -8,6 +8,8 @@ export default defineConfig({
   resolve: {
     alias: {
       $lib: resolve(__dirname, "./src/lib"),
+      $routes: resolve(__dirname, "./src/routes"),
+      $comps: resolve(__dirname, "./src/components"),
     },
   },
 });

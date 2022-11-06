@@ -1,9 +1,9 @@
 <script type='ts'>
-    import {supabase} from "$lib/db";
+    import {supabase} from "$lib/db.ts";
     import {replace} from 'svelte-spa-router'
     import {toasts, ToastContainer, FlatToast} from "svelte-toasts";
     import {AuthError} from "@supabase/gotrue-js/src/lib/errors.ts";
-    import {logout, session} from "$lib/auth.ts";
+    import {logout, session} from "$lib/auth";
 
     export let type: string = "login"
 

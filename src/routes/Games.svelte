@@ -1,9 +1,9 @@
 <script>
-    import AdventureBanner from '$lib/AdventureBanner.svelte'
+    import AdventureBanner from '$comps/AdventureBanner.svelte'
     import {supabase} from '$lib/db'
-    import Spinner from '$lib/Spinner.svelte'
+    import Spinner from '$comps/Spinner.svelte'
     import {onMount} from 'svelte'
-    import RandomText from "$lib/RandomText.svelte";
+    import RandomText from "$comps/RandomText.svelte";
 
     let games = []
     let initial = true

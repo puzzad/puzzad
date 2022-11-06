@@ -1,8 +1,8 @@
 <script>
     import {supabase} from "$lib/db.ts";
-    import Spinner from '$lib/Spinner.svelte'
+    import Spinner from '$comps/Spinner.svelte'
     import {push} from "svelte-spa-router";
-    import AdventureLogo from "$lib/AdventureLogo.svelte";
+    import AdventureLogo from "$comps/AdventureLogo.svelte";
 
     export let params = {}
 

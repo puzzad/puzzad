@@ -1,15 +1,14 @@
 <script>
-    import RandomText from "$lib/RandomText.svelte";
-
-    export let params = {}
+    import RandomText from "$comps/RandomText.svelte";
     import {getGameClient, getRealTimeClient} from '$lib/db'
-    import Spinner from '$lib/Spinner.svelte'
+    import Spinner from '$comps/Spinner.svelte'
     import {onDestroy} from 'svelte'
     import {toasts, ToastContainer, FlatToast} from "svelte-toasts";
     import {Confetti} from "svelte-confetti";
     import {replace} from 'svelte-spa-router'
-    import Hints from "$lib/Hints.svelte";
+    import Hints from "$comps/Hints.svelte";
 
+    export let params = {}
     let data = {}
     let guess = ''
     let solved = false

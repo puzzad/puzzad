@@ -3,20 +3,20 @@
     import logo from './assets/logo.png'
     import Router from 'svelte-spa-router'
     import {wrap} from 'svelte-spa-router/wrap'
-    import NavBar from '$lib/NavBar.svelte'
+    import NavBar from '$comps/NavBar.svelte'
     import {logout} from "$lib/auth.ts";
 
     const routes = {
-        '/adventures': wrap({ asyncComponent: () => import('./routes/Adventures.svelte')}),
-        '/adventure/:name': wrap({ asyncComponent: () => import('./routes/Adventure.svelte')}),
-        '/games': wrap({ asyncComponent: () => import('./routes/Games.svelte')}),
-        '/game/:code': wrap({ asyncComponent: () => import('./routes/Game.svelte')}),
-        '/game/:code/:puzzle': wrap({ asyncComponent: () => import('./routes/Puzzle.svelte')}),
-        '/login': wrap({ props: { type: "login" }, asyncComponent: () => import('$lib/Auth.svelte')}),
-        '/logout': wrap({ props: { type: "logout" }, asyncComponent: () => import('$lib/Auth.svelte')}),
-        '/signup': wrap({ props: { type: "signup" }, asyncComponent: () => import('$lib/Auth.svelte')}),
-        '/': wrap({ asyncComponent: () => import('./routes/Home.svelte')}),
-        '*': wrap({ asyncComponent: () => import('./routes/NotFound.svelte')}),
+        '/adventures': wrap({ asyncComponent: () => import('$routes/Adventures.svelte')}),
+        '/adventure/:name': wrap({ asyncComponent: () => import('$routes/Adventure.svelte')}),
+        '/games': wrap({ asyncComponent: () => import('$routes/Games.svelte')}),
+        '/game/:code': wrap({ asyncComponent: () => import('$routes/Game.svelte')}),
+        '/game/:code/:puzzle': wrap({ asyncComponent: () => import('$routes/Puzzle.svelte')}),
+        '/login': wrap({ props: { type: "login" }, asyncComponent: () => import('$comps/Auth.svelte')}),
+        '/logout': wrap({ props: { type: "logout" }, asyncComponent: () => import('$comps/Auth.svelte')}),
+        '/signup': wrap({ props: { type: "signup" }, asyncComponent: () => import('$comps/Auth.svelte')}),
+        '/': wrap({ asyncComponent: () => import('$routes/Home.svelte')}),
+        '*': wrap({ asyncComponent: () => import('$routes/NotFound.svelte')}),
     }
 </script>
 <style global>

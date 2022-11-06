@@ -1,9 +1,9 @@
 <script>
     export let params = {}
 
-    import AdventureLogo from "$lib/AdventureLogo.svelte";
-    import {getGameClient, supabase} from '$lib/db'
-    import Spinner from '$lib/Spinner.svelte'
+    import AdventureLogo from "$comps/AdventureLogo.svelte";
+    import {getGameClient} from '$lib/db'
+    import Spinner from '$comps/Spinner.svelte'
     import {onMount} from 'svelte'
     import {push} from 'svelte-spa-router'
 

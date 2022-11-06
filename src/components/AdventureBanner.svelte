@@ -1,6 +1,6 @@
 <script lang="ts">
-    import {supabase} from "$lib/db";
-    import AdventureLogo from "$lib/AdventureLogo.svelte";
+    import {supabase} from "$lib/db.ts";
+    import AdventureLogo from "$comps/AdventureLogo.svelte";
 
     export let adventureName
     export let code
@@ -33,7 +33,7 @@
 
     /*noinspection CssUnusedSymbol*/
     a.expired::before {
-        content: "";
+        content: '';
         position: absolute;
         top: -5px;
         left: -5px;
@@ -56,7 +56,7 @@
 
     /*noinspection CssUnusedSymbol*/
     a.expired::after {
-        content: "";
+        content: '';
         position: absolute;
         bottom: 10%;
         right: 10px;
