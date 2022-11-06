@@ -2,12 +2,14 @@
     import AdventureBanner from '$comps/AdventureBanner.svelte'
     import {supabase} from '$lib/db'
     import Spinner from '$comps/Spinner.svelte'
-
+    import {title} from '$lib/title.ts'
+    import {onMount} from 'svelte'
     let adventures = supabase
         .from('adventures')
         .select('id,name,price,public')
         .throwOnError()
         .then(({data}) => data)
+    title.set("Puzzad: Adventures")
 </script>
 
 <h2>Which adventure would you like to go on?</h2>

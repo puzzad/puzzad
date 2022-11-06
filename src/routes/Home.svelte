@@ -1,4 +1,5 @@
 <script>
+    import {title} from '$lib/title.ts'
     import {push} from 'svelte-spa-router'
 
     let code = '';
@@ -6,6 +7,7 @@
     const handleGameCode = () => {
         push('/game/' + code.toLowerCase().replaceAll(/[^a-z-]/g, ''))
     }
+    title.set("Puzzad")
 </script>
 <style>
     main {

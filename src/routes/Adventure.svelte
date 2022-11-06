@@ -3,6 +3,7 @@
     import Spinner from '$comps/Spinner.svelte'
     import {push} from "svelte-spa-router";
     import AdventureLogo from "$comps/AdventureLogo.svelte";
+    import {title} from '$lib/title.ts'
 
     export let params = {}
 
@@ -14,6 +15,7 @@
             if (error) {
                 throw error
             }
+            title.set("Puzzad: "+data[0].name)
             return data[0]
         })
 
@@ -29,7 +31,6 @@
         }
     }
 </script>
-
 {#await details}
     <Spinner />
 {:then details}

@@ -1,4 +1,6 @@
 <script>
+    import {title} from '$lib/title.ts'
+    title.set("Puzzad: Not found")
     export let params = {}
 </script>
 <style>

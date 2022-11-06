@@ -2,8 +2,10 @@
     import AdventureBanner from '$comps/AdventureBanner.svelte'
     import {supabase} from '$lib/db'
     import Spinner from '$comps/Spinner.svelte'
-    import RandomText from "$comps/RandomText.svelte";
+    import RandomText from '$comps/RandomText.svelte'
+    import {title} from '$lib/title.ts'
 
+    title.set("Puzzad: My Games")
     let games = supabase.from('games')
         .select('id, status, adventures (name, public), status, code')
         .throwOnError()

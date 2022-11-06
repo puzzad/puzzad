@@ -5,6 +5,7 @@
     import {wrap} from 'svelte-spa-router/wrap'
     import NavBar from '$comps/NavBar.svelte'
     import {logout} from "$lib/auth.ts";
+    import {title} from '$lib/title.ts'
 
     const routes = {
         '/adventures': wrap({ asyncComponent: () => import('$routes/Adventures.svelte')}),
@@ -76,5 +77,6 @@
         }
     }
 </style>
+<svelte:head><title>{$title}</title></svelte:head>
 <NavBar logo='{logo}' />
 <Router {routes}/>

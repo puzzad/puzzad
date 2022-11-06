@@ -2,6 +2,7 @@
     import RandomText from "$comps/RandomText.svelte";
     import {getGameClient, getRealTimeClient} from '$lib/db'
     import Spinner from '$comps/Spinner.svelte'
+    import {title} from '$lib/title.ts'
     import {onDestroy} from 'svelte'
     import {toasts, ToastContainer, FlatToast} from "svelte-toasts";
     import {Confetti} from "svelte-confetti";
@@ -18,6 +19,7 @@
     let gameClient = null
     let hints
 
+    title.set("Puzzad: Loading...")
     $: if (params.code && params.puzzle) {
         load()
     }
@@ -37,6 +39,7 @@
                 .then(performUrlReplacements)
                 .then((puzzle) => data = puzzle)
                 .then(() => {
+                    title.set("Puzzad: "+data.adventure.name+" :"+data.title)
                     startMonitoringGuesses()
                     initial = false
                 })

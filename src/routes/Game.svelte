@@ -4,6 +4,7 @@
     import AdventureLogo from "$comps/AdventureLogo.svelte";
     import {getGameClient} from '$lib/db'
     import Spinner from '$comps/Spinner.svelte'
+    import {title} from '$lib/title.ts'
     import {onMount} from 'svelte'
     import {push} from 'svelte-spa-router'
 
@@ -45,7 +46,9 @@
                     })
                     return rows
                 })
+            title.set("Puzzad: "+game[0]?.adventures.name+" - "+params.code)
         } else {
+            title.set("Puzzad: Game not found")
             error = "Unable to find game"
         }
         if (error) {

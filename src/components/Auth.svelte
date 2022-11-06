@@ -4,6 +4,7 @@
     import {toasts, ToastContainer, FlatToast} from "svelte-toasts";
     import {AuthError} from "@supabase/gotrue-js/src/lib/errors.ts";
     import {logout, session} from "$lib/auth";
+    import {title} from "$lib/title.ts";
 
     export let type: string = "login"
 
@@ -26,7 +27,6 @@
                 await replace('/')
                 break;
             case "logout":
-
                 break
             }
         if (error) {
@@ -47,14 +47,17 @@
     }
     switch (type) {
         case "signup":
+            title.set("Puzzad: Signup")
             altText = "Already have an account? <a href='#/Login'>Login!</a>"
             buttonText = "Sign up"
             break;
         case "login":
+            title.set("Puzzad: Login")
             altText = "Don't have an account? <a href='#/signup'>Sign up!</a>"
             buttonText = "Sign In"
             break;
         case "logout":
+            title.set("Puzzad: Logout");
             logout()
     }
 </script>
