@@ -96,7 +96,7 @@
         box-shadow: 0 0 5px 5px rgba(255, 255, 255, .9);
     }
 
-    a img {
+    :global(a.adventurebanner img) {
         max-width: 50%;
         position: absolute;
         bottom: 10%;
@@ -113,7 +113,7 @@
         }
     }
 </style>
-<a class="{status.toLowerCase()}"
+<a class="adventurebanner {status.toLowerCase()}"
    style="background-image: url('{backgroundUrl}')"
    href="{code ? '/#/game/' + code : '/#/adventure/' + adventureName}">
     <AdventureLogo bind:name={adventureName}></AdventureLogo>
