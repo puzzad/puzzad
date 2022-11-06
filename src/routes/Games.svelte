@@ -11,7 +11,7 @@
         let {data: obtained, error} = await supabase
                 .from('games')
                 .select(`
-                    id,status, adventures ( name ), status, code
+                    id,status, adventures ( name, public ), status, code
                 `)
         if (!error) {
             initial = false
@@ -56,6 +56,7 @@
                     status='{game.status}'
                     adventureName='{game.adventures?.name ?? "Unknown"}'
                     code='{game.code}'
+                    isPublic='{game.adventures?.public}'
             />
         {:else}
             <blockquote><RandomText options={quotes}></RandomText></blockquote>

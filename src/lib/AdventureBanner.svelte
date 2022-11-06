@@ -5,6 +5,7 @@
     export let adventureName
     export let code
     export let status
+    export let isPublic = true
     export let price
     if (price > 0) {
         price = "£" + price
@@ -27,6 +28,8 @@
         background-origin: border-box;
         background-clip: border-box;
         transition: border-color .2s;
+        overflow: clip;
+        overflow-clip-margin: 5px;
     }
 
     a:hover {
@@ -112,6 +115,20 @@
             margin-left: 0;
         }
     }
+
+    div {
+        position: absolute;
+        top: 40px;
+        left: -45px;
+        width: 200px;
+        text-align: center;
+        transform: rotate(-45deg);
+        background: repeating-linear-gradient(-30deg, #ff9999 0, #ff9999 10px, white 10px, white 20px);
+        font-weight: bold;
+        font-size: large;
+        box-shadow: 0 2px 2px black, 0 -2px 2px black;
+        color: black;
+    }
 </style>
 <a class="adventurebanner {status.toLowerCase()}"
    style="background-image: url('{backgroundUrl}')"
@@ -119,5 +136,8 @@
     <AdventureLogo bind:name={adventureName}></AdventureLogo>
     {#if code}
         <code>{code}</code>
+    {/if}
+    {#if !isPublic}
+        <div>ADMIN ONLY</div>
     {/if}
 </a>
