@@ -52,7 +52,6 @@
         <h2>Your adventures</h2>
         {#each games as game}
             <AdventureBanner
-                    price=''
                     status='{game.status}'
                     adventureName='{game.adventures?.name ?? "Unknown"}'
                     code='{game.code}'

@@ -6,12 +6,7 @@
     export let code
     export let status
     export let isPublic = true
-    export let price
-    if (price > 0) {
-        price = "£" + price
-    } else {
-        price = "Free"
-    }
+    export let price = null
 
     let backgroundUrl = adventureName && supabase.storage.from('adventures')
         .getPublicUrl(adventureName + '/background.jpg')
@@ -116,7 +111,7 @@
         }
     }
 
-    div {
+    .admin {
         position: absolute;
         top: 40px;
         left: -45px;
@@ -129,6 +124,20 @@
         box-shadow: 0 2px 2px black, 0 -2px 2px black;
         color: black;
     }
+
+    .price {
+        transform-origin: 50% 50%;
+        transform: rotate(-45deg);
+        position: absolute;
+        right: -65px;
+        bottom: -40px;
+        background-color: #265118;
+        color: white;
+        width: 150px;
+        height: 100px;
+        text-align: center;
+        font-size: x-large;
+    }
 </style>
 <a class="adventurebanner {status.toLowerCase()}"
    style="background-image: url('{backgroundUrl}')"
@@ -138,6 +147,9 @@
         <code>{code}</code>
     {/if}
     {#if !isPublic}
-        <div>ADMIN ONLY</div>
+        <div class="admin">ADMIN ONLY</div>
+    {/if}
+    {#if price !== null}
+        <div class="price">{price === 0 ? 'Free!' : '£' + price}</div>
     {/if}
 </a>
