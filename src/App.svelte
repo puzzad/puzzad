@@ -1,31 +1,10 @@
 <script lang="ts">
     import classes from './assets/bahunya.min.css'
     import logo from './assets/logo.png'
-    import {onMount} from "svelte"
-    import {supabase} from "$lib/db"
-    import type {User} from "@supabase/supabase-js"
     import Router from 'svelte-spa-router'
     import {wrap} from 'svelte-spa-router/wrap'
     import NavBar from '$lib/NavBar.svelte'
 
-    let user: User;
-
-    onMount(() => {
-        supabase.auth.getSession().then(({data: {session}}) => {
-            user = session?.user ?? null;
-        });
-
-        const {subscription: authListener} = supabase.auth.onAuthStateChange(
-            (event, session) => {
-                const currentUser = session?.user;
-                user = currentUser ?? null;
-            }
-        );
-
-        return () => {
-            authListener?.unsubscribe();
-        };
-    });
     const routes = {
         '/adventures': wrap({ asyncComponent: () => import('./routes/Adventures.svelte')}),
         '/adventure/:name': wrap({ asyncComponent: () => import('./routes/Adventure.svelte')}),
@@ -96,5 +75,5 @@
         }
     }
 </style>
-<NavBar user='{user}' logo='{logo}' />
+<NavBar logo='{logo}' />
 <Router {routes}/>

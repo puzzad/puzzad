@@ -1,5 +1,5 @@
 <script>
-    export let user
+    import {session} from "$lib/auth.ts";
     export let logo
     let dropdownMenu = false
     dropdownMenu = window.matchMedia('(max-width: 480px)').matches
@@ -96,7 +96,7 @@
                 <li><a href='/#/Adventures'>Browse adventures</a></li>
             </ul>
             <ul>
-                {#if !user}
+                {#if !$session?.user}
                     <li><a href='#/login'>Login</a></li>
                 {:else}
                     <li><a href='/#/games'>My Games</a></li>
@@ -110,7 +110,7 @@
             <li><a href='/#/Adventures'>Browse adventures</a></li>
         </ul>
         <ul>
-            {#if !user}
+            {#if !$session?.user}
                 <li><a href='#/login'>Login</a></li>
             {:else}
                 <li><a href='/#/games'>My Games</a></li>
