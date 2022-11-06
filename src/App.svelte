@@ -4,6 +4,7 @@
     import Router from 'svelte-spa-router'
     import {wrap} from 'svelte-spa-router/wrap'
     import NavBar from '$lib/NavBar.svelte'
+    import {logout} from "$lib/auth.ts";
 
     const routes = {
         '/adventures': wrap({ asyncComponent: () => import('./routes/Adventures.svelte')}),
@@ -11,9 +12,9 @@
         '/games': wrap({ asyncComponent: () => import('./routes/Games.svelte')}),
         '/game/:code': wrap({ asyncComponent: () => import('./routes/Game.svelte')}),
         '/game/:code/:puzzle': wrap({ asyncComponent: () => import('./routes/Puzzle.svelte')}),
-        '/login': wrap({ asyncComponent: () => import('./routes/Login.svelte')}),
-        '/logout': wrap({ asyncComponent: () => import('./routes/Logout.svelte')}),
-        '/signup': wrap({ asyncComponent: () => import('./routes/Signup.svelte')}),
+        '/login': wrap({ props: { type: "login" }, asyncComponent: () => import('$lib/Auth.svelte')}),
+        '/logout': wrap({ props: { type: "logout" }, asyncComponent: () => import('$lib/Auth.svelte')}),
+        '/signup': wrap({ props: { type: "signup" }, asyncComponent: () => import('$lib/Auth.svelte')}),
         '/': wrap({ asyncComponent: () => import('./routes/Home.svelte')}),
         '*': wrap({ asyncComponent: () => import('./routes/NotFound.svelte')}),
     }
