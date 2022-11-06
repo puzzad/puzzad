@@ -1,0 +1,1 @@
+import{S as o,i,s as l,e as r,v as c,c as p,n as s,f as v}from"./index.1ca4c1c7.js";function _(n){let e;return{c(){e=r("section"),e.innerHTML='<div class="spin svelte-vtoxo8"></div>',c(e,"class","svelte-vtoxo8")},m(t,a){p(t,e,a)},p:s,i:s,o:s,d(t){t&&v(e)}}}class m extends o{constructor(e){super(),i(this,e,null,_,l,{})}}export{m as S};
