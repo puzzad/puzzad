@@ -2,22 +2,12 @@
     import AdventureBanner from '$comps/AdventureBanner.svelte'
     import {supabase} from '$lib/db'
     import Spinner from '$comps/Spinner.svelte'
-    import {onMount} from 'svelte'
     import RandomText from "$comps/RandomText.svelte";
 
-    let games = []
-    let initial = true
-    onMount(async function () {
-        let {data: obtained, error} = await supabase
-                .from('games')
-                .select(`
-                    id,status, adventures ( name, public ), status, code
-                `)
-        if (!error) {
-            initial = false
-            games = obtained
-        }
-    })
+    let games = supabase.from('games')
+        .select('id, status, adventures (name, public), status, code')
+        .throwOnError()
+        .then(({data}) => data)
 
     const quotes = [
         '“Never say \'no\' to adventures. Always say \'yes,\' otherwise you\'ll lead a very dull life.”\n― Ian Fleming',
@@ -46,10 +36,10 @@
 </style>
 
 <section>
-    {#if initial}
-        <Spinner />
-    {:else}
-        <h2>Your adventures</h2>
+    <h2>Your adventures</h2>
+    {#await games}
+        <Spinner/>
+    {:then games}
         {#each games as game}
             <AdventureBanner
                     status='{game.status}'
@@ -58,7 +48,9 @@
                     isPublic='{game.adventures?.public}'
             />
         {:else}
-            <blockquote><RandomText options={quotes}></RandomText></blockquote>
+            <blockquote>
+                <RandomText options={quotes}></RandomText>
+            </blockquote>
             <p>
                 You aren't part of any adventures! You can
                 <a href="/#/Adventures">browse the available adventures</a>, or if you
@@ -66,5 +58,7 @@
                 jump straight in.
             </p>
         {/each}
-    {/if}
+    {:catch error}
+        <p>A problem occurred trying to retrieve your games.</p>
+    {/await}
 </section>
