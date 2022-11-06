@@ -2,27 +2,18 @@
     import AdventureBanner from '$comps/AdventureBanner.svelte'
     import {supabase} from '$lib/db'
     import Spinner from '$comps/Spinner.svelte'
-    import {onMount} from 'svelte'
 
-    let adventures = []
-    let initial = true
-    onMount(async function () {
-        let {data: obtained, error} = await supabase
-                .from('adventures')
-                .select(`
-                    id,name,price,public
-                `)
-        if (!error) {
-            initial = false
-            adventures = obtained
-        }
-    })
+    let adventures = supabase
+        .from('adventures')
+        .select('id,name,price,public')
+        .throwOnError()
+        .then(({data}) => data)
 </script>
 
-{#if initial}
-    <Spinner />
-{:else}
-    <h2>Which adventure would you like to go on?</h2>
+<h2>Which adventure would you like to go on?</h2>
+{#await adventures}
+    <Spinner/>
+{:then adventures}
     {#each adventures as adventure}
         <AdventureBanner
                 adventureName='{adventure.name}'
@@ -34,4 +25,6 @@
     {:else}
         <p>No Adventures, sorry.</p>
     {/each}
-{/if}
+{:catch error}
+    <p>A problem occurred trying to retrieve adventures.</p>
+{/await}
