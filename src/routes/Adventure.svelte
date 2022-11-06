@@ -2,6 +2,7 @@
     import {supabase} from "$lib/db.ts";
     import Spinner from '$lib/Spinner.svelte'
     import {push} from "svelte-spa-router";
+    import AdventureLogo from "$lib/AdventureLogo.svelte";
 
     export let params = {}
 
@@ -27,16 +28,12 @@
             }
         }
     }
-
-    let logoUrl = params.name && supabase.storage.from('adventures')
-        .getPublicUrl(params.name + '/logo.png')
-        .data.publicUrl
 </script>
 
 {#await details}
     <Spinner />
 {:then details}
-    <h2><img src="{logoUrl}" alt="{details.name}"></h2>
+    <h2><AdventureLogo name={details.name}></AdventureLogo></h2>
     <section>
     {@html details.description}
     </section>

@@ -1,5 +1,6 @@
 <script lang="ts">
     import {supabase} from "$lib/db";
+    import AdventureLogo from "$lib/AdventureLogo.svelte";
 
     export let adventureName
     export let code
@@ -13,9 +14,6 @@
 
     let backgroundUrl = adventureName && supabase.storage.from('adventures')
         .getPublicUrl(adventureName + '/background.jpg')
-        .data.publicUrl
-    let logoUrl = adventureName && supabase.storage.from('adventures')
-        .getPublicUrl(adventureName + '/logo.png')
         .data.publicUrl
 </script>
 <style>
@@ -118,7 +116,7 @@
 <a class="{status.toLowerCase()}"
    style="background-image: url('{backgroundUrl}')"
    href="{code ? '/#/game/' + code : '/#/adventure/' + adventureName}">
-    <img src="{logoUrl}" alt="{adventureName}">
+    <AdventureLogo bind:name={adventureName}></AdventureLogo>
     {#if code}
         <code>{code}</code>
     {/if}
