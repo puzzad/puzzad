@@ -22,6 +22,8 @@
     "vite": "^3.2.2"
   },
   "dependencies": {
+    "@sentry/svelte": "^7.17.4",
+    "@sentry/tracing": "^7.17.4",
     "@supabase/supabase-js": "^2.0.5",
     "svelte-confetti": "^1.2.0",
     "svelte-toasts": "^1.1.2"
