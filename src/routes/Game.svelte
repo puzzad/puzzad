@@ -1,11 +1,12 @@
 <script>
     export let params = {}
-    import {getGameClient} from '$lib/db'
+    import {getGameClient, supabase} from '$lib/db'
     import Spinner from '$lib/Spinner.svelte'
     import {onMount} from 'svelte'
     import {push} from 'svelte-spa-router'
 
     let data = {}
+    let logoUrl
     let initial = true
     let stats
     let displayError
@@ -22,10 +23,14 @@
 
         let {data: game, error} =
             await gc.from('games')
-                .select('status, puzzle, startTime, endTime, adventures ( name, promoLogo, description)')
+                .select('status, puzzle, startTime, endTime, adventures ( name, description)')
                 .eq('code', params.code)
 
         if (game[0]?.adventures) {
+            logoUrl = supabase.storage.from('adventures')
+                .getPublicUrl(game[0].adventures.name + '/logo.png')
+                .data.publicUrl
+
             data = game[0]
             stats = gc.rpc('getstats', {gamecode: params.code})
                 .then(({data: stats, error}) => {
@@ -115,7 +120,7 @@
     <h1>Error finding game</h1>
     <p>{displayError}</p>
 {:else}
-    <h1><img src="{data.adventures.promoLogo}" alt="{data.adventures.name}"></h1>
+    <h1><img src="{logoUrl}" alt="{data.adventures.name}"></h1>
     {#if data.status === 'EXPIRED'}
         <p>Congratulations! You finished the adventure!</p>
         <p>You took {delta(data.startTime, data.endTime)}!</p>
