@@ -8,6 +8,7 @@
     import {Confetti} from "svelte-confetti";
     import {replace} from 'svelte-spa-router'
     import Hints from "$comps/Hints.svelte";
+    import PuzzleContent from "$comps/PuzzleContent.svelte";
 
     export let params = {}
     let data = {}
@@ -35,8 +36,6 @@
                         .eq('id', params.puzzle)
                 })
                 .then(checkQueryResults)
-                .then(obtainUrlReplacements)
-                .then(performUrlReplacements)
                 .then((puzzle) => data = puzzle)
                 .then(() => {
                     title.set("Puzzad: "+data.adventure.name+" :"+data.title)
@@ -65,36 +64,6 @@
         } else {
             return data[0]
         }
-    }
-
-    const obtainUrlReplacements = (puzzle) => {
-        let res = [puzzle]
-        const urls = puzzle.content.match(/\$[^$]+?\$/g)
-        if (urls) {
-            urls.forEach((slug) => {
-                res.push(
-                    slug,
-                    gameClient
-                        .storage
-                        .from('puzzles')
-                        .createSignedUrl(puzzle.storage_slug + '/' + slug.substring(1, slug.length - 1), 60 * 60),
-                )
-            })
-        }
-        return Promise.all(res)
-    }
-
-    const performUrlReplacements = (results) => {
-        let [puzzle, ...urls] = results
-        for (let i = 0; i < urls.length; i += 2) {
-            const {data: {signedUrl}, error} = urls[i + 1]
-            if (error) {
-                throw error
-            }
-
-            puzzle.content = puzzle.content.replace(urls[i], signedUrl)
-        }
-        return puzzle
     }
 
     onDestroy(function () {
@@ -279,7 +248,9 @@
     <Spinner/>
 {:else}
     <h2>{data.adventure.name}: {data.title}</h2>
-    {@html data.content}
+
+    <PuzzleContent gameCode={params.code} storageSlug={data.storage_slug} content={data.content}></PuzzleContent>
+
     <section class="answer">
         <form on:submit|preventDefault={() => handleGuess()}>
             <fieldset>

@@ -1,0 +1,45 @@
+<script lang="ts">
+    import {getGameClient} from "$lib/db";
+    import Spinner from "$comps/Spinner.svelte";
+
+    export let gameCode = '';
+    export let storageSlug = '';
+    export let content = '';
+
+    const embedRegex = /\$[^$]+?\$/g
+
+    let html = Promise
+        .all([
+            getGameClient(gameCode),
+            storageSlug,
+            content,
+        ])
+        .then(([gameClient, storageSlug, content]) => {
+            const fileNames = content.match(embedRegex) || []
+            return Promise.all([
+                content,
+                ...fileNames
+                    .map((f) => f.substring(1, f.length - 1))
+                    .map((f) => gameClient
+                        .storage
+                        .from('puzzles')
+                        .createSignedUrl(`${storageSlug}/${f}`, 60 * 60)
+                        .then(({data: {signedUrl}, error}) => {
+                            if (error) {
+                                throw error
+                            }
+                            return signedUrl
+                        })
+                    ),
+            ])
+        })
+        .then(([content, ...urls]) => content.replace(embedRegex, () => urls.shift()))
+</script>
+
+{#await html}
+    <Spinner/>
+{:then html}
+    {@html html}
+{:catch error}
+    <p>Oops! Something went wrong trying to render the puzzle.</p>
+{/await}
