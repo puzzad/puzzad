@@ -1,6 +1,7 @@
 <script lang="ts">
     import {getGameClient} from "$lib/db";
     import Spinner from "$comps/Spinner.svelte";
+    import Error from "$comps/Error.svelte";
 
     export let gameCode = '';
     export let storageSlug = '';
@@ -41,5 +42,5 @@
 {:then html}
     {@html html}
 {:catch error}
-    <p>Oops! Something went wrong trying to render the puzzle.</p>
+    <Error error={error}></Error>
 {/await}

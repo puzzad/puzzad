@@ -4,6 +4,7 @@
     import {push} from "svelte-spa-router";
     import AdventureLogo from "$comps/AdventureLogo.svelte";
     import {title} from '$lib/title.ts'
+    import Error from "$comps/Error.svelte";
 
     export let params = {}
 
@@ -46,5 +47,5 @@
         {/if}
     {/await}
 {:catch error}
-    <p style="color: red">{error.message}</p>
+    <Error error={error}></Error>
 {/await}

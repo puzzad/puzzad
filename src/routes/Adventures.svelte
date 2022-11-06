@@ -4,6 +4,7 @@
     import Spinner from '$comps/Spinner.svelte'
     import {title} from '$lib/title.ts'
     import {onMount} from 'svelte'
+    import Error from "$comps/Error.svelte";
     let adventures = supabase
         .from('adventures')
         .select('id,name,price,public')
@@ -28,5 +29,5 @@
         <p>No Adventures, sorry.</p>
     {/each}
 {:catch error}
-    <p>A problem occurred trying to retrieve adventures.</p>
+    <Error error={error}></Error>
 {/await}

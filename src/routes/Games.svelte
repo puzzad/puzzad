@@ -4,6 +4,7 @@
     import Spinner from '$comps/Spinner.svelte'
     import RandomText from '$comps/RandomText.svelte'
     import {title} from '$lib/title.ts'
+    import Error from "$comps/Error.svelte";
 
     title.set("Puzzad: My Games")
     let games = supabase.from('games')
@@ -61,6 +62,6 @@
             </p>
         {/each}
     {:catch error}
-        <p>A problem occurred trying to retrieve your games.</p>
+        <Error error={error}></Error>
     {/await}
 </section>
