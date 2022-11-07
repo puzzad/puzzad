@@ -1,0 +1,33 @@
+= Puzzad
+
+Puzzle adventure website.
+
+== Requirements
+Supabase backend (hosted, or self-hosted)
+
+== Install
+
+Run or sign up for a supabase instance +
+Update `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env` +
+Run the migrations on your database, you'll need your database url and your database password:
+
+[,bash]
+----
+docker run --rm --volume $(pwd)/migrations:/migrations:ro -ePGPASSWORD=[PASSWORD] ghcr.io/greboid/migrate/migrate:latest -path=/migrations/ -database [databaseurl]?x-migrations-table="supabase_migrations"."schema_migrations"&x-migrations-table-quoted=true up
+----
+
+Connect to the database, go to the `internal` schema and edit the `secrets` table, add the following:
+
+jwtsecret:: This must be the same one configured for supabase as it is used for custom JWT tokens.
+projectid:: This is used in the custom JWT tokens, you can find it on supabase, or use the domain name if self-hosted.
+discord-events-webhook:: sends status updates for adventures to a discord channel.
+admindomain:: Anyone signed in with this email domain will be considered an admin, this must in the @ symbol.
+
+Once the database is set up, you can build and run the frontend, and it will connect to supabase as defined in the `.env` file.
+
+== Development
+
+git clone && npm install && npm run dev
+
+This will also connect to the supabase backend as defined in the `.env` file, so crete a `.env.local` if you want to use
+a different instance for development purposes.
