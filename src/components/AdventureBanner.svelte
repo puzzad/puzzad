@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {supabase} from "$lib/../lib/db";
+    import {supabase} from "$lib/db";
     import AdventureLogo from "$comps/AdventureLogo.svelte";
 
     export let adventureName

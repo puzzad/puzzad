@@ -1,8 +1,8 @@
 <script>
-    import {supabase} from "$lib/../lib/db";
+    import {supabase} from "$lib/db";
     import {toasts} from "svelte-toasts";
     import {logout, session} from "$lib/auth";
-    import {title} from "$lib/../lib/title";
+    import {title} from "$lib/title";
     import FaGoogle from 'svelte-icons/fa/FaGoogle.svelte'
     import FaDiscord from 'svelte-icons/fa/FaDiscord.svelte'
     import FaTwitch from 'svelte-icons/fa/FaTwitch.svelte'
