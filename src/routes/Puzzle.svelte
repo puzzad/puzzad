@@ -16,7 +16,6 @@
     let solved = false
     let initial = true
     let realTimeClient = null
-    let gameClient = null
     let hints
 
     title.set("Puzzad: Loading...")
@@ -25,26 +24,21 @@
     }
 
     const load = () => {
-        try {
-            reset()
-            getGameClient(params.code)
-                .then((client) => {
-                    gameClient = client
-                    return client.from('puzzles')
-                        .select('title, content, next, storage_slug, adventure (name)')
-                        .eq('id', params.puzzle)
-                })
-                .then(checkQueryResults)
-                .then((puzzle) => data = puzzle)
-                .then(() => {
-                    title.set("Puzzad: "+data.adventure.name+": "+data.title)
-                    startMonitoringGuesses()
-                    initial = false
-                })
-                .catch(() => replace('/game/' + params.code))
-        } catch (e) {
-            replace('/game/' + params.code)
-        }
+        reset()
+        getGameClient(params.code)
+            .then((client) => client.from('puzzles')
+                .select('title, content, next, storage_slug, adventure (name)')
+                .eq('id', params.puzzle)
+                .throwOnError()
+            )
+            .then(checkQueryResults)
+            .then((puzzle) => data = puzzle)
+            .then(() => {
+                title.set("Puzzad: " + data.adventure.name + ": " + data.title)
+                startMonitoringGuesses()
+                initial = false
+            })
+            .catch(() => replace('/game/' + params.code))
     }
 
     const reset = () => {
@@ -122,20 +116,6 @@
 </script>
 
 <style>
-    @media (max-width: 480px) {
-        section.answer fieldset {
-            flex-direction: column;
-        }
-    }
-
-    section.answer fieldset {
-        display: flex;
-    }
-
-    section.answer fieldset input[type=text] {
-        flex-grow: 1;
-    }
-
     dialog {
         position: fixed;
         padding: 3em;
