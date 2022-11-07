@@ -22,19 +22,19 @@
     const load = () => {
         reset()
         getGameClient($params.code)
-                .then((client) => client.from('puzzles')
-                                        .select('title, content, next, storage_slug, adventure (name)')
-                                        .eq('id', $params.puzzle)
-                                        .throwOnError()
-                )
-                .then(checkQueryResults)
-                .then((puzzle) => data = puzzle)
-                .then(() => {
-                    title.set("Puzzad: " + data.adventure.name + ": " + data.title)
-                    startMonitoringGuesses()
-                    initial = false
-                })
-                .catch(() => $goto('/games/[code]', {code: $params.code}))
+            .then((client) => client.from('puzzles')
+                .select('title, content, next, storage_slug, adventure (name)')
+                .eq('id', $params.puzzle)
+                .throwOnError()
+            )
+            .then(checkQueryResults)
+            .then((puzzle) => data = puzzle)
+            .then(() => {
+                title.set("Puzzad: " + data.adventure.name + ": " + data.title)
+                startMonitoringGuesses()
+                initial = false
+            })
+            .catch(() => $goto('/games/[code]', {code: $params.code}))
     }
 
     const reset = () => {
@@ -66,14 +66,14 @@
 
         realTimeClient = await getRealTimeClient($params.code)
         await realTimeClient
-                .channel('public:guesses:game=eq.' + $params.code)
-                .on('postgres_changes', {
-                    event: 'INSERT',
-                    schema: 'public',
-                    table: 'guesses',
-                    filter: 'game=eq.' + $params.code
-                }, handleStreamedGuess)
-                .subscribe()
+            .channel('public:guesses:game=eq.' + $params.code)
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'guesses',
+                filter: 'game=eq.' + $params.code
+            }, handleStreamedGuess)
+            .subscribe()
     }
 
     const handleStreamedGuess = function (payload) {
@@ -84,11 +84,11 @@
                 solved = true
             } else {
                 toasts.add({
-                               title: 'Incorrect guess',
-                               description: payload.record.content,
-                               duration: 10000,
-                               type: 'error',
-                           });
+                    title: 'Incorrect guess',
+                    description: payload.record.content,
+                    duration: 10000,
+                    type: 'error',
+                });
             }
         }
     }
@@ -101,9 +101,9 @@
         $goto('/games/[code]', {code: $params.code})
     }
 
-    onMount(() => {
-                load()
-            })
+    $: if ($params.puzzle && $params.code) {
+        load()
+    }
 
     const congratsMessages = [
         'Congratulations!',
