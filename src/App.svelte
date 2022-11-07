@@ -6,6 +6,7 @@
     import NavBar from '$comps/NavBar.svelte'
     import {logout} from "$lib/auth.ts";
     import {title} from '$lib/title.ts'
+    import {FlatToast, ToastContainer} from "svelte-toasts";
 
     const routes = {
         '/adventures': wrap({ asyncComponent: () => import('$routes/Adventures.svelte')}),
@@ -80,3 +81,6 @@
 <svelte:head><title>{$title}</title></svelte:head>
 <NavBar logo='{logo}' />
 <Router {routes}/>
+<ToastContainer placement="bottom-right" theme="dark" let:data={data}>
+    <FlatToast {data}/>
+</ToastContainer>

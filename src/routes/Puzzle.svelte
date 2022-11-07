@@ -4,7 +4,7 @@
     import Spinner from '$comps/Spinner.svelte'
     import {title} from '$lib/title.ts'
     import {onDestroy} from 'svelte'
-    import {toasts, ToastContainer, FlatToast} from "svelte-toasts";
+    import {toasts} from "svelte-toasts";
     import {Confetti} from "svelte-confetti";
     import {replace} from 'svelte-spa-router'
     import Hints from "$comps/Hints.svelte";
@@ -240,8 +240,4 @@
                       fallDistance="110vh"/>
         </div>
     {/if}
-
-    <ToastContainer placement="bottom-right" theme="dark" let:data={data}>
-        <FlatToast {data}/>
-    </ToastContainer>
 {/if}

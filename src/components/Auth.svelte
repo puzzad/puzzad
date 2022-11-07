@@ -1,7 +1,7 @@
 <script type='ts'>
     import {supabase} from "$lib/db.ts";
     import {replace} from 'svelte-spa-router'
-    import {toasts, ToastContainer, FlatToast} from "svelte-toasts";
+    import {toasts} from "svelte-toasts";
     import {AuthError} from "@supabase/gotrue-js/src/lib/errors.ts";
     import {logout, session} from "$lib/auth";
     import {title} from "$lib/title.ts";
@@ -91,6 +91,3 @@
 {:else}
     <p>You're already logged in, <a href='' on:click|preventDefault={logout}>Logout</a>?</p>
 {/if}
-<ToastContainer placement='bottom-right' theme='dark' let:data={data}>
-    <FlatToast {data} />
-</ToastContainer>
