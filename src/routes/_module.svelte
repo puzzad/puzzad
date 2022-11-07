@@ -5,7 +5,7 @@
     import puzzad from '../assets/puzzad.css'
     import {FlatToast, ToastContainer} from "svelte-toasts";
 </script>
-
+<svelte:head><title>{$title}</title></svelte:head>
 <NavBar logo='{logo}' />
 <slot />
 <ToastContainer placement="bottom-right" theme="dark" let:data={data}>
