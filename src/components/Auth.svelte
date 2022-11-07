@@ -5,6 +5,9 @@
     import {AuthError} from "@supabase/gotrue-js/src/lib/errors.ts";
     import {logout, session} from "$lib/auth";
     import {title} from "$lib/title.ts";
+    import FaGoogle from 'svelte-icons/fa/FaGoogle.svelte'
+    import FaDiscord from 'svelte-icons/fa/FaDiscord.svelte'
+    import FaTwitch from 'svelte-icons/fa/FaTwitch.svelte'
 
     export let type: string = "login"
 
@@ -28,7 +31,7 @@
                 break;
             case "logout":
                 break
-            }
+        }
         if (error) {
             toasts.add({
                 title: 'Error',
@@ -40,6 +43,27 @@
             toasts.add({
                 title: 'Success',
                 description: successText,
+                duration: 10000,
+                type: 'success',
+            })
+        }
+    }
+    const oauthAction = async (name) => {
+        const {error} = await supabase.auth.signInWithOAuth({provider: name})
+        if (!error) {
+            toasts.add({})
+        }
+        if (error) {
+            toasts.add({
+                title: 'Error',
+                description: error.message,
+                duration: 10000,
+                type: 'error',
+            })
+        } else {
+            toasts.add({
+                title: 'Success',
+                description: "Login success, redirecting.",
                 duration: 10000,
                 type: 'success',
             })
@@ -61,8 +85,55 @@
             logout()
     }
 </script>
+<style>
+    .icon {
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+    }
+
+    .socialicons {
+        display: flex;
+        flex-direction: row;
+        padding: 0.5em;
+        justify-content: center;
+        gap: 1em;
+        margin: 0;
+    }
+
+    .socialwrapper {
+        grid-column: controls;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding-bottom: 1em;
+    }
+
+    p {
+        margin: 0;
+        padding: 0;
+    }
+</style>
 {#if !$session?.user}
     <form class='basic' on:submit|preventDefault={authAction}>
+        <div class='socialwrapper'>
+            <p>Sign in with one of these third party providers</p>
+            <div class='socialicons'>
+                <div class='icon' on:click={() => oauthAction("google")}>
+                    <FaGoogle />
+                </div>
+                <div class='icon' on:click={() => oauthAction("discord")}>
+                    <FaDiscord />
+                </div>
+                <div class='icon' on:click={() => oauthAction("twitch")}>
+                    <FaTwitch />
+                </div>
+            </div>
+            <p>or</p>
+            <p>{buttonText} with email</p>
+        </div>
         <label for='email'>Email:</label>
         <input
                 id='email'
