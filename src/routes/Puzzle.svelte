@@ -9,12 +9,11 @@
     import {replace} from 'svelte-spa-router'
     import Hints from "$comps/Hints.svelte";
     import PuzzleContent from "$comps/PuzzleContent.svelte";
+    import PuzzleAnswer from "$comps/PuzzleAnswer.svelte";
 
     export let params = {}
     let data = {}
-    let guess = ''
     let solved = false
-    let checkingGuess = false
     let initial = true
     let realTimeClient = null
     let gameClient = null
@@ -52,8 +51,6 @@
         console.log("Resetting...")
         initial = true
         solved = false
-        guess = ''
-        checkingGuess = false
     }
 
     const checkQueryResults = ({data, error}) => {
@@ -104,14 +101,6 @@
                 });
             }
         }
-    }
-
-    const handleGuess = async function () {
-        checkingGuess = true
-        await gameClient.from('guesses')
-            .insert({content: guess, puzzle: params.puzzle, game: params.code})
-        checkingGuess = false
-        guess = ''
     }
 
     const goToNextPuzzle = async function () {
@@ -208,18 +197,8 @@
     <h2>{data.adventure.name}: {data.title}</h2>
 
     <PuzzleContent gameCode={params.code} storageSlug={data.storage_slug} content={data.content}></PuzzleContent>
-
-    <section class="answer">
-        <form on:submit|preventDefault={() => handleGuess()}>
-            <fieldset>
-                <legend>Enter a guess</legend>
-                <input type="text" bind:value={guess} disabled={checkingGuess}>
-                <input type="submit" value="Submit" disabled={checkingGuess}>
-            </fieldset>
-        </form>
-    </section>
-
-    <Hints bind:gameCode={params.code} bind:puzzleId={params.puzzle} bind:this={hints}></Hints>
+    <PuzzleAnswer gameCode={params.code} puzzle={params.puzzle}></PuzzleAnswer>
+    <Hints gameCode={params.code} puzzleId={params.puzzle} bind:this={hints}></Hints>
 
     <dialog open={solved}>
         <h3>

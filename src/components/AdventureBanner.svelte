@@ -139,7 +139,7 @@
         font-size: x-large;
     }
 </style>
-<a class="adventurebanner {status.toLowerCase()}"
+<a class="{status.toLowerCase()}"
    style="background-image: url('{backgroundUrl}')"
    href="{code ? '/#/game/' + code : '/#/adventure/' + adventureName}">
     <div class="logo">
