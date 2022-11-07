@@ -88,18 +88,18 @@
     }
 </style>
 <nav>
-    <h1><a href='/#/'><img alt='Puzzad' src='{logo}'></a></h1>
+    <h1><a href='/'><img alt='Puzzad' src='{logo}'></a></h1>
     {#if dropdownMenu}
         <div class='hamburgercontainer' on:click={handleMobileIconClick}><span class='hamburger'></span></div>
         <dialog open='{showDropdownMenu}' on:click={() => showDropdownMenu=false}>
             <ul class='{showDropdownMenu ? "dropdown" : ""}'>
-                <li><a href='/#/Adventures'>Browse adventures</a></li>
+                <li><a href='/adventures'>Browse adventures</a></li>
             </ul>
             <ul>
                 {#if !$session?.user}
-                    <li><a href='#/login'>Login</a></li>
+                    <li><a href='/login'>Login</a></li>
                 {:else}
-                    <li><a href='/#/games'>My Games</a></li>
+                    <li><a href='/games'>My Games</a></li>
                     <li><a on:click={logout()}>Logout</a></li>
                 {/if}
             </ul>
@@ -107,13 +107,13 @@
     {/if}
     {#if !dropdownMenu}
         <ul class='{showDropdownMenu ? "dropdown" : ""}'>
-            <li><a href='/#/Adventures'>Browse adventures</a></li>
+            <li><a href='/adventures'>Browse adventures</a></li>
         </ul>
         <ul>
             {#if !$session?.user}
-                <li><a href='#/login'>Login</a></li>
+                <li><a href='/login'>Login</a></li>
             {:else}
-                <li><a href='/#/games'>My Games</a></li>
+                <li><a href='/games'>My Games</a></li>
                 <li><a href='' on:click|preventDefault={logout}>Logout</a></li>
             {/if}
         </ul>

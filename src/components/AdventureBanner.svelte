@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {supabase} from "$lib/db.ts";
+    import {supabase} from "$lib/../lib/db";
     import AdventureLogo from "$comps/AdventureLogo.svelte";
 
     export let adventureName
@@ -141,7 +141,7 @@
 </style>
 <a class="{status.toLowerCase()}"
    style="background-image: url('{backgroundUrl}')"
-   href="{code ? '/#/game/' + code : '/#/adventure/' + adventureName}">
+   href="{code ? '/games/' + code : '/adventures/' + adventureName}">
     <div class="logo">
         <AdventureLogo bind:name={adventureName}></AdventureLogo>
     </div>

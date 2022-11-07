@@ -8,9 +8,9 @@
 
     title.set("Puzzad: My Games")
     let games = supabase.from('games')
-        .select('id, status, adventures (name, public), status, code')
-        .throwOnError()
-        .then(({data}) => data)
+                        .select('id, status, adventures (name, public), status, code')
+                        .throwOnError()
+                        .then(({data}) => data)
 
     const quotes = [
         '“Never say \'no\' to adventures. Always say \'yes,\' otherwise you\'ll lead a very dull life.”\n― Ian Fleming',
@@ -56,7 +56,7 @@
             </blockquote>
             <p>
                 You aren't part of any adventures! You can
-                <a href="/#/Adventures">browse the available adventures</a>, or if you
+                <a href="/adventures">browse the available adventures</a>, or if you
                 want to join a friend you can <a href="/#/">enter the game code</a> to
                 jump straight in.
             </p>

@@ -1,0 +1,13 @@
+<script lang='ts'>
+    import NavBar from '$comps/NavBar.svelte'
+    import logo from '../assets/logo.png'
+    import bahunya from '../assets/bahunya.min.css'
+    import puzzad from '../assets/puzzad.css'
+    import {FlatToast, ToastContainer} from "svelte-toasts";
+</script>
+
+<NavBar logo='{logo}' />
+<slot />
+<ToastContainer placement="bottom-right" theme="dark" let:data={data}>
+    <FlatToast {data}/>
+</ToastContainer>

@@ -1,11 +1,11 @@
 <script>
     import {title} from '$lib/title.ts'
-    import {push} from 'svelte-spa-router'
+    import {goto} from '@roxi/routify'
 
     let code = '';
 
     const handleGameCode = () => {
-        push('/game/' + code.toLowerCase().replaceAll(/[^a-z-]/g, ''))
+        $goto('/games/[code]', {code: code.toLowerCase().replaceAll(/[^a-z-]/g, '')})
     }
     title.set("Puzzad")
 </script>
@@ -105,7 +105,7 @@
 <main>
     <section id="hero">
         <h3>Ready to start an adventure?</h3>
-        <a href="/#/Adventures">Let's go &raquo;</a>
+        <a href="/adventures">Let's go &raquo;</a>
     </section>
     <section id="play">
         <h3>Got a game code?</h3>

@@ -3,15 +3,14 @@
     import {getGameClient, getRealTimeClient} from '$lib/db'
     import Spinner from '$comps/Spinner.svelte'
     import {title} from '$lib/title.ts'
-    import {onDestroy} from 'svelte'
+    import {goto, params} from '@roxi/routify'
+    import {onDestroy, onMount} from 'svelte'
     import {toasts} from "svelte-toasts";
     import {Confetti} from "svelte-confetti";
-    import {replace} from 'svelte-spa-router'
     import Hints from "$comps/Hints.svelte";
     import PuzzleContent from "$comps/PuzzleContent.svelte";
     import PuzzleAnswer from "$comps/PuzzleAnswer.svelte";
 
-    export let params = {}
     let data = {}
     let solved = false
     let initial = true
@@ -19,26 +18,23 @@
     let hints
 
     title.set("Puzzad: Loading...")
-    $: if (params.code && params.puzzle) {
-        load()
-    }
 
     const load = () => {
         reset()
-        getGameClient(params.code)
-            .then((client) => client.from('puzzles')
-                .select('title, content, next, storage_slug, adventure (name)')
-                .eq('id', params.puzzle)
-                .throwOnError()
-            )
-            .then(checkQueryResults)
-            .then((puzzle) => data = puzzle)
-            .then(() => {
-                title.set("Puzzad: " + data.adventure.name + ": " + data.title)
-                startMonitoringGuesses()
-                initial = false
-            })
-            .catch(() => replace('/game/' + params.code))
+        getGameClient($params.code)
+                .then((client) => client.from('puzzles')
+                                        .select('title, content, next, storage_slug, adventure (name)')
+                                        .eq('id', $params.puzzle)
+                                        .throwOnError()
+                )
+                .then(checkQueryResults)
+                .then((puzzle) => data = puzzle)
+                .then(() => {
+                    title.set("Puzzad: " + data.adventure.name + ": " + data.title)
+                    startMonitoringGuesses()
+                    initial = false
+                })
+                .catch(() => $goto('/games/[code]', {code: $params.code}))
     }
 
     const reset = () => {
@@ -68,42 +64,46 @@
             return
         }
 
-        realTimeClient = await getRealTimeClient(params.code)
+        realTimeClient = await getRealTimeClient($params.code)
         await realTimeClient
-            .channel('public:guesses:game=eq.' + params.code)
-            .on('postgres_changes', {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'guesses',
-                filter: 'game=eq.' + params.code
-            }, handleStreamedGuess)
-            .subscribe()
+                .channel('public:guesses:game=eq.' + $params.code)
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'guesses',
+                    filter: 'game=eq.' + $params.code
+                }, handleStreamedGuess)
+                .subscribe()
     }
 
     const handleStreamedGuess = function (payload) {
-        if (payload.record.puzzle.toString() === params.puzzle) {
+        if (payload.record.puzzle.toString() === $params.puzzle) {
             if (payload.record.content === '*hint') {
                 hints.refresh()
             } else if (payload.record.correct) {
                 solved = true
             } else {
                 toasts.add({
-                    title: 'Incorrect guess',
-                    description: payload.record.content,
-                    duration: 10000,
-                    type: 'error',
-                });
+                               title: 'Incorrect guess',
+                               description: payload.record.content,
+                               duration: 10000,
+                               type: 'error',
+                           });
             }
         }
     }
 
     const goToNextPuzzle = async function () {
-        await replace('/game/' + params.code + '/' + data.next)
+        $goto('/games/[code]/[puzzle]', {code: $params.code, puzzle: data.next})
     }
 
     const goToGamePage = async function () {
-        await replace('/game/' + params.code)
+        $goto('/games/[code]', {code: $params.code})
     }
+
+    onMount(() => {
+                load()
+            })
 
     const congratsMessages = [
         'Congratulations!',
@@ -176,9 +176,9 @@
 {:else}
     <h2>{data.adventure.name}: {data.title}</h2>
 
-    <PuzzleContent gameCode={params.code} storageSlug={data.storage_slug} content={data.content}></PuzzleContent>
-    <PuzzleAnswer gameCode={params.code} puzzle={params.puzzle}></PuzzleAnswer>
-    <Hints gameCode={params.code} puzzleId={params.puzzle} bind:this={hints}></Hints>
+    <PuzzleContent gameCode={$params.code} storageSlug={data.storage_slug} content={data.content}></PuzzleContent>
+    <PuzzleAnswer gameCode={$params.code} puzzle={$params.puzzle}></PuzzleAnswer>
+    <Hints gameCode={$params.code} puzzleId={$params.puzzle} bind:this={hints}></Hints>
 
     <dialog open={solved}>
         <h3>

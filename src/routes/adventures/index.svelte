@@ -1,15 +1,14 @@
 <script>
     import AdventureBanner from '$comps/AdventureBanner.svelte'
-    import {supabase} from '$lib/db'
+    import {supabase} from '$lib/db.ts'
     import Spinner from '$comps/Spinner.svelte'
     import {title} from '$lib/title.ts'
-    import {onMount} from 'svelte'
     import Error from "$comps/Error.svelte";
     let adventures = supabase
-        .from('adventures')
-        .select('id,name,price,public')
-        .throwOnError()
-        .then(({data}) => data)
+            .from('adventures')
+            .select('id,name,price,public')
+            .throwOnError()
+            .then(({data}) => data)
     title.set("Puzzad: Adventures")
 </script>
 

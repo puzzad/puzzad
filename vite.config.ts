@@ -1,15 +1,21 @@
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+import routify from '@roxi/routify/vite-plugin'
+import { defineConfig } from 'vite'
 import { resolve } from "path";
-import { defineConfig } from "vite";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
+
+const production = process.env.NODE_ENV === 'production'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [svelte()],
-  resolve: {
-    alias: {
-      $lib: resolve(__dirname, "./src/lib"),
-      $routes: resolve(__dirname, "./src/routes"),
-      $comps: resolve(__dirname, "./src/components"),
+    clearScreen: false,
+    plugins: [
+        routify(),
+        svelte(),
+    ],
+    resolve: {
+        alias: {
+            $lib: resolve(__dirname, "./src/lib"),
+            $comps: resolve(__dirname, "./src/components"),
+        },
     },
-  },
-});
+})

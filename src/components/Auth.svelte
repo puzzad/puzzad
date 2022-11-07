@@ -1,24 +1,23 @@
-<script type='ts'>
-    import {supabase} from "$lib/db.ts";
-    import {replace} from 'svelte-spa-router'
+<script>
+    import {supabase} from "$lib/../lib/db";
     import {toasts} from "svelte-toasts";
-    import {AuthError} from "@supabase/gotrue-js/src/lib/errors.ts";
     import {logout, session} from "$lib/auth";
-    import {title} from "$lib/title.ts";
+    import {title} from "$lib/../lib/title";
     import FaGoogle from 'svelte-icons/fa/FaGoogle.svelte'
     import FaDiscord from 'svelte-icons/fa/FaDiscord.svelte'
     import FaTwitch from 'svelte-icons/fa/FaTwitch.svelte'
+    import {goto} from "@roxi/routify";
 
-    export let type: string = "login"
+    export let type = "login"
 
-    let email: string
-    let password: string
-    let disabled: boolean
-    let altText: string
-    let buttonText: string
+    let email
+    let password
+    let disabled
+    let altText
+    let buttonText
     export const authAction = async () => {
-        let successText: string
-        let error: AuthError
+        let successText
+        let error
         switch (type) {
             case "signup":
                 ({error} = await supabase.auth.signUp({email, password}))
@@ -27,7 +26,7 @@
             case "login":
                 ({error} = await supabase.auth.signInWithPassword({email, password}))
                 successText = "Login success, redirecting."
-                await replace('/')
+                $goto('/', {})
                 break;
             case "logout":
                 break
@@ -69,12 +68,12 @@
     switch (type) {
         case "signup":
             title.set("Puzzad: Signup")
-            altText = "Already have an account? <a href='#/Login'>Login!</a>"
+            altText = "Already have an account? <a href='/login'>Login!</a>"
             buttonText = "Sign up"
             break;
         case "login":
             title.set("Puzzad: Login")
-            altText = "Don't have an account? <a href='#/signup'>Sign up!</a>"
+            altText = "Don't have an account? <a href='/signup'>Sign up!</a>"
             buttonText = "Sign In"
             break;
         case "logout":

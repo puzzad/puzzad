@@ -12,7 +12,6 @@
     "strict": false,
     "paths": {
       "$lib/*": ["src/lib/*"],
-      "$routes/*": ["src/routes/*"],
       "$comps/*": ["src/components/*"],
     }
   },
