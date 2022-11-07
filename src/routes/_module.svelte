@@ -4,6 +4,7 @@
     import bahunya from '../assets/bahunya.min.css'
     import puzzad from '../assets/puzzad.css'
     import {FlatToast, ToastContainer} from "svelte-toasts";
+    import {title} from '$lib/title.ts'
 </script>
 <svelte:head><title>{$title}</title></svelte:head>
 <NavBar logo='{logo}' />
