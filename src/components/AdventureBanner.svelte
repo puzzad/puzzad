@@ -32,7 +32,7 @@
     }
 
     /*noinspection CssUnusedSymbol*/
-    a.expired::before {
+    .expired::before {
         content: '';
         position: absolute;
         top: -5px;
@@ -55,7 +55,7 @@
     }
 
     /*noinspection CssUnusedSymbol*/
-    a.expired::after {
+    .expired::after {
         content: '';
         position: absolute;
         bottom: 10%;
@@ -83,7 +83,7 @@
         }
     }
 
-    a code {
+    code {
         position: absolute;
         top: 15px;
         right: 15px;
@@ -94,7 +94,7 @@
         box-shadow: 0 0 5px 5px rgba(255, 255, 255, .9);
     }
 
-    :global(a.adventurebanner img) {
+    .logo {
         max-width: 50%;
         position: absolute;
         bottom: 10%;
@@ -142,7 +142,9 @@
 <a class="adventurebanner {status.toLowerCase()}"
    style="background-image: url('{backgroundUrl}')"
    href="{code ? '/#/game/' + code : '/#/adventure/' + adventureName}">
-    <AdventureLogo bind:name={adventureName}></AdventureLogo>
+    <div class="logo">
+        <AdventureLogo bind:name={adventureName}></AdventureLogo>
+    </div>
     {#if code}
         <code>{code}</code>
     {/if}
