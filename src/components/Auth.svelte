@@ -50,9 +50,6 @@
     }
     const oauthAction = async (name) => {
         const {error} = await supabase.auth.signInWithOAuth({provider: name})
-        if (!error) {
-            toasts.add({})
-        }
         if (error) {
             toasts.add({
                 title: 'Error',
