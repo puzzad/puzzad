@@ -2,6 +2,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 import routify from '@roxi/routify/vite-plugin'
 import { defineConfig } from 'vite'
 import { resolve } from "path";
+import preprocess from "svelte-preprocess";
 
 const production = process.env.NODE_ENV === 'production'
 
@@ -9,7 +10,9 @@ const production = process.env.NODE_ENV === 'production'
 export default defineConfig({
     plugins: [
         routify(),
-        svelte(),
+        svelte({
+            preprocess: [ preprocess()],
+        }),
     ],
     resolve: {
         alias: {
