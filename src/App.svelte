@@ -1,5 +1,6 @@
 <script lang="ts">
-    import classes from './assets/bahunya.min.css'
+    import bahunya from './assets/bahunya.min.css'
+    import puzzad from './assets/puzzad.css'
     import logo from './assets/logo.png'
     import Router from 'svelte-spa-router'
     import {wrap} from 'svelte-spa-router/wrap'
@@ -21,63 +22,6 @@
         '*': wrap({ asyncComponent: () => import('$routes/NotFound.svelte')}),
     }
 </script>
-<style global>
-    table {
-        display: table;
-    }
-    select {
-        background: var(--background);
-        -webkit-appearance: menulist;
-    }
-    [role='alert'] {
-        background: indianred;
-    }
-    @media (max-width: 480px) {
-        form.basic {
-            display: grid;
-            grid-template-columns: auto;
-            grid-auto-flow: row;
-        }
-        form.basic > label  {
-            grid-row: auto;
-        }
-        form.basic > input,
-        form.basic > button {
-            grid-row: auto;
-            padding: 1em;
-            margin: .5em 0 .5em 0;
-        }
-    }
-
-    @media (min-width: 480px) {
-        form.basic {
-            display: grid;
-            grid-template-columns: [labels] auto [controls] 1fr;
-            grid-auto-flow: row;
-        }
-        form.basic > label  {
-            grid-column: labels;
-            grid-row: auto;
-            padding-right: 1em;
-        }
-        form.basic > input,
-        form.basic > button {
-            grid-column: controls;
-            grid-row: auto;
-            border: none;
-            padding: 1em;
-        }
-        form.basic > section {
-            grid-column: controls;
-            grid-row: auto;
-            margin: 0;
-            padding: 1em;
-            border-radius: 6px;
-            text-align: center;
-            line-height: normal;
-        }
-    }
-</style>
 <svelte:head><title>{$title}</title></svelte:head>
 <NavBar logo='{logo}' />
 <Router {routes}/>
