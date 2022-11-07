@@ -27,7 +27,10 @@ Once the database is set up, you can build and run the frontend, and it will con
 
 == Development
 
+[,bash]
+----
 git clone && npm install && npm run dev
+----
 
 This will also connect to the supabase backend as defined in the `.env` file, so crete a `.env.local` if you want to use
 a different instance for development purposes.
