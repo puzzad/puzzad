@@ -1,7 +1,7 @@
 export interface Database {
-  public: {
-    Tables: {};
-    Functions: {};
-  };
+    public: {
+        Tables: {};
+        Functions: {};
+    };
 }
 

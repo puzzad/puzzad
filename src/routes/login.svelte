@@ -1,5 +1,5 @@
 <script>
-    import Auth from '$comps/Auth.svelte'
+  import Auth from '$comps/Auth.svelte'
 </script>
 
-<Auth type='login' />
+<Auth type="login"/>

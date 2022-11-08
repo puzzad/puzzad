@@ -38,9 +38,9 @@
 </script>
 
 {#await html}
-    <Spinner/>
+  <Spinner/>
 {:then html}
-    {@html html}
+  {@html html}
 {:catch error}
-    <Error error={error}></Error>
+  <Error error={error}></Error>
 {/await}

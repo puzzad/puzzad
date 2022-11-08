@@ -21,27 +21,27 @@
 </script>
 
 <style>
-    @media (max-width: 480px) {
-        fieldset {
-            flex-direction: column;
-        }
-    }
-
+  @media (max-width: 480px) {
     fieldset {
-        display: flex;
+      flex-direction: column;
     }
+  }
 
-    fieldset input[type=text] {
-        flex-grow: 1;
-    }
+  fieldset {
+    display: flex;
+  }
+
+  fieldset input[type=text] {
+    flex-grow: 1;
+  }
 </style>
 
 <section>
-    <form on:submit|preventDefault={submit}>
-        <fieldset>
-            <legend>Enter a guess</legend>
-            <input type="text" bind:value={guess} disabled={checking}>
-            <input type="submit" value="Submit" disabled={checking}>
-        </fieldset>
-    </form>
+  <form on:submit|preventDefault={submit}>
+    <fieldset>
+      <legend>Enter a guess</legend>
+      <input type="text" bind:value={guess} disabled={checking}>
+      <input type="submit" value="Submit" disabled={checking}>
+    </fieldset>
+  </form>
 </section>

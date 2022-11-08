@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
     import NavBar from '$comps/NavBar.svelte'
     import logo from '../assets/logo.png'
     import bahunya from '../assets/bahunya.min.css'
@@ -7,8 +7,8 @@
     import {title} from '$lib/title.ts'
 </script>
 <svelte:head><title>{$title}</title></svelte:head>
-<NavBar logo='{logo}' />
-<slot />
+<NavBar logo="{logo}"/>
+<slot/>
 <ToastContainer placement="bottom-right" theme="dark" let:data={data}>
-    <FlatToast {data}/>
+  <FlatToast {data}/>
 </ToastContainer>

@@ -1,7 +1,7 @@
 import {readable} from 'svelte/store';
 import type {Session, User} from "@supabase/supabase-js";
 import {supabase} from "$lib/db.ts";
-import { goto } from '@roxi/routify'
+import {goto} from '@roxi/routify'
 
 export const session = readable(null, (set: Subscriber<Session | null>) => {
     supabase.auth.getSession().then(response => {
