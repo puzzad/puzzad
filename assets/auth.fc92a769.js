@@ -1,0 +1,1 @@
+import{Y as o}from"./index.f7bc07cf.js";import{s as a}from"./db.6e9db042.js";const r=o(null,s=>(a.auth.getSession().then(t=>{s(t.data.session)}),a.auth.onAuthStateChange(async({},t)=>{s(t)}).data.subscription.unsubscribe)),i=async()=>{let{error:s}=await a.auth.signOut();s||$goto("/",{})};export{i as l,r as s};

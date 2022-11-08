@@ -1,0 +1,1 @@
+import{S as i,i as l,s as o,e as r,b as c,d as p,n as s,g as _}from"./index.f7bc07cf.js";function g(n){let e;return{c(){e=r("section"),e.innerHTML='<div class="spin svelte-btpgqg"></div>',c(e,"class","svelte-btpgqg")},m(t,a){p(t,e,a)},p:s,i:s,o:s,d(t){t&&_(e)}}}class d extends i{constructor(e){super(),l(this,e,null,g,o,{})}}export{d as S};
