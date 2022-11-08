@@ -11,6 +11,6 @@ jobs:
     name: Run Database migrations
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: >-
           docker run --rm --volume ${{ github.workspace }}/migrations:/migrations:ro -ePGPASSWORD=${{ secrets.DEV_PG_PASS }} ghcr.io/greboid/migrate/migrate:latest -path=/migrations/ -database ${{ secrets.DEV_PG_URL }}\?x-migrations-table=\"supabase_migrations\".\"schema_migrations\"\&x-migrations-table-quoted=true up
