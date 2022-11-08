@@ -7,8 +7,7 @@
   import {goto} from '@roxi/routify'
   import {params} from '@roxi/routify'
   import Error from '$comps/Error.svelte'
-
-  let stats
+  import GameStats from '$comps/GameStats.svelte'
 
   let game = getGameClient($params.code).
       then((gc) =>
@@ -21,22 +20,7 @@
       then(({data: game}) => game).
       then((game) => {
         title.set(`Puzzad: ${game.adventures.name} - ${$params.code}`)
-        if (game.status === 'EXPIRED') {
-          stats = fetchStats(game.startTime)
-        }
         return game
-      })
-
-  const fetchStats = async (startTime) => getGameClient($params.code).
-      then((gc) => gc.rpc('getstats', {gamecode: $params.code}).throwOnError()).
-      then(({data: stats}) => stats).
-      then((rows) => {
-        let lastTime = startTime
-        rows.forEach((r) => {
-          r.time = formatDuration(lastTime, r.solvetime)
-          lastTime = r.solvetime
-        })
-        return rows
       })
 
   const handleStartAdventure = async () =>
@@ -86,26 +70,7 @@
   {#if data.status === 'EXPIRED'}
     <p>Congratulations! You finished the adventure!</p>
     <p>You took {formatDuration(data.startTime, data.endTime)}!</p>
-    {#await stats then puzzles}
-      <table class="stats">
-        <thead>
-        <tr>
-          <th>Puzzle</th>
-          <th>Time</th>
-          <th>Hints</th>
-        </tr>
-        </thead>
-        <tbody>
-        {#each puzzles as puzzle}
-          <tr>
-            <td>{puzzle.title}</td>
-            <td class="time">{puzzle.time}</td>
-            <td>{puzzle.hints}</td>
-          </tr>
-        {/each}
-        </tbody>
-      </table>
-    {/await}
+    <GameStats code={$params.code} startTime={data.startTime}></GameStats>
   {:else if data.status === 'PAID'}
     <p>
       You've not yet started your adventure! Remember, it's dangerous to go alone.
