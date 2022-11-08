@@ -4,13 +4,11 @@
   import AdventureLogo from '$comps/AdventureLogo.svelte'
   import {title} from '$lib/title.ts'
   import Error from '$comps/Error.svelte'
-  import {goto} from '@roxi/routify'
-
-  export let adventure = ''
+  import {goto, params} from '@roxi/routify'
 
   let details = supabase.from('adventures').
       select(`id,name,description,price`).
-      eq('name', adventure).
+      eq('name', $params.adventure).
       then(({data, error}) => {
         if (error) {
           throw error
