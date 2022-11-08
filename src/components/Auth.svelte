@@ -25,7 +25,7 @@
         break
       case 'login':
         ({error} = await supabase.auth.signInWithPassword({email, password}))
-        successText = 'Login success, redirecting.'
+        successText = 'Login success.'
         $goto('/', {})
         break
       case 'logout':
@@ -59,7 +59,7 @@
     } else {
       toasts.add({
         title: 'Success',
-        description: 'Login success, redirecting.',
+        description: 'Login success.',
         duration: 10000,
         type: 'success',
       })
