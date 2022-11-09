@@ -5,7 +5,6 @@
 
     export let code
     export let startTime
-
     let stats = getGameClient(code)
         .then((gc) => gc.rpc('getstats', {gamecode: code}).throwOnError())
         .then(({data: stats}) => stats)

@@ -1,15 +1,17 @@
 <script>
+  import {goto} from '$app/navigation'
   import RandomText from '$lib/components/RandomText.svelte'
   import { Fireworks } from '@fireworks-js/svelte'
 
   export let next
+  export let data
 
   const goToNextPuzzle = async function() {
-    $goto('/games/[code]/[puzzle]', {code: $params.code, puzzle: next})
+    goto(`/games/${data.game}/${next}`)
   }
 
   const goToGamePage = async function() {
-    $goto('/games/[code]', {code: $params.code})
+    goto(`/games/${data.game}`)
   }
 
   const congratsMessages = [

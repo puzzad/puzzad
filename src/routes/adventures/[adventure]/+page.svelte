@@ -22,9 +22,10 @@
 
     const addAdventure = async (details) => {
         if (details.price === 0) {
-            let {loadedData, error} = await supabase.rpc('addfreeadventure', {adventureid: details.id})
-            if (loadedData) {
-                await goto('/games/[code]' + loadedData)
+            let {data, error} = await supabase.rpc('addfreeadventure', {adventureid: details.id})
+            console.log(error)
+            if (data) {
+                await goto(`/games/${data}`)
             }
         }
     }

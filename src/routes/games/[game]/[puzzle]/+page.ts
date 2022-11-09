@@ -1,9 +1,8 @@
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ parent, params }) => {
-    const parentData = await parent()
+export const load: PageLoad = async ({ params }) => {
     return {
         puzzle: params.puzzle,
-        game: parentData.game
+        game: params.game
     };
 }

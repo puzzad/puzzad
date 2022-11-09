@@ -14,8 +14,6 @@
 
     export let data
 
-    console.log(data)
-
     const load = async (game, puzzle) =>
             getGameClient(game).
                                then((client) => client.from('puzzles').
@@ -37,16 +35,16 @@
 
 {#await load(data.game, data.puzzle)}
     <Spinner/>
-{:then data}
-    <h2>{data.adventure.name}: {data.title}</h2>
+{:then gameData}
+    <h2>{gameData.adventure.name}: {gameData.title}</h2>
 
-    <PuzzleContent gameCode={data.code} storageSlug={data.storage_slug} content={data.content}></PuzzleContent>
-    <PuzzleAnswer gameCode={data.code} puzzle={data.puzzle}></PuzzleAnswer>
-    <Hints gameCode={data.code} puzzleId={data.puzzle} bind:this={hints}></Hints>
+    <PuzzleContent gameCode={data.game} storageSlug={gameData.storage_slug} content={gameData.content}></PuzzleContent>
+    <PuzzleAnswer gameCode={data.game} puzzle={data.puzzle}></PuzzleAnswer>
+    <Hints gameCode={data.game} puzzleId={data.puzzle} bind:this={hints}></Hints>
 
     {#if solved}
-        <VictoryDialog next={data.next}></VictoryDialog>
+        <VictoryDialog data={data} next={gameData.next}></VictoryDialog>
     {/if}
 
-    <GuessMonitor on:hint={() => {hints && hints.refresh()}} on:solve={() => {solved = true}}></GuessMonitor>
+    <GuessMonitor data={data} on:hint={() => {hints && hints.refresh()}} on:solve={() => {solved = true}}></GuessMonitor>
 {/await}

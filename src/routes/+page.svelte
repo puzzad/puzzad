@@ -6,7 +6,7 @@
     let code = ''
 
     const handleGameCode = () => {
-        goto('/games/[code]' + code.toLowerCase().replaceAll(/[^a-z-]/g, ''))
+        goto(`/games/${code.toLowerCase().replaceAll(/[^a-z-]/g, '')}`)
     }
     title.set('Puzzad')
 </script>

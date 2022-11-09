@@ -1,4 +1,5 @@
 <script>
+  import {goto} from '$app/navigation'
   import {supabase} from '$lib/db.ts'
   import {toasts} from 'svelte-toasts'
   import {logout, session} from '$lib/auth.ts'
@@ -6,7 +7,6 @@
   import FaGoogle from 'svelte-icons/fa/FaGoogle.svelte'
   import FaDiscord from 'svelte-icons/fa/FaDiscord.svelte'
   import FaTwitch from 'svelte-icons/fa/FaTwitch.svelte'
-  import type { PageLoad } from './$types';
 
   export let type = 'login'
 
@@ -26,7 +26,7 @@
       case 'login':
         ({error} = await supabase.auth.signInWithPassword({email, password}))
         successText = 'Login success.'
-        $goto('/', {})
+        await goto('/')
         break
       case 'logout':
         break

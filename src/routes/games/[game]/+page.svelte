@@ -25,16 +25,16 @@
     })
 
     const handleStartAdventure = async () =>
-            getGameClient(data.code).
+            getGameClient(data.game).
                                        then((gc) => gc.rpc('startadventure').throwOnError()).
                                        then(({data: puzzle}) => {
                 if (puzzle) {
-                    return goto(`/games/${data.code}/${puzzle}`)
+                    return goto(`/games/${data.game}/${puzzle}`)
                 }
             })
 
     const handleContinueAdventure = async function(puzzle) {
-        await goto(`/games/${data.code}/${puzzle}`)
+        await goto(`/games/${data.game}/${puzzle}`)
     }
 </script>
 
@@ -64,21 +64,21 @@
 
 {#await game}
     <Spinner/>
-{:then data}
+{:then gameData}
     <h1>
-        <AdventureLogo name={data.adventures.name}></AdventureLogo>
+        <AdventureLogo name={gameData.adventures.name}></AdventureLogo>
     </h1>
-    {#if data.status === 'EXPIRED'}
+    {#if gameData.status === 'EXPIRED'}
         <p>Congratulations! You finished the adventure!</p>
-        <p>You took {formatDuration(data.startTime, data.endTime)}!</p>
-        <GameStats code={data.code} startTime={data.startTime}></GameStats>
-    {:else if data.status === 'PAID'}
+        <p>You took {formatDuration(gameData.startTime, gameData.endTime)}!</p>
+        <GameStats code={data.game} startTime={gameData.startTime}></GameStats>
+    {:else if gameData.status === 'PAID'}
         <p>
             You've not yet started your adventure! Remember, it's dangerous to go alone.
             Take this if you want to recruit others to help you:
         </p>
         <code>
-            {data.code}
+            {data.game}
         </code>
         <p>
             Once you're ready, press below to go to the first puzzle in the adventure!
@@ -86,7 +86,7 @@
         <button on:click={() => handleStartAdventure()}>
             Begin the adventure!
         </button>
-    {:else if data.status === 'ACTIVE'}
+    {:else if gameData.status === 'ACTIVE'}
         <p>This adventure is already in progress!</p>
         <button on:click={() => handleContinueAdventure(data.puzzle)}>
             Go to the current puzzle
