@@ -1,109 +1,109 @@
 /** General fixes **/
 
 table {
-  display: table;
+    display: table;
 }
 
 select {
-  background: var(--background);
-  -webkit-appearance: menulist;
+    background: var(--background);
+    -webkit-appearance: menulist;
 }
 
 [role='alert'] {
-  background: indianred;
+    background: indianred;
 }
 
 /** Standard form layout **/
 @media (max-width: 480px) {
-  form.basic {
-    display: grid;
-    grid-template-columns: auto;
-    grid-auto-flow: row;
-  }
+    form.basic {
+        display: grid;
+        grid-template-columns: auto;
+        grid-auto-flow: row;
+    }
 
-  form.basic > label {
-    grid-row: auto;
-  }
+    form.basic > label {
+        grid-row: auto;
+    }
 
-  form.basic > input,
-  form.basic > button {
-    grid-row: auto;
-    padding: 1em;
-    margin: .5em 0 .5em 0;
-  }
+    form.basic > input,
+    form.basic > button {
+        grid-row: auto;
+        padding: 1em;
+        margin: .5em 0 .5em 0;
+    }
 }
 
 @media (min-width: 480px) {
-  form.basic {
-    display: grid;
-    grid-template-columns: [labels] auto [controls] 1fr;
-    grid-auto-flow: row;
-  }
+    form.basic {
+        display: grid;
+        grid-template-columns: [labels] auto [controls] 1fr;
+        grid-auto-flow: row;
+    }
 
-  form.basic > label {
-    grid-column: labels;
-    grid-row: auto;
-    padding-right: 1em;
-  }
+    form.basic > label {
+        grid-column: labels;
+        grid-row: auto;
+        padding-right: 1em;
+    }
 
-  form.basic > input,
-  form.basic > button {
-    grid-column: controls;
-    grid-row: auto;
-    border: none;
-    padding: 1em;
-  }
+    form.basic > input,
+    form.basic > button {
+        grid-column: controls;
+        grid-row: auto;
+        border: none;
+        padding: 1em;
+    }
 
-  form.basic > section {
-    grid-column: controls;
-    grid-row: auto;
-    margin: 0;
-    padding: 1em;
-    border-radius: 6px;
-    text-align: center;
-    line-height: normal;
-  }
+    form.basic > section {
+        grid-column: controls;
+        grid-row: auto;
+        margin: 0;
+        padding: 1em;
+        border-radius: 6px;
+        text-align: center;
+        line-height: normal;
+    }
 }
 
 /** Puzzle content formatting **/
 section.tip {
-  position: relative;
-  border-top: 10px solid #e3bc5e;
-  border-bottom: 2px solid #e3bc5e;
-  background-color: rgba(227, 188, 94, .3);
-  padding: 0 0.7em;
+    position: relative;
+    border-top: 10px solid #e3bc5e;
+    border-bottom: 2px solid #e3bc5e;
+    background-color: rgba(227, 188, 94, .3);
+    padding: 0 0.7em;
 }
 
 section.tip::before {
-  float: right;
-  border-bottom-right-radius: 5px;
-  border-bottom-left-radius: 5px;
-  padding: 5px 10px;
-  margin: 0 20px;
-  content: "ℹ️ information";
-  font-weight: bold;
-  font-variant: small-caps;
-  background-color: #e3bc5e;
-  color: black;
+    float: right;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 5px 10px;
+    margin: 0 20px;
+    content: "ℹ️ information";
+    font-weight: bold;
+    font-variant: small-caps;
+    background-color: #e3bc5e;
+    color: black;
 }
 
 section.story {
-  position: relative;
-  border-top: 10px solid #1c76c5;
-  border-bottom: 2px solid #1c76c5;
-  background-color: rgba(28, 118, 197, .3);
-  padding: 0 0.7em;
+    position: relative;
+    border-top: 10px solid #1c76c5;
+    border-bottom: 2px solid #1c76c5;
+    background-color: rgba(28, 118, 197, .3);
+    padding: 0 0.7em;
 }
 
 section.story::before {
-  float: right;
-  border-bottom-right-radius: 5px;
-  border-bottom-left-radius: 5px;
-  padding: 5px 10px;
-  margin: 0 20px;
-  content: "📖 story";
-  font-weight: bold;
-  font-variant: small-caps;
-  background-color: #1c76c5;
-  color: white;
+    float: right;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 5px 10px;
+    margin: 0 20px;
+    content: "📖 story";
+    font-weight: bold;
+    font-variant: small-caps;
+    background-color: #1c76c5;
+    color: white;
 }

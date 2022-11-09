@@ -10,30 +10,21 @@
 
     export let data
 
-    let game = getGameClient(data.game).
-                                          then((gc) =>
-                                                       gc.from('games').
-                                                       select('status, puzzle, startTime, endTime, adventures ( name, description)').
-                                                         eq('code', data.game).
-                                                         throwOnError().
-                                                         single(),
-    ).
-                                          then(({data: game}) => game).
-                                          then((game) => {
+    let game = getGameClient(data.game).then((gc) =>
+        gc.from('games').select('status, puzzle, startTime, endTime, adventures ( name, description)').eq('code', data.game).throwOnError().single(),
+    ).then(({data: game}) => game).then((game) => {
         title.set(`Puzzad: ${game.adventures.name} - ${data.game}`)
         return game
     })
 
     const handleStartAdventure = async () =>
-            getGameClient(data.game).
-                                       then((gc) => gc.rpc('startadventure').throwOnError()).
-                                       then(({data: puzzle}) => {
-                if (puzzle) {
-                    return goto(`/games/${data.game}/${puzzle}`)
-                }
-            })
+        getGameClient(data.game).then((gc) => gc.rpc('startadventure').throwOnError()).then(({data: puzzle}) => {
+            if (puzzle) {
+                return goto(`/games/${data.game}/${puzzle}`)
+            }
+        })
 
-    const handleContinueAdventure = async function(puzzle) {
+    const handleContinueAdventure = async function (puzzle) {
         await goto(`/games/${data.game}/${puzzle}`)
     }
 </script>

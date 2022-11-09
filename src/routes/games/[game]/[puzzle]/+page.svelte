@@ -15,21 +15,15 @@
     export let data
 
     const load = async (game, puzzle) =>
-            getGameClient(game).
-                               then((client) => client.from('puzzles').
-                                    select('title, content, next, storage_slug, adventure (name)').
-                                                      eq('id', puzzle).
-                                                      throwOnError().
-                                                      single(),
-            ).
-                               then(({data}) => data).
-                               then((data) => {
-                title.set(`Puzzad: ${data.adventure.name}: ${data.title}`)
-                return data
-            }).
-                               catch(() => goto(`/games/${game}`))
+        getGameClient(game).then((client) => client.from('puzzles').select('title, content, next, storage_slug, adventure (name)').eq('id', puzzle).throwOnError().single(),
+        ).then(({data}) => data).then((data) => {
+            title.set(`Puzzad: ${data.adventure.name}: ${data.title}`)
+            return data
+        }).catch(() => goto(`/games/${game}`))
 
-    $: if (data.game || data.puzzle) { solved = false }
+    $: if (data.game || data.puzzle) {
+        solved = false
+    }
 
 </script>
 
@@ -46,5 +40,6 @@
         <VictoryDialog data={data} next={gameData.next}></VictoryDialog>
     {/if}
 
-    <GuessMonitor data={data} on:hint={() => {hints && hints.refresh()}} on:solve={() => {solved = true}}></GuessMonitor>
+    <GuessMonitor data={data} on:hint={() => {hints && hints.refresh()}}
+                  on:solve={() => {solved = true}}></GuessMonitor>
 {/await}

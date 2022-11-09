@@ -7,10 +7,7 @@
     import Error from '$lib/components/Error.svelte'
 
     title.set('Puzzad: My Games')
-    let games = supabase.from('games').
-    select('id, status, adventures (name, public), status, code').
-                        throwOnError().
-                        then(({data}) => data)
+    let games = supabase.from('games').select('id, status, adventures (name, public), status, code').throwOnError().then(({data}) => data)
 
     const quotes = [
         '“Never say \'no\' to adventures. Always say \'yes,\' otherwise you\'ll lead a very dull life.”\n― Ian Fleming',

@@ -7,10 +7,10 @@
     import Error from '$lib/components/Error.svelte'
 
     export let data;
-    let details = supabase.from('adventures').
-    select(`id,name,description,price`).
-    eq('name', data.adventure).
-    then(({data, error}) => {
+    let details = supabase.from('adventures').select(`id,name,description,price`).eq('name', data.adventure).then(({
+                                                                                                                       data,
+                                                                                                                       error
+                                                                                                                   }) => {
         if (error) {
             throw error
         }
@@ -42,7 +42,7 @@
     {#await loggedIn then isLoggedIn}
         {#if isLoggedIn}
             <button on:click={() => addAdventure(details)}>
-                Start this adventure for {details.price === 0 ? 'free' : '£' +details.price}</button>
+                Start this adventure for {details.price === 0 ? 'free' : '£' + details.price}</button>
         {:else}
             <p>You must <a href="/login">login</a> before you can start an adventure.</p>
         {/if}
