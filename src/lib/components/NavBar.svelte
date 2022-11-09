@@ -94,7 +94,7 @@
   }
 </style>
 <nav>
-  <h1><a href="/"><img alt="Puzzad" src="{logo}"></a></h1>
+  <h1><a href="/"><img width="178" height="40" alt="Puzzad" src="{logo}"></a></h1>
   {#if dropdownMenu}
     <div class="hamburgercontainer" on:click={handleMobileIconClick}><span class="hamburger"></span></div>
     <dialog open="{showDropdownMenu}" on:click={() => showDropdownMenu=false}>
