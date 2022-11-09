@@ -1,21 +1,21 @@
 <script lang="ts">
-    import {getGameClient} from "$lib/db.ts"
-    import {formatDuration} from "$lib/time.ts"
-    import Error from '$lib/components/Error.svelte'
+  import {getGameClient} from '$lib/db.ts'
+  import {formatDuration} from '$lib/time.ts'
+  import Error from '$lib/components/Error.svelte'
 
-    export let code
-    export let startTime
-    let stats = getGameClient(code)
-        .then((gc) => gc.rpc('getstats', {gamecode: code}).throwOnError())
-        .then(({data: stats}) => stats)
-        .then((rows) => {
-            let lastTime = startTime
-            rows.forEach((r) => {
-                r.time = formatDuration(lastTime, r.solvetime)
-                lastTime = r.solvetime
-            })
-            return rows
+  export let code
+  export let startTime
+  let stats = getGameClient(code).
+      then((gc) => gc.rpc('getstats', {gamecode: code}).throwOnError()).
+      then(({data: stats}) => stats).
+      then((rows) => {
+        let lastTime = startTime
+        rows.forEach((r) => {
+          r.time = formatDuration(lastTime, r.solvetime)
+          lastTime = r.solvetime
         })
+        return rows
+      })
 </script>
 
 {#await stats then puzzles}

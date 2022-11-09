@@ -1,13 +1,13 @@
 <script lang="ts">
-    import * as Sentry from "@sentry/svelte";
+  import * as Sentry from '@sentry/svelte'
 
-    export let error;
+  export let error
 
-    const reload = () => document.location.reload()
+  const reload = () => document.location.reload()
 
-    $: if (error) {
-        Sentry.captureException(error);
-    }
+  $: if (error) {
+    Sentry.captureException(error)
+  }
 </script>
 
 <style>

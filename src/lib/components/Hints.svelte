@@ -1,38 +1,38 @@
 <script lang="ts">
-    import RandomText from "$lib/components/RandomText.svelte"
-    import {getGameClient} from "$lib/db.ts";
+  import RandomText from '$lib/components/RandomText.svelte'
+  import {getGameClient} from '$lib/db.ts'
 
-    export let gameCode = ''
-    export let puzzleId = 0
+  export let gameCode = ''
+  export let puzzleId = 0
 
-    export const refresh = async () => {
-        const gameClient = await getGameClient(gameCode)
-        const {data, error} = await gameClient.rpc('gethints', {puzzleid: puzzleId, gamecode: gameCode})
-        if (error) {
-            throw error
-        }
-        hints = data
+  export const refresh = async () => {
+    const gameClient = await getGameClient(gameCode)
+    const {data, error} = await gameClient.rpc('gethints', {puzzleid: puzzleId, gamecode: gameCode})
+    if (error) {
+      throw error
     }
+    hints = data
+  }
 
-    const request = async function (id) {
-        const gameClient = await getGameClient(gameCode)
-        await gameClient.rpc('requesthint', {puzzleid: puzzleId, gamecode: gameCode, hintid: id})
-    }
+  const request = async function(id) {
+    const gameClient = await getGameClient(gameCode)
+    await gameClient.rpc('requesthint', {puzzleid: puzzleId, gamecode: gameCode, hintid: id})
+  }
 
-    let hints = []
+  let hints = []
 
-    $: if (gameCode && puzzleId) {
-        refresh()
-    }
+  $: if (gameCode && puzzleId) {
+    refresh()
+  }
 
-    const hintMessages = [
-        'Need a hint? Browse our extensive collection below!',
-        'Not sure where to go? Try one of our finest hints!',
-        'Get your hints here! Freshly plucked from the hint tree!',
-        'Psst... Can I interest you in a hint?',
-        'We\'ve got the finest hints in all the land. Don\'t believe me? Try one for free!',
-        'Struggling? In a rush? Why not take one of our hand-picked, artisanal hints?',
-    ]
+  const hintMessages = [
+    'Need a hint? Browse our extensive collection below!',
+    'Not sure where to go? Try one of our finest hints!',
+    'Get your hints here! Freshly plucked from the hint tree!',
+    'Psst... Can I interest you in a hint?',
+    'We\'ve got the finest hints in all the land. Don\'t believe me? Try one for free!',
+    'Struggling? In a rush? Why not take one of our hand-picked, artisanal hints?',
+  ]
 </script>
 
 <style>

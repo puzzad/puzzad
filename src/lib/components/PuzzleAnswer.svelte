@@ -1,23 +1,20 @@
 <script lang="ts">
-    import {getGameClient} from "$lib/db.ts";
+  import {getGameClient} from '$lib/db.ts'
 
-    export let puzzle = 0
-    export let gameCode = ''
+  export let puzzle = 0
+  export let gameCode = ''
 
-    let guess = ''
-    let checking = false
+  let guess = ''
+  let checking = false
 
-    const submit = async () => {
-        checking = true
-        await getGameClient(gameCode)
-            .then((gc) => gc
-                .from('guesses')
-                .insert({content: guess, puzzle: puzzle, game: gameCode})
-                .throwOnError()
-            )
-            .then(() => guess = '')
-            .finally(() => checking = false)
-    }
+  const submit = async () => {
+    checking = true
+    await getGameClient(gameCode).
+        then((gc) => gc.from('guesses').insert({content: guess, puzzle: puzzle, game: gameCode}).throwOnError(),
+        ).
+        then(() => guess = '').
+        finally(() => checking = false)
+  }
 </script>
 
 <style>

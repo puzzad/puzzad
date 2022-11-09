@@ -1,16 +1,15 @@
 <script lang="ts">
-    import {supabase} from "$lib/db.ts";
-    import AdventureLogo from "$lib/components/AdventureLogo.svelte";
+  import {supabase} from '$lib/db.ts'
+  import AdventureLogo from '$lib/components/AdventureLogo.svelte'
 
-    export let adventureName
-    export let code
-    export let status
-    export let isPublic = true
-    export let price = null
+  export let adventureName
+  export let code
+  export let status
+  export let isPublic = true
+  export let price = null
 
-    let backgroundUrl = adventureName && supabase.storage.from('adventures')
-        .getPublicUrl(adventureName + '/background.jpg')
-        .data.publicUrl
+  let backgroundUrl = adventureName &&
+      supabase.storage.from('adventures').getPublicUrl(adventureName + '/background.jpg').data.publicUrl
 </script>
 <style>
   a {
