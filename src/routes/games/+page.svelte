@@ -3,7 +3,7 @@
   import {supabase} from '$lib/db'
   import Spinner from '$lib/components/Spinner.svelte'
   import RandomText from '$lib/components/RandomText.svelte'
-  import {title} from '$lib/title.ts'
+  import {title} from '$lib/title'
   import Error from '$lib/components/Error.svelte'
 
   title.set('Puzzad: My Games')

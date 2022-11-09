@@ -1,5 +1,5 @@
 <script>
-  import {supabase} from '$lib/db.ts'
+  import {supabase} from '$lib/db'
   import Spinner from '$lib/components/Spinner.svelte'
   import Error from '$lib/components/Error.svelte'
 

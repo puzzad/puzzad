@@ -15,11 +15,12 @@
           select('status, puzzle, startTime, endTime, adventures ( name, description)').
           eq('code', data.game).
           throwOnError().
-          single(),
-  ).then(({data: game}) => game).then((game) => {
-    title.set(`Puzzad: ${game.adventures.name} - ${data.game}`)
-    return game
-  })
+          single()).
+      then(({data: game}) => game).
+      then((game) => {
+        title.set(`Puzzad: ${game.adventures.name} - ${data.game}`)
+        return game
+      })
 
   const handleStartAdventure = async () =>
       getGameClient(data.game).then((gc) => gc.rpc('startadventure').throwOnError()).then(({data: puzzle}) => {

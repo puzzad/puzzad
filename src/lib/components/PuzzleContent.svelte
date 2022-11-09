@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {getGameClient} from '$lib/db.ts'
+  import {getGameClient} from '$lib/db'
   import Spinner from '$lib/components/Spinner.svelte'
   import Error from '$lib/components/Error.svelte'
 

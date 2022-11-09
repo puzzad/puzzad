@@ -1,6 +1,7 @@
 import {readable} from 'svelte/store'
-import type {Session, User} from '@supabase/supabase-js'
-import {supabase} from '$lib/db.ts'
+import type {Subscriber} from 'svelte/store'
+import type {Session} from '@supabase/supabase-js'
+import {supabase} from '$lib/db'
 import {goto} from '$app/navigation'
 
 export const session = readable(null, (set: Subscriber<Session | null>) => {
@@ -12,6 +13,7 @@ export const session = readable(null, (set: Subscriber<Session | null>) => {
   })
   return auth.data.subscription.unsubscribe
 })
+
 export const logout = async () => {
   let {error} = await supabase.auth.signOut()
   if (!error) {

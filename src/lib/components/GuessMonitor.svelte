@@ -1,6 +1,6 @@
 <script>
   import {toasts} from 'svelte-toasts'
-  import {getRealTimeClient} from '$lib/db.ts'
+  import {getRealTimeClient} from '$lib/db'
   import {onDestroy, onMount} from 'svelte'
   import {createEventDispatcher} from 'svelte'
 

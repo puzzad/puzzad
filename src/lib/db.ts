@@ -38,7 +38,7 @@ export async function getRealTimeClient(gameCode: string) {
 
 async function getGameToken(gameCode: string): Promise<string> {
   const existingKey = localStorage.getItem('puzzad-game-token')
-  if (isValidToken(existingKey, gameCode)) {
+  if (existingKey && isValidToken(existingKey, gameCode)) {
     return existingKey
   }
 
@@ -55,10 +55,6 @@ async function getGameToken(gameCode: string): Promise<string> {
 }
 
 function isValidToken(token: string, code: string): boolean {
-  if (!token) {
-    return false
-  }
-
   const payload = decodeJWTPayload(token)
   return payload.exp > (Date.now() / 1000 + 60 * 60) && payload.code == code
 }

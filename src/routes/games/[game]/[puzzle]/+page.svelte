@@ -2,7 +2,7 @@
   import {goto} from '$app/navigation'
   import {getGameClient} from '$lib/db'
   import Spinner from '$lib/components/Spinner.svelte'
-  import {title} from '$lib/title.ts'
+  import {title} from '$lib/title'
   import Hints from '$lib/components/Hints.svelte'
   import PuzzleContent from '$lib/components/PuzzleContent.svelte'
   import PuzzleAnswer from '$lib/components/PuzzleAnswer.svelte'

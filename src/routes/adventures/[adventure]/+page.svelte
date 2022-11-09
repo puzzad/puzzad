@@ -1,22 +1,22 @@
 <script>
   import {goto} from '$app/navigation'
-  import {supabase} from '$lib/db.ts'
+  import {supabase} from '$lib/db'
   import Spinner from '$lib/components/Spinner.svelte'
   import AdventureLogo from '$lib/components/AdventureLogo.svelte'
-  import {title} from '$lib/title.ts'
+  import {title} from '$lib/title'
   import Error from '$lib/components/Error.svelte'
 
   export let data
-  let details = supabase.from('adventures').select(`id,name,description,price`).eq('name', data.adventure).then(({
-    data,
-    error,
-  }) => {
-    if (error) {
-      throw error
-    }
-    title.set('Puzzad: ' + data[0].name)
-    return data[0]
-  })
+  let details = supabase.from('adventures').
+      select(`id,name,description,price`).
+      eq('name', data.adventure).
+      then(({data, error}) => {
+        if (error) {
+          throw error
+        }
+        title.set('Puzzad: ' + data[0].name)
+        return data[0]
+      })
 
   let loggedIn = supabase.auth.getSession().then(({data: {session}}) => !!session?.user)
 

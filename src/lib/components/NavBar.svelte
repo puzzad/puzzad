@@ -1,5 +1,5 @@
 <script>
-  import {logout, session} from '$lib/auth.ts'
+  import {logout, session} from '$lib/auth'
   import {browser} from '$app/environment'
 
   export let logo

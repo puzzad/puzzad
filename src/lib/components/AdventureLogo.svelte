@@ -1,5 +1,5 @@
 <script>
-  import {supabase} from '$lib/db.ts'
+  import {supabase} from '$lib/db'
 
   export let name = ''
 
