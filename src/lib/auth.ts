@@ -1,7 +1,7 @@
 import {readable} from 'svelte/store';
 import type {Session, User} from "@supabase/supabase-js";
 import {supabase} from "$lib/db.ts";
-import {goto} from '@roxi/routify'
+import {goto} from '$app/navigation'
 
 export const session = readable(null, (set: Subscriber<Session | null>) => {
     supabase.auth.getSession().then(response => {
@@ -15,6 +15,6 @@ export const session = readable(null, (set: Subscriber<Session | null>) => {
 export const logout = async () => {
     let {error} = await supabase.auth.signOut()
     if (!error) {
-        $goto('/', {});
+        await goto('/');
     }
 }
