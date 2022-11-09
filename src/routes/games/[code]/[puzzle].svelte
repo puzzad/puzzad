@@ -9,55 +9,31 @@
   import VictoryDialog from '$comps/VictoryDialog.svelte'
   import GuessMonitor from '$comps/GuessMonitor.svelte'
 
-  let data = {}
-  let solved = false
-  let initial = true
   let hints
+  let solved = false
 
-  title.set('Puzzad: Loading...')
+  const load = async (code, puzzle) =>
+      getGameClient(code).
+          then((client) => client.from('puzzles').
+              select('title, content, next, storage_slug, adventure (name)').
+              eq('id', puzzle).
+              throwOnError().
+              single(),
+          ).
+          then(({data}) => data).
+          then((data) => {
+            title.set(`Puzzad: ${data.adventure.name}: ${data.title}`)
+            return data
+          }).
+          catch(() => $goto('/games/[code]', {code}))
 
-  const load = () => {
-    reset()
-    getGameClient($params.code).
-        then((client) => client.from('puzzles').
-            select('title, content, next, storage_slug, adventure (name)').
-            eq('id', $params.puzzle).
-            throwOnError(),
-        ).
-        then(checkQueryResults).
-        then((puzzle) => data = puzzle).
-        then(() => {
-          title.set('Puzzad: ' + data.adventure.name + ': ' + data.title)
-          initial = false
-        }).
-        catch(() => $goto('/games/[code]', {code: $params.code}))
-  }
-
-  const reset = () => {
-    console.log('Resetting...')
-    initial = true
-    solved = false
-  }
-
-  const checkQueryResults = ({data, error}) => {
-    if (error) {
-      throw error
-    } else if (data.length === 0) {
-      throw 'Puzzle not found'
-    } else {
-      return data[0]
-    }
-  }
-
-  $: if ($params.puzzle && $params.code) {
-    load()
-  }
+  $: if ($params.code || $params.puzzle) { solved = false }
 
 </script>
 
-{#if initial}
+{#await load($params.code, $params.puzzle)}
   <Spinner/>
-{:else}
+{:then data}
   <h2>{data.adventure.name}: {data.title}</h2>
 
   <PuzzleContent gameCode={$params.code} storageSlug={data.storage_slug} content={data.content}></PuzzleContent>
@@ -67,6 +43,6 @@
   {#if solved}
     <VictoryDialog next={data.next}></VictoryDialog>
   {/if}
-{/if}
 
-<GuessMonitor onHint={() => { hints && hints.refresh() }} onSolve={() => {solved = true}}></GuessMonitor>
+  <GuessMonitor onHint={() => { hints && hints.refresh() }} onSolve={() => { solved = true }}></GuessMonitor>
+{/await}
