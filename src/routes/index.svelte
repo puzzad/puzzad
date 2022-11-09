@@ -1,6 +1,7 @@
 <script>
   import {title} from '$lib/title.ts'
   import {goto} from '@roxi/routify'
+  import DatabasePage from '$comps/DatabasePage.svelte'
 
   let code = ''
 
@@ -94,7 +95,7 @@
     background-color: #222222;
   }
 
-  #intro h3 {
+  #intro :global(h3) {
     border-bottom: 2px solid #e3bc5e;
     padding: 0;
     margin: 0;
@@ -117,55 +118,6 @@
     </form>
   </section>
   <section id="intro">
-    <h3>What is a puzzle adventure?</h3>
-    <p>
-      A puzzle adventure is part escape room, part puzzle hunt.
-      Each adventure is a story interleaved with a variety of puzzles.
-      To progress from one part of the story to the next you have to
-      solve the puzzle you're presented with &mdash; but don't worry,
-      there are ample hints available if you get stuck!
-    </p>
-    <h3>Is there a time limit?</h3>
-    <p>
-      Nope! Puzzle adventures are completely self-driven. If you want
-      to stop and carry on later that's not a problem. Want to treat
-      it like an advent calendar and open one door a day? Go ahead!
-    </p>
-    <p>
-      For those who are more competitive we'll show your total solve
-      time when you finish the adventure (along with number of hints
-      used) so you can compare against your friends.
-    </p>
-    <h3>Can I play with friends?</h3>
-    <p>
-      Yes, and we actively encourage it! When you start an adventure
-      you'll get a code that looks something like <code>revolving-magenta-ocelot</code>.
-      Simply give that code to your friends, they put it in the box
-      above and you can all play together.
-    </p>
-    <p>
-      If you're not physically present, we recommend jumping on a voice
-      chat with your team (take your pick from Discord, Zoom, Teams,
-      and so on). You can see your teammate's guesses in real time,
-      but it helps if you can ask them <em>why</em> they keep guessing
-      "elephant".
-    </p>
-    <h3>How difficult is it?</h3>
-    <p>
-      Our starter adventure, Conspiracy, is designed to be around the
-      difficulty of a medium escape room. Having some knowledge of
-      typical escape rooms or puzzle hunts challenges will help, but
-      there is an extensive hint system that can point you in the right
-      direction if you're struggling. You can even skip to the end and
-      just get the answer, if you're really fed up with one of the
-      puzzles. It's your adventure!
-    </p>
-    <p>
-      If you're a dedicated puzzler who takes parts in puzzle
-      hunts or thrives on the more difficult escape rooms, we recommend
-      avoiding all hints and seeing how quickly you can complete the
-      full adventure. Alternatively, you could use it as a gentle introduction
-      to rope some less puzzle-inclined friends into the hobby!
-    </p>
+    <DatabasePage page="homepage"></DatabasePage>
   </section>
 </main>
