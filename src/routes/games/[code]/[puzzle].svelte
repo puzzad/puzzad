@@ -1,19 +1,17 @@
 <script>
-  import {getGameClient, getRealTimeClient} from '$lib/db'
+  import {getGameClient} from '$lib/db'
   import Spinner from '$comps/Spinner.svelte'
   import {title} from '$lib/title.ts'
   import {goto, params} from '@roxi/routify'
-  import {onDestroy} from 'svelte'
-  import {toasts} from 'svelte-toasts'
   import Hints from '$comps/Hints.svelte'
   import PuzzleContent from '$comps/PuzzleContent.svelte'
   import PuzzleAnswer from '$comps/PuzzleAnswer.svelte'
   import VictoryDialog from '$comps/VictoryDialog.svelte'
+  import GuessMonitor from '$comps/GuessMonitor.svelte'
 
   let data = {}
   let solved = false
   let initial = true
-  let realTimeClient = null
   let hints
 
   title.set('Puzzad: Loading...')
@@ -30,7 +28,6 @@
         then((puzzle) => data = puzzle).
         then(() => {
           title.set('Puzzad: ' + data.adventure.name + ': ' + data.title)
-          startMonitoringGuesses()
           initial = false
         }).
         catch(() => $goto('/games/[code]', {code: $params.code}))
@@ -49,43 +46,6 @@
       throw 'Puzzle not found'
     } else {
       return data[0]
-    }
-  }
-
-  onDestroy(function() {
-    if (realTimeClient) {
-      realTimeClient.disconnect()
-    }
-  })
-
-  const startMonitoringGuesses = async function() {
-    if (realTimeClient) {
-      return
-    }
-
-    realTimeClient = await getRealTimeClient($params.code)
-    await realTimeClient.channel('public:guesses:game=eq.' + $params.code).on('postgres_changes', {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'guesses',
-      filter: 'game=eq.' + $params.code,
-    }, handleStreamedGuess).subscribe()
-  }
-
-  const handleStreamedGuess = function(payload) {
-    if (payload.record.puzzle.toString() === $params.puzzle) {
-      if (payload.record.content === '*hint') {
-        hints.refresh()
-      } else if (payload.record.correct) {
-        solved = true
-      } else {
-        toasts.add({
-          title: 'Incorrect guess',
-          description: payload.record.content,
-          duration: 10000,
-          type: 'error',
-        })
-      }
     }
   }
 
@@ -108,3 +68,5 @@
     <VictoryDialog next={data.next}></VictoryDialog>
   {/if}
 {/if}
+
+<GuessMonitor onHint={() => { hints && hints.refresh() }} onSolve={() => {solved = true}}></GuessMonitor>
