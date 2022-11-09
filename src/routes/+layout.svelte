@@ -8,5 +8,5 @@
 <NavBar logo="{logo}"/>
 <slot/>
 <ToastContainer placement="bottom-right" theme="dark" let:data={data}>
-    <FlatToast {data}/>
+  <FlatToast {data}/>
 </ToastContainer>

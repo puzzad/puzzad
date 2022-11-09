@@ -1,9 +1,9 @@
 <script>
-    import {supabase} from '$lib/db.ts'
+  import {supabase} from '$lib/db.ts'
 
-    export let name = ''
+  export let name = ''
 
-    let logoUrl = name && supabase.storage.from('adventures').getPublicUrl(name + '/logo.png').data.publicUrl
+  let logoUrl = name && supabase.storage.from('adventures').getPublicUrl(name + '/logo.png').data.publicUrl
 </script>
 
 <img src="{logoUrl}" alt="{name}">

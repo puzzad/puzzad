@@ -19,24 +19,24 @@
 </script>
 
 {#await stats then puzzles}
-    <table class="stats">
-        <thead>
-        <tr>
-            <th>Puzzle</th>
-            <th>Time</th>
-            <th>Hints</th>
-        </tr>
-        </thead>
-        <tbody>
-        {#each puzzles as puzzle}
-            <tr>
-                <td>{puzzle.title}</td>
-                <td class="time">{puzzle.time}</td>
-                <td>{puzzle.hints}</td>
-            </tr>
-        {/each}
-        </tbody>
-    </table>
+  <table class="stats">
+    <thead>
+    <tr>
+      <th>Puzzle</th>
+      <th>Time</th>
+      <th>Hints</th>
+    </tr>
+    </thead>
+    <tbody>
+    {#each puzzles as puzzle}
+      <tr>
+        <td>{puzzle.title}</td>
+        <td class="time">{puzzle.time}</td>
+        <td>{puzzle.hints}</td>
+      </tr>
+    {/each}
+    </tbody>
+  </table>
 {:catch error}
-    <Error error={error}></Error>
+  <Error error={error}></Error>
 {/await}
