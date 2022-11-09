@@ -1,6 +1,6 @@
 <script lang="ts">
-    import RandomText from "./RandomText.svelte"
-    import {getGameClient} from "../db.ts";
+    import RandomText from "$lib/components/RandomText.svelte"
+    import {getGameClient} from "$lib/db.ts";
 
     export let gameCode = ''
     export let puzzleId = 0

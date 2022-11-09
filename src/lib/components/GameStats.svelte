@@ -1,7 +1,7 @@
 <script lang="ts">
-    import {getGameClient} from "../db.ts"
-    import {formatDuration} from "../time.ts"
-    import Error from './Error.svelte'
+    import {getGameClient} from "$lib/db.ts"
+    import {formatDuration} from "$lib/time.ts"
+    import Error from '$lib/components/Error.svelte'
 
     export let code
     export let startTime

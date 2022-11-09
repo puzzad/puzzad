@@ -1,7 +1,7 @@
 <script lang="ts">
-    import {getGameClient} from "../db.ts";
-    import Spinner from "./Spinner.svelte";
-    import Error from "./Error.svelte";
+    import {getGameClient} from "$lib/db.ts";
+    import Spinner from "$lib/components/Spinner.svelte";
+    import Error from "$lib/components/Error.svelte";
 
     export let gameCode = '';
     export let storageSlug = '';

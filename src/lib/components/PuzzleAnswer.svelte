@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {getGameClient} from "../db.ts";
+    import {getGameClient} from "$lib/db.ts";
 
     export let puzzle = 0
     export let gameCode = ''
