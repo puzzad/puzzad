@@ -37,6 +37,6 @@ a different instance for development purposes.
 
 === Code style
 
-We're not too fussy about a particular style, but to avoid auto-formatting wars there is an IDEA project code style
-export available in codestyle.xml. If you use another IDE, using the Google JavaScript style guide and a two space
+We're not too fussy about a particular style, but to avoid auto-formatting wars there is configuration for IDEA in
+`.editorconfig`. If you use another IDE, using the Google JavaScript style guide and a two space
 indent for HTML/CSS should get you most of the way there.
