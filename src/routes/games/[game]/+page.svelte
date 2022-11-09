@@ -83,7 +83,7 @@
     </button>
   {:else if gameData.status === 'ACTIVE'}
     <p>This adventure is already in progress!</p>
-    <button on:click={() => handleContinueAdventure(data.puzzle)}>
+    <button on:click={() => handleContinueAdventure(gameData.puzzle)}>
       Go to the current puzzle
     </button>
   {/if}
