@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {logout, session} from '$lib/auth'
   import {browser} from '$app/environment'
 

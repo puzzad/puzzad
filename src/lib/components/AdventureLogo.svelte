@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {supabase} from '$lib/db'
 
   export let name = ''

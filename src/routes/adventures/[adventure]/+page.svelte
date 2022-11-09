@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {goto} from '$app/navigation'
   import {supabase} from '$lib/db'
   import Spinner from '$lib/components/Spinner.svelte'

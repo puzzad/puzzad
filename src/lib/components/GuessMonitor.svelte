@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {toasts} from 'svelte-toasts'
   import {getRealTimeClient} from '$lib/db'
   import {onDestroy, onMount} from 'svelte'

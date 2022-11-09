@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {goto} from '$app/navigation'
   import {title} from '$lib/title.ts'
   import DatabasePage from '$lib/components/DatabasePage.svelte'

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {goto} from '$app/navigation'
   import AdventureLogo from '$lib/components/AdventureLogo.svelte'
   import {getGameClient} from '$lib/db'

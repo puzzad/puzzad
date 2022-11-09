@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import AdventureBanner from '$lib/components/AdventureBanner.svelte'
   import {supabase} from '$lib/db'
   import Spinner from '$lib/components/Spinner.svelte'

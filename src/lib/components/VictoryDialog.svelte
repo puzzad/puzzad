@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {goto} from '$app/navigation'
   import RandomText from '$lib/components/RandomText.svelte'
   import {Fireworks} from '@fireworks-js/svelte'
