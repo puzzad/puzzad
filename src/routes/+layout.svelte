@@ -4,6 +4,8 @@
     import bahunya from '$lib/assets/bahunya.min.css'
     import puzzad from '$lib/assets/puzzad.css'
     import {FlatToast, ToastContainer} from "svelte-toasts";
+
+    export const ssr = false;
 </script>
 <NavBar logo="{logo}"/>
 <slot/>
