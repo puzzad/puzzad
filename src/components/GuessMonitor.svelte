@@ -3,10 +3,10 @@
   import {toasts} from 'svelte-toasts'
   import {getRealTimeClient} from '$lib/db'
   import {onDestroy, onMount} from 'svelte'
+  import {createEventDispatcher} from 'svelte'
 
-  export let onHint = () => {}
-  export let onSolve = () => {}
   let realTimeClient
+  const dispatch = createEventDispatcher()
 
   onMount(async () => {
     realTimeClient = await getRealTimeClient($params.code)
@@ -27,9 +27,9 @@
   const handleStreamedGuess = function(payload) {
     if (payload.record.puzzle.toString() === $params.puzzle) {
       if (payload.record.content === '*hint') {
-        onHint()
+        dispatch('hint')
       } else if (payload.record.correct) {
-        onSolve()
+        dispatch('solve')
       } else {
         toasts.add({
           title: 'Incorrect guess',

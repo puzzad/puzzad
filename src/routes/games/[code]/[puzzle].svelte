@@ -44,5 +44,5 @@
     <VictoryDialog next={data.next}></VictoryDialog>
   {/if}
 
-  <GuessMonitor onHint={() => { hints && hints.refresh() }} onSolve={() => { solved = true }}></GuessMonitor>
+  <GuessMonitor on:hint={() => {hints && hints.refresh()}} on:solve={() => {solved = true}}></GuessMonitor>
 {/await}
