@@ -8,6 +8,7 @@ export const supabase = createClient<Database>(
 );
 
 export async function getGameClient(gameCode: string): Promise<SupabaseClient<Database>> {
+    console.log(gameCode)
     return createClient<Database>(
         import.meta.env.VITE_SUPABASE_URL,
         import.meta.env.VITE_SUPABASE_ANON_KEY,
