@@ -1,10 +1,10 @@
 <script lang="ts">
-  import AdventureBanner from '$lib/components/AdventureBanner.svelte'
+  import AdventureBanner from '$components/AdventureBanner.svelte'
   import {supabase} from '$lib/db'
-  import Spinner from '$lib/components/Spinner.svelte'
-  import RandomText from '$lib/components/RandomText.svelte'
+  import Spinner from '$components/Spinner.svelte'
+  import RandomText from '$components/RandomText.svelte'
   import {title} from '$lib/title'
-  import Error from '$lib/components/Error.svelte'
+  import Error from '$components/Error.svelte'
 
   title.set('Puzzad: My Games')
   let games = supabase.from('games').

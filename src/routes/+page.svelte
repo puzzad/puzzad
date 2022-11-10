@@ -1,7 +1,7 @@
 <script lang="ts">
   import {goto} from '$app/navigation'
   import {title} from '$lib/title.ts'
-  import DatabasePage from '$lib/components/DatabasePage.svelte'
+  import DatabasePage from '$components/DatabasePage.svelte'
 
   let code = ''
 
@@ -47,7 +47,7 @@
     flex-direction: column;
     align-items: end;
     justify-content: space-between;
-    background-image: url('../lib/assets/hero.jpg');
+    background-image: url('../assets/hero.jpg');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;

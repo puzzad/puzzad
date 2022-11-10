@@ -1,5 +1,5 @@
 <script lang="ts">
-  import RandomText from '$lib/components/RandomText.svelte'
+  import RandomText from '$components/RandomText.svelte'
   import {getGameClient} from '$lib/db'
 
   export let gameCode = ''

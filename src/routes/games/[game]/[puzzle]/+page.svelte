@@ -1,13 +1,13 @@
 <script lang="ts">
   import {goto} from '$app/navigation'
   import {getGameClient} from '$lib/db'
-  import Spinner from '$lib/components/Spinner.svelte'
+  import Spinner from '$components/Spinner.svelte'
   import {title} from '$lib/title'
-  import Hints from '$lib/components/Hints.svelte'
-  import PuzzleContent from '$lib/components/PuzzleContent.svelte'
-  import PuzzleAnswer from '$lib/components/PuzzleAnswer.svelte'
-  import VictoryDialog from '$lib/components/VictoryDialog.svelte'
-  import GuessMonitor from '$lib/components/GuessMonitor.svelte'
+  import Hints from '$components/Hints.svelte'
+  import PuzzleContent from '$components/PuzzleContent.svelte'
+  import PuzzleAnswer from '$components/PuzzleAnswer.svelte'
+  import VictoryDialog from '$components/VictoryDialog.svelte'
+  import GuessMonitor from '$components/GuessMonitor.svelte'
 
   let hints
   let solved = false

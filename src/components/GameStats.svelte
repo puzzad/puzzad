@@ -1,7 +1,7 @@
 <script lang="ts">
   import {getGameClient} from '$lib/db'
   import {formatDuration} from '$lib/time'
-  import Error from '$lib/components/Error.svelte'
+  import Error from '$components/Error.svelte'
 
   export let code
   export let startTime

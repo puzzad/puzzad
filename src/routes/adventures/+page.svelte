@@ -1,9 +1,9 @@
 <script lang="ts">
-  import AdventureBanner from '$lib/components/AdventureBanner.svelte'
+  import AdventureBanner from '$components/AdventureBanner.svelte'
   import {supabase} from '$lib/db'
-  import Spinner from '$lib/components/Spinner.svelte'
+  import Spinner from '$components/Spinner.svelte'
   import {title} from '$lib/title'
-  import Error from '$lib/components/Error.svelte'
+  import Error from '$components/Error.svelte'
 
   let adventures = supabase.from('adventures').select('id,name,price,public').throwOnError().then(({data}) => data)
   title.set('Puzzad: Adventures')

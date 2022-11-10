@@ -1,10 +1,10 @@
 <script lang="ts">
   import {goto} from '$app/navigation'
   import {supabase} from '$lib/db'
-  import Spinner from '$lib/components/Spinner.svelte'
-  import AdventureLogo from '$lib/components/AdventureLogo.svelte'
+  import Spinner from '$components/Spinner.svelte'
+  import AdventureLogo from '$components/AdventureLogo.svelte'
   import {title} from '$lib/title'
-  import Error from '$lib/components/Error.svelte'
+  import Error from '$components/Error.svelte'
 
   export let data
   let details = supabase.from('adventures').

@@ -1,12 +1,12 @@
 <script lang="ts">
   import {goto} from '$app/navigation'
-  import AdventureLogo from '$lib/components/AdventureLogo.svelte'
+  import AdventureLogo from '$components/AdventureLogo.svelte'
   import {getGameClient} from '$lib/db'
   import {formatDuration} from '$lib/time'
-  import Spinner from '$lib/components/Spinner.svelte'
+  import Spinner from '$components/Spinner.svelte'
   import {title} from '$lib/title.ts'
-  import Error from '$lib/components/Error.svelte'
-  import GameStats from '$lib/components/GameStats.svelte'
+  import Error from '$components/Error.svelte'
+  import GameStats from '$components/GameStats.svelte'
 
   export let data
 
@@ -37,7 +37,7 @@
 <style>
   code {
     display: block;
-    background-image: url('../../../lib/assets/code-bg.png');
+    background-image: url('../../../assets/code-bg.png');
     background-color: transparent;
     color: black;
     text-align: center;

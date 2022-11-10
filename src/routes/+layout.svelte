@@ -1,10 +1,10 @@
 <script lang="ts">
-  import NavBar from '$lib/components/NavBar.svelte'
-  import logo from '$lib/assets/logo.png'
-  import bahunya from '$lib/assets/bahunya.min.css'
-  import puzzad from '$lib/assets/puzzad.css'
+  import NavBar from '$components/NavBar.svelte'
+  import logo from '$assets/logo.png'
+  import bahunya from '$assets/bahunya.min.css'
+  import puzzad from '$assets/puzzad.css'
   import {FlatToast, ToastContainer} from 'svelte-toasts'
-  import {title} from '$lib/title.ts'
+  import {title} from '$lib/title'
 
   export const ssr = false
 </script>

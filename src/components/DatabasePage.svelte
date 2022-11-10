@@ -1,7 +1,7 @@
 <script lang="ts">
   import {supabase} from '$lib/db'
-  import Spinner from '$lib/components/Spinner.svelte'
-  import Error from '$lib/components/Error.svelte'
+  import Spinner from '$components/Spinner.svelte'
+  import Error from '$components/Error.svelte'
 
   export let page
 
