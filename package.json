@@ -24,7 +24,7 @@
     "svelte-preprocess": "^4.10.6",
     "svelte-toasts": "^1.1.2",
     "tslib": "^2.3.1",
-    "typescript": "^4.7.4",
+    "typescript": "^4.9.3",
     "vite": "^3.1.0"
   },
   "type": "module"
