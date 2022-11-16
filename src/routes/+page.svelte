@@ -12,7 +12,7 @@
 </script>
 <style>
   main {
-    grid-template-columns: 55% 45%;
+    grid-template-columns: 50% calc(50% - 2em);
     gap: 2em;
   }
 
