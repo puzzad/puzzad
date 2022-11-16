@@ -107,3 +107,8 @@ section.story::before {
   background-color: #1c76c5;
   color: white;
 }
+
+footer {
+  text-align: center;
+  font-size: small;
+}
