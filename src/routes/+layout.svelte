@@ -12,8 +12,10 @@
   <title>{$title}</title>
 </svelte:head>
 <NavBar logo="{logo}"/>
+<main>
 <slot/>
-<ToastContainer placement="bottom-right" theme="dark" let:data={data}>
+</main>
+  <ToastContainer placement="bottom-right" theme="dark" let:data={data}>
   <FlatToast {data}/>
 </ToastContainer>
 <footer>
