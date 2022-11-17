@@ -18,12 +18,12 @@
     canvas.height = image.height
     const ctx = canvas.getContext('2d')
     ctx.drawImage(image, 0, 0)
-    ctx.font = '28px serif'
+    ctx.font = '32px serif'
     ctx.textAlign = 'center'
-    ctx.fillText(teamName, 944, 430, 420)
-    ctx.fillText(adventureName, 944, 595, 420)
+    ctx.fillText(teamName, 944, 425, 420)
+    ctx.fillText(adventureName, 944, 648, 420)
     ctx.fillText((new Date(completionDate)).toLocaleDateString('en-gb',
-        {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}), 415, 805, 420)
+        {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}), 415, 811, 420)
     return canvas.toDataURL('image/webp')
   })
 </script>
