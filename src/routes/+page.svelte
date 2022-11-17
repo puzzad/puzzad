@@ -11,13 +11,13 @@
   title.set('Puzzad')
 </script>
 <style>
-  main {
+  div {
     grid-template-columns: 50% calc(50% - 2em);
     gap: 2em;
   }
 
   @media (min-width: 480px) {
-    main {
+    div {
       display: grid;
     }
   }
@@ -105,7 +105,7 @@
 </style>
 
 <h2>Puzzad: Puzzle Adventures</h2>
-<main>
+<div>
   <section id="hero">
     <h3>Ready to start an adventure?</h3>
     <a href="/adventures">Let's go &raquo;</a>
@@ -120,4 +120,4 @@
   <section id="intro">
     <DatabasePage page="homepage"></DatabasePage>
   </section>
-</main>
+</div>

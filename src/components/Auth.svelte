@@ -113,6 +113,7 @@
   }
 </style>
 {#if !$session?.user}
+  <h2>{buttonText}</h2>
   <form class="basic" on:submit|preventDefault={authAction}>
     <div class="socialwrapper">
       <p>Sign in with one of these third party providers</p>
@@ -156,5 +157,6 @@
     </section>
   </form>
 {:else}
+  <h2>You're logged in</h2>
   <p>You're already logged in, <a href="" on:click|preventDefault={logout}>Logout</a>?</p>
 {/if}

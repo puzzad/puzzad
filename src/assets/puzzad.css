@@ -132,6 +132,6 @@ html {
 body {
   display: flex;
   flex-direction: column;
-  margin: 6rem auto 1em auto;
+  margin: 1rem auto 1em auto;
   flex-grow: 2;
 }
