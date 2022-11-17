@@ -7,6 +7,7 @@
   import {title} from '$lib/title.ts'
   import Error from '$components/Error.svelte'
   import GameStats from '$components/GameStats.svelte'
+  import Certificate from '../../../components/Certificate.svelte'
 
   export let data
 
@@ -66,6 +67,7 @@
   </h1>
   {#if gameData.status === 'EXPIRED'}
     <p>Congratulations! You finished the adventure!</p>
+    <Certificate adventureName={gameData.adventures.name} teamName={data.game} completionDate={gameData.endTime}></Certificate>
     <p>You took {formatDuration(gameData.startTime, gameData.endTime)}!</p>
     <GameStats code={data.game} startTime={gameData.startTime}></GameStats>
   {:else if gameData.status === 'PAID'}

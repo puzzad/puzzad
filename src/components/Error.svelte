@@ -6,6 +6,7 @@
   const reload = () => document.location.reload()
 
   $: if (error) {
+    console.log(error)
     Sentry.captureException(error)
   }
 </script>
