@@ -1,5 +1,5 @@
 import Mailgun from 'mailgun.js'
-import {MAILGUN_API_KEY} from '$env/static/private'
+import {MAILGUN_API_KEY, EMAIL_SUPPORT_FROM, EMAIL_SUPPORT_TO, EMAIL_SUPPORT_DOMAIN} from '$env/static/private'
 import formData from 'form-data'
 import type { Actions } from './$types';
 import {invalid} from '@sveltejs/kit'
@@ -32,13 +32,14 @@ export const actions: Actions = {
     }
     // const mailgun = new Mailgun(formData)
     // const mg = mailgun.client({username: 'api', key: MAILGUN_API_KEY, url: 'https://api.eu.mailgun.net'})
-    // mg.messages.create('notify.puzzad.com', {
-    //   from: 'Puzzad Contact Form <postmaster@notify.puzzad.com>',
-    //   to: ['greg@puzzad.com'],
+    // mg.messages.create(EMAIL_SUPPORT_DOMAIN, {
+    //   from: EMAIL_SUPPORT_FROM,
+    //   to: [EMAIL_SUPPORT_TO],
     //   subject: 'Contact Form',
     //   text: "Name: "+name+"\nEmail: "+email+"\nMessage: \n"+message,
     //   html: "Name: "+name+"<br>Email: "+email+"<br>Message: <br>"+message,
     // }).catch(err => {
+    //   console.log(err)
     //   return { success: false }
     // })
     return { success: true }
