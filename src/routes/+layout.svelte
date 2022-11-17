@@ -17,5 +17,5 @@
   <FlatToast {data}/>
 </ToastContainer>
 <footer>
-  <p>&copy; 2022 Puzzad.com. All rights reserved. <a href="/about">About &amp; Privacy</a>.</p>
+  <p>&copy; 2022 Puzzad.com. All rights reserved. <a href="/about">About &amp; Privacy</a></p>
 </footer>

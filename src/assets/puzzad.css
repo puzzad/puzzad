@@ -121,6 +121,8 @@ footer {
 footer p {
   border-top: 1px solid var(--border);
   padding: 1em;
+  display: flex;
+  justify-content: space-between;
 }
 html {
   height: 100%;
