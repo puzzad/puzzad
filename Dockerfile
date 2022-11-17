@@ -1,10 +1,11 @@
-FROM node:latest as build
-
+FROM ghcr.io/greboid/dockerfiles/alpine:latest as build
+RUN apk add npm
 WORKDIR /app
 COPY . /app
 RUN npm install && npm run build
 
-FROM nginx
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=build /app/dist /usr/share/nginx/html
-
+FROM ghcr.io/greboid/dockerfiles/alpine:latest
+RUN apk add nodejs-current
+COPY --from=build /app/dist /app
+COPY --from=build /app/package.json /app/package.json
+CMD ["node", "/app/index.js"]
