@@ -13,9 +13,9 @@
 </svelte:head>
 <NavBar logo="{logo}"/>
 <slot/>
-<footer>
-  &copy; 2022 Puzzad.com. All rights reserved. <a href="/about">About &amp; Privacy</a>.
-</footer>
 <ToastContainer placement="bottom-right" theme="dark" let:data={data}>
   <FlatToast {data}/>
 </ToastContainer>
+<footer>
+  <p>&copy; 2022 Puzzad.com. All rights reserved. <a href="/about">About &amp; Privacy</a>.</p>
+</footer>
