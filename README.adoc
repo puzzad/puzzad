@@ -7,9 +7,10 @@ Supabase backend (hosted, or self-hosted)
 
 == Install
 
-Run or sign up for a supabase instance +
-Update `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env` +
-Run the migrations on your database, you'll need your database url and your database password:
+ - Run or sign up for a supabase instance +
+ - Update `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env` +
+ - Add environmental variables for `MAILGUN_API_KEY`, `SUPPORT_EMAIL` `SUPPORT_FROM` `EMAIL_SUPPORT_FROM` `EMAIL_SUPPORT_TO` `EMAIL_SUPPORT_DOMAIN` in `.env.local`
+ - Run the migrations on your database, you'll need your database url and your database password:
 
 [,bash]
 ----
