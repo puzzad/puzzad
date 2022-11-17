@@ -1,7 +1,7 @@
 <script lang="ts">
   import {title} from '../../lib/title'
   import DatabasePage from '$components/DatabasePage.svelte'
-
+  export const csr = false;
   title.set('Puzzad: About & Privacy')
 </script>
 

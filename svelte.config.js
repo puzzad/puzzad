@@ -17,8 +17,5 @@ export default {
     adapter: adapter({
       out: 'dist'
     }),
-    prerender: {
-      entries: [],
-    },
   },
 }
