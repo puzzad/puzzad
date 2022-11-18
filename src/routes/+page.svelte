@@ -2,6 +2,7 @@
   import {goto} from '$app/navigation'
   import {title} from '$lib/title.ts'
   import DatabasePage from '$components/DatabasePage.svelte'
+  import StartAdventureCallout from '../components/StartAdventureCallout.svelte'
 
   let code = ''
 
@@ -11,13 +12,13 @@
   title.set('Puzzad')
 </script>
 <style>
-  div {
+  #container {
     grid-template-columns: 50% calc(50% - 2em);
     gap: 2em;
   }
 
   @media (min-width: 480px) {
-    div {
+    #container {
       display: grid;
     }
   }
@@ -40,37 +41,6 @@
 
   h3 {
     margin: 0;
-  }
-
-  #hero {
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-    justify-content: space-between;
-    background-image: url('../assets/hero.jpg');
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-  }
-
-  #hero h3 {
-    left: 30%;
-    right: 0.5em;
-    top: 0.5em;
-    font-size: xx-large;
-    color: #000000;
-    font-weight: bold;
-    text-align: right;
-    text-shadow: 0 0 5px #ffffff;
-  }
-
-  #hero a {
-    bottom: 1em;
-    right: 1em;
-    font-size: large;
-    font-weight: bold;
-    text-shadow: 0 0 5px #000000;
   }
 
   #play {
@@ -105,11 +75,10 @@
 </style>
 
 <h2>Puzzad: Puzzle Adventures</h2>
-<div>
-  <section id="hero">
-    <h3>Ready to start an adventure?</h3>
-    <a href="/adventures">Let's go &raquo;</a>
-  </section>
+<div id="container">
+  <div id="hero">
+    <StartAdventureCallout></StartAdventureCallout>
+  </div>
   <section id="play">
     <h3>Got a game code?</h3>
     <form on:submit|preventDefault={handleGameCode}>
