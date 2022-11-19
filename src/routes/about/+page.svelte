@@ -40,4 +40,4 @@
 <h2>About &amp; Privacy</h2>
 <div class="about">
   <DatabasePage page="privacy"></DatabasePage>
-</div>>
+</div>
