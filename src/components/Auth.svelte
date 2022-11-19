@@ -69,7 +69,7 @@
     case 'signup':
       title.set('Puzzad: Signup')
       altText = 'Already have an account? <a href=\'/login\'>Login!</a>'
-      buttonText = 'Sign up'
+      buttonText = 'Sign Up'
       break
     case 'login':
       title.set('Puzzad: Login')
