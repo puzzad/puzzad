@@ -62,15 +62,6 @@
   #intro {
     grid-column-start: 1;
     grid-column-end: 3;
-    background-color: #222222;
-  }
-
-  #intro :global(h3) {
-    border-bottom: 2px solid #e3bc5e;
-    padding: 0;
-    margin: 0;
-    font-weight: bold;
-    font-size: large;
   }
 </style>
 
@@ -86,7 +77,7 @@
       <input type="submit" value="Play!">
     </form>
   </section>
-  <section id="intro">
+  <section id="intro" class="text">
     <DatabasePage page="homepage"></DatabasePage>
   </section>
 </div>
