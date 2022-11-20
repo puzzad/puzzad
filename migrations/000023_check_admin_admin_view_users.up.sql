@@ -15,7 +15,7 @@ END
 $$;
 ALTER FUNCTION "auth"."checkadmin"("jwt" "jsonb") OWNER TO "postgres";
 
-DROP POLICY "Admins can view auth.users" ON "auth"."users";
+DROP POLICY IF EXISTS "Admins can view auth.users" ON "auth"."users";
 CREATE POLICY "Admins can view auth.users"
     ON auth.users
     FOR SELECT USING (
