@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {logout, session} from '$lib/auth'
+  import {logout, isLoggedIn} from '$lib/auth'
   import {browser} from '$app/environment'
 
   export let logo
@@ -102,7 +102,7 @@
         <li><a href="/adventures">Browse adventures</a></li>
       </ul>
       <ul>
-        {#if !$session?.user}
+        {#if !$isLoggedIn}
           <li><a href="/login">Login</a></li>
         {:else}
           <li><a href="/games">My Games</a></li>
@@ -116,7 +116,7 @@
       <li><a href="/adventures">Browse adventures</a></li>
     </ul>
     <ul>
-      {#if !$session?.user}
+      {#if !$isLoggedIn}
         <li><a href="/login">Login</a></li>
       {:else}
         <li><a href="/games">My Games</a></li>
