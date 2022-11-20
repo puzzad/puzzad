@@ -135,6 +135,11 @@ body {
   margin: 1rem auto 1em auto;
   flex-grow: 2;
 }
+body > div {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 2;
+}
 
 section.text {
   background-color: #222222;
