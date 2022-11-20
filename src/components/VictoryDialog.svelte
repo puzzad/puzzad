@@ -2,16 +2,19 @@
   import {goto} from '$app/navigation'
   import RandomText from '$components/RandomText.svelte'
   import {Fireworks} from '@fireworks-js/svelte'
+  import {createEventDispatcher} from 'svelte'
 
-  export let next
-  export let data
+  const dispatch = createEventDispatcher()
+
+  export let finished
+  export let game
 
   const goToNextPuzzle = async function() {
-    goto(`/games/${data.game}/${next}`)
+    dispatch('next')
   }
 
   const goToGamePage = async function() {
-    goto(`/games/${data.game}`)
+    goto(`/games/${game}`)
   }
 
   const congratsMessages = [
@@ -79,12 +82,12 @@
   <h3>
     <RandomText options={congratsMessages}></RandomText>
   </h3>
-  {#if next}
-    <p>You have completed this step in the adventure!</p>
-    <button on:click={() => goToNextPuzzle()}>Next puzzle &raquo;</button>
-  {:else}
+  {#if finished}
     <p>You have completed the adventure!</p>
     <button on:click={() => goToGamePage()}>Continue &raquo;</button>
+  {:else}
+    <p>You have completed this step in the adventure!</p>
+    <button on:click={() => goToNextPuzzle()}>Next puzzle &raquo;</button>
   {/if}
 </dialog>
 

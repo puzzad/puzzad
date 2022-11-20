@@ -14,40 +14,47 @@
 
   export let data
 
-  const load = async (game, puzzle) =>
-      getGameClient(game).
-          then((client) => client.from('puzzles').
-              select('title, content, next, storage_slug, adventure (name)').
-              eq('id', puzzle).
+  const load = async () =>
+      getGameClient(data.game).
+          then((client) => client.from('games').
+              select('puzzle (id, title, content, next, storage_slug, adventure (name))').
+              eq('code', data.game).
               throwOnError().
               single(),
           ).
-          then(({data}) => data).
+          then(({data: {puzzle}}) => puzzle).
           then((data) => {
             title.set(`Puzzad: ${data.adventure.name}: ${data.title}`)
             return data
           }).
-          catch(() => goto(`/games/${game}`))
-
-  $: if (data.game || data.puzzle) {
+          catch(() => goto(`/games/${data.game}`))
+  
+  const reload = () => {
     solved = false
+    gameData = load()
+  }
+
+  let gameData
+
+  $: if (data.game) {
+    reload()
   }
 
 </script>
 
-{#await load(data.game, data.puzzle)}
+{#await gameData}
   <Spinner/>
 {:then gameData}
   <h2>{gameData.adventure.name}: {gameData.title}</h2>
 
   <PuzzleContent gameCode={data.game} storageSlug={gameData.storage_slug} content={gameData.content}></PuzzleContent>
-  <PuzzleAnswer gameCode={data.game} puzzle={data.puzzle}></PuzzleAnswer>
-  <Hints gameCode={data.game} puzzleId={data.puzzle} bind:this={hints}></Hints>
+  <PuzzleAnswer gameCode={data.game} puzzle={gameData.id}></PuzzleAnswer>
+  <Hints gameCode={data.game} puzzleId={gameData.id} bind:this={hints}></Hints>
 
   {#if solved}
-    <VictoryDialog data={data} next={gameData.next}></VictoryDialog>
+    <VictoryDialog game={data.game} finished={gameData.next === null} on:next={reload}></VictoryDialog>
   {/if}
 
-  <GuessMonitor data={data} on:hint={() => {hints && hints.refresh()}}
+  <GuessMonitor game={data.game} on:hint={() => {hints && hints.refresh()}}
                 on:solve={() => {solved = true}}></GuessMonitor>
 {/await}

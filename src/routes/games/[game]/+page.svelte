@@ -13,7 +13,7 @@
 
   let game = getGameClient(data.game).then((gc) =>
       gc.from('games').
-          select('status, puzzle, startTime, endTime, adventures ( name, description)').
+          select('status, startTime, endTime, adventures ( name, description)').
           eq('code', data.game).
           throwOnError().
           single()).
@@ -24,14 +24,12 @@
       })
 
   const handleStartAdventure = async () =>
-      getGameClient(data.game).then((gc) => gc.rpc('startadventure').throwOnError()).then(({data: puzzle}) => {
-        if (puzzle) {
-          return goto(`/games/${data.game}/${puzzle}`)
-        }
-      })
+      getGameClient(data.game).
+          then((gc) => gc.rpc('startadventure').throwOnError()).
+          then(() => goto(`/games/${data.game}/play`))
 
-  const handleContinueAdventure = async function(puzzle) {
-    await goto(`/games/${data.game}/${puzzle}`)
+  const handleContinueAdventure = async function() {
+    await goto(`/games/${data.game}/play`)
   }
 </script>
 
@@ -67,7 +65,8 @@
   </h1>
   {#if gameData.status === 'EXPIRED'}
     <p>Congratulations! You finished the adventure!</p>
-    <Certificate adventureName={gameData.adventures.name} teamName={data.game} completionDate={gameData.endTime}></Certificate>
+    <Certificate adventureName={gameData.adventures.name} teamName={data.game}
+                 completionDate={gameData.endTime}></Certificate>
     <p>You took {formatDuration(gameData.startTime, gameData.endTime)}!</p>
     <GameStats code={data.game} startTime={gameData.startTime}></GameStats>
   {:else if gameData.status === 'PAID'}
@@ -86,7 +85,7 @@
     </button>
   {:else if gameData.status === 'ACTIVE'}
     <p>This adventure is already in progress!</p>
-    <button on:click={() => handleContinueAdventure(gameData.puzzle)}>
+    <button on:click={() => handleContinueAdventure()}>
       Go to the current puzzle
     </button>
   {/if}

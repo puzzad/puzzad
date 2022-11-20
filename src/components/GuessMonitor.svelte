@@ -7,15 +7,15 @@
   let realTimeClient
   const dispatch = createEventDispatcher()
 
-  export let data
+  export let game
 
   onMount(async () => {
-    realTimeClient = await getRealTimeClient(data.game)
-    await realTimeClient.channel('public:guesses:game=eq.' + data.game).on('postgres_changes', {
+    realTimeClient = await getRealTimeClient(game)
+    await realTimeClient.channel('public:guesses:game=eq.' + game).on('postgres_changes', {
       event: 'INSERT',
       schema: 'public',
       table: 'guesses',
-      filter: 'game=eq.' + data.game,
+      filter: 'game=eq.' + game,
     }, handleStreamedGuess).subscribe()
   })
 
@@ -26,19 +26,17 @@
   })
 
   const handleStreamedGuess = function(payload) {
-    if (payload.record.puzzle.toString() === data.puzzle) {
-      if (payload.record.content === '*hint') {
-        dispatch('hint')
-      } else if (payload.record.correct) {
-        dispatch('solve')
-      } else {
-        toasts.add({
-          title: 'Incorrect guess',
-          description: payload.record.content,
-          duration: 10000,
-          type: 'error',
-        })
-      }
+    if (payload.record.content === '*hint') {
+      dispatch('hint')
+    } else if (payload.record.correct) {
+      dispatch('solve')
+    } else {
+      toasts.add({
+        title: 'Incorrect guess',
+        description: payload.record.content,
+        duration: 10000,
+        type: 'error',
+      })
     }
   }
 </script>
