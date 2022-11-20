@@ -11,6 +11,7 @@ export default {
   },
   kit: {
     prerender: {
+      enabled: false,
       entries: [],
     },
     alias: {
