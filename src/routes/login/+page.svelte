@@ -2,6 +2,7 @@
   import ThirdPartyLogin from '$components/ThirdPartyLogin.svelte'
   import NativeLogin from '$components/NativeLogin.svelte'
   import AlreadyLoggedIn from '$components/AlreadyLoggedIn.svelte'
+  import Spinner from '$components/Spinner.svelte'
   import {session} from '$lib/auth'
   import {title} from '$lib/title'
 
@@ -18,7 +19,9 @@
   }
 </style>
 
-{#if !$session?.user}
+{#if $session === null}
+  <Spinner></Spinner>
+{:else if !$session?.user}
   <h2>Login</h2>
   <div>
     <ThirdPartyLogin></ThirdPartyLogin>
