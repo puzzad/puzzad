@@ -9,10 +9,12 @@
 </script>
 
 <style>
-  div {
-    display: grid;
-    grid-template-columns: 40% auto;
-    grid-gap: 1em;
+  @media (min-width: 480px) {
+    div {
+      display: grid;
+      grid-template-columns: 40% auto;
+      grid-gap: 1em;
+    }
   }
 </style>
 
