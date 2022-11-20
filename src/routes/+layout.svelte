@@ -5,6 +5,7 @@
   import puzzad from '$assets/puzzad.css'
   import {FlatToast, ToastContainer} from 'svelte-toasts'
   import {title} from '$lib/title'
+  export const ssr = false;
 </script>
 <svelte:head>
   <title>{$title}</title>

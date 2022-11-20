@@ -6,6 +6,7 @@ import {goto} from '$app/navigation'
 
 export const session = readable(null, (set: Subscriber<Session | null>) => {
   supabase.auth.getSession().then(response => {
+    console.log(response.data)
     set(response.data.session)
   })
   const auth = supabase.auth.onAuthStateChange(async ({}, session) => {
