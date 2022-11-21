@@ -106,7 +106,7 @@
           <li><a href="/login">Login</a></li>
         {:else}
           <li><a href="/games">My Games</a></li>
-          <li><a on:click={logout()}>Logout</a></li>
+          <li><a on:click|preventDefault={logout}>Logout</a></li>
         {/if}
       </ul>
     </dialog>
