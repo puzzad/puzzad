@@ -7,7 +7,8 @@
   import {title} from '$lib/title.ts'
   import Error from '$components/Error.svelte'
   import GameStats from '$components/GameStats.svelte'
-  import Certificate from '../../../components/Certificate.svelte'
+  import Certificate from '$components/Certificate.svelte'
+  import SubscribeToMailingList from '$components/SubscribeToMailingList.svelte'
 
   export let data
 
@@ -55,6 +56,18 @@
     font-size: x-large;
     padding: 0.5em;
   }
+
+  .stats {
+    border: 1px solid #333333;
+    border-radius: 15px;
+    padding: 1em 2em;
+    margin-top: 0;
+    text-align: center;
+  }
+
+  .stats h3 {
+    margin: 0;
+  }
 </style>
 
 {#await game}
@@ -67,8 +80,12 @@
     <p>Congratulations! You finished the adventure!</p>
     <Certificate adventureName={gameData.adventures.name} teamName={data.game}
                  completionDate={gameData.endTime}></Certificate>
-    <p>You took {formatDuration(gameData.startTime, gameData.endTime)}!</p>
-    <GameStats code={data.game} startTime={gameData.startTime}></GameStats>
+    <section class="stats">
+      <h3>Adventure statistics</h3>
+      <p>You took {formatDuration(gameData.startTime, gameData.endTime)}!</p>
+      <GameStats code={data.game} startTime={gameData.startTime}></GameStats>
+    </section>
+    <SubscribeToMailingList></SubscribeToMailingList>
   {:else if gameData.status === 'PAID'}
     <p>
       You've not yet started your adventure! Remember, it's dangerous to go alone.

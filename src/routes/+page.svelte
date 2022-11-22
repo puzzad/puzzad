@@ -2,7 +2,7 @@
   import {goto} from '$app/navigation'
   import {title} from '$lib/title.ts'
   import DatabasePage from '$components/DatabasePage.svelte'
-  import StartAdventureCallout from '../components/StartAdventureCallout.svelte'
+  import StartAdventureCallout from '$components/StartAdventureCallout.svelte'
 
   let code = ''
 
