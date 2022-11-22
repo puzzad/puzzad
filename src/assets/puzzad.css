@@ -18,7 +18,7 @@ select {
 @media (max-width: 480px) {
   form.basic {
     display: grid;
-    grid-template-columns: auto;
+    grid-template-columns: auto auto;
     grid-auto-flow: row;
   }
 
@@ -31,6 +31,10 @@ select {
     grid-row: auto;
     padding: 1em;
     margin: .5em 0 .5em 0;
+  }
+
+  form.basic > button {
+    grid-column: 2;
   }
 }
 
