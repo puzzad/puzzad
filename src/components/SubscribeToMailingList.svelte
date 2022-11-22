@@ -100,6 +100,10 @@
   label {
     display: none;
   }
+
+  section :global(iframe) {
+    margin-top: 1em;
+  }
 </style>
 
 <section>
