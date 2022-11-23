@@ -10,10 +10,6 @@ export default {
     },
   },
   kit: {
-    prerender: {
-      enabled: false,
-      entries: [],
-    },
     alias: {
       $components: 'src/components',
       $assets: 'src/assets',
