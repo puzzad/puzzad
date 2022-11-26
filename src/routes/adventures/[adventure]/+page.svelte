@@ -46,6 +46,8 @@
                 data.publicUrl,
         )
         return data
+      }).catch(_ => {
+        return goto(`/adventures`)
       })
 
   const addAdventure = async (details) => {
