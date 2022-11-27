@@ -7,6 +7,9 @@ const config: UserConfig = {
   ],
   optimizeDeps: {
     force: true,
+  },
+  server: {
+    host: "0.0.0.0"
   }
 }
 
