@@ -61,6 +61,9 @@
     console.log(token)
     captchaToken = token.detail.token
   }
+  const captchaFail = () => {
+    captchaToken = ''
+  }
 </script>
 
 <style>
@@ -131,7 +134,10 @@
       {/if}
       {#if !useAccount}
         <SvelteHcaptcha sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY} theme="dark"
-                        on:success={captchaSuccess}></SvelteHcaptcha>
+                        on:success={captchaSuccess}
+                        on:error={captchaFail}
+                        on:expired={captchaFail}
+        />
       {/if}
       <input type="submit" value="Subscribe" disabled={!(useAccount || captchaToken !== '')}>
     </form>
