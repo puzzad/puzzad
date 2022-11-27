@@ -58,7 +58,6 @@
   }
 
   const captchaSuccess = (token) => {
-    console.log(token)
     captchaToken = token.detail.token
   }
   const captchaFail = () => {
