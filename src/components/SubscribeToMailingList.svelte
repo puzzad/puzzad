@@ -119,7 +119,7 @@
       <p>All done! You're successfully signed up to our mailing list!</p>
     {/if}
   {:else}
-    <h3>Receive updates from the town crier?</h3>
+    <h3>Keep in touch?</h3>
     <p>
       Eager to hear when new adventures are available? Join our mailing list!
       We'll only send you the occasional announcement, and you can unsubscribe at any time.

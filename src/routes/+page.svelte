@@ -1,83 +1,26 @@
 <script lang="ts">
-  import {goto} from '$app/navigation'
   import {title} from '$lib/title.ts'
-  import DatabasePage from '$components/DatabasePage.svelte'
-  import StartAdventureCallout from '$components/StartAdventureCallout.svelte'
+  import SubscribeToMailingList from '$components/SubscribeToMailingList.svelte'
 
-  let code = ''
-
-  const handleGameCode = () => {
-    goto(`/games/${code.toLowerCase().replace(/[^a-z-]/g, '')}`)
-  }
   title.set('Puzzad')
 </script>
 <style>
   #container {
-    grid-template-columns: 50% calc(50% - 2em);
-    gap: 2em;
-  }
-
-  @media (min-width: 480px) {
-    #container {
-      display: grid;
-    }
-  }
-
-  @media (max-width: 480px) {
-    #play {
-      margin-bottom: 2em;
-    }
-
-    #hero {
-      margin-bottom: 2em;
-    }
-  }
-
-  section {
-    border-radius: 15px;
-    padding: 1em;
-    margin: 0;
-  }
-
-  h3 {
-    margin: 0;
-  }
-
-  #play {
-    background-color: #39254D;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: 0.5em;
+    align-content: center;
   }
 
-  #play h3, #play input {
-    text-align: center;
-  }
-
-  form {
-    display: contents;
-  }
-
-  #intro {
-    grid-column-start: 1;
-    grid-column-end: 3;
+  p {
+    margin: 0.5em 0 3em;
   }
 </style>
 
 <h2>Puzzad: Puzzle Adventures</h2>
 <div id="container">
-  <div id="hero">
-    <StartAdventureCallout></StartAdventureCallout>
-  </div>
-  <section id="play">
-    <h3>Got a game code?</h3>
-    <form on:submit|preventDefault={handleGameCode}>
-      <input type="text" placeholder="revolving-magenta-ocelot" bind:value={code}>
-      <input type="submit" value="Play!">
-    </form>
-  </section>
-  <section id="intro" class="text">
-    <DatabasePage page="homepage"></DatabasePage>
-  </section>
+  <p>
+    Please mind the dust &mdash; we're not quite ready to start any adventures yet.
+    Check back soon, or if you'd like to be notified when we go live, sign up for our mailing list below!
+  </p>
+  <SubscribeToMailingList></SubscribeToMailingList>
 </div>
