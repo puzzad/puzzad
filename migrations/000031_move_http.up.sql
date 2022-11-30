@@ -1,1 +1,1 @@
-ALTER EXTENSION http SET SCHEMA internal;
+ALTER EXTENSION http SET SCHEMA extensions;
