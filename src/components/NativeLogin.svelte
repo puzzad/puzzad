@@ -7,23 +7,26 @@
   let password
 
   const login = async () => {
-    let {error} = await supabase.auth.signInWithPassword({email, password})
-    if (error) {
-      toasts.add({
-        title: 'Error',
-        description: error.message,
-        duration: 10000,
-        type: 'error',
-      })
-    } else {
-      await goto('/')
+    supabase.auth.signInWithPassword({email, password})
+        .then(response => {
+          if (response.error) {
+            return Promise.reject(response.error)
+          }
       toasts.add({
         title: 'Success',
         description: 'Login success.',
         duration: 10000,
         type: 'success',
       })
-    }
+      return goto('/')
+    }).catch(err => {
+      toasts.add({
+        title: 'Error',
+        description: err.message,
+        duration: 10000,
+        type: 'error',
+      })
+    })
   }
 </script>
 

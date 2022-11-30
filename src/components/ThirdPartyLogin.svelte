@@ -4,24 +4,29 @@
   import FaTwitch from 'svelte-icons/fa/FaTwitch.svelte'
   import {supabase} from '$lib/db'
   import {toasts} from 'svelte-toasts'
+  import {goto} from '$app/navigation'
 
   const handleOauthLogin = async (name) => {
-    const {error} = await supabase.auth.signInWithOAuth({provider: name})
-    if (error) {
-      toasts.add({
-        title: 'Error',
-        description: error.message,
-        duration: 10000,
-        type: 'error',
-      })
-    } else {
+    supabase.auth.signInWithOAuth({provider: name})
+    .then(response => {
+      if (response.error) {
+        return Promise.reject(response.error)
+      }
       toasts.add({
         title: 'Success',
         description: 'Login success.',
         duration: 10000,
         type: 'success',
       })
-    }
+      return goto('/')
+    }).catch(err => {
+      toasts.add({
+        title: 'Error',
+        description: err.message,
+        duration: 10000,
+        type: 'error',
+      })
+    })
   }
 </script>
 
