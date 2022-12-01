@@ -1,20 +1,16 @@
 FROM ghcr.io/greboid/dockerfiles/alpine:latest as build
-RUN apk add npm
+RUN apk add npm curl
 WORKDIR /app
 COPY . /app
 RUN npm install && npm run build
+WORKDIR /sws
+RUN curl -Ss -o sws.tgz -L $(curl https://api.github.com/repos/static-web-server/static-web-server/releases/latest | grep browser_download_url | grep x86_64-unknown-linux-musl | cut -d '"' -f4); \
+    tar xf sws.tgz --strip-components 1; \
+    ls -ls /sws
 
 FROM ghcr.io/greboid/dockerfiles/alpine:latest
-RUN apk add nodejs-current
-COPY --from=build /app/dist /app
+COPY --from=build /sws/static-web-server /sws
+COPY --from=build /app/build /app
 COPY --from=build /app/package.json /app/package.json
-RUN echo "" >> /app/index.ts
-RUN echo "function handleExit(signal) {" >> /app/index.js
-RUN echo "console.log('Terminating.')" >> /app/index.js
-RUN echo "process.exit(0);" >> /app/index.js
-RUN echo "}" >> /app/index.js
-RUN echo "process.on('SIGINT', handleExit);" >> /app/index.js
-RUN echo "process.on('SIGQUIT', handleExit);" >> /app/index.js
-RUN echo "process.on('SIGTERM', handleExit);" >> /app/index.js
 WORKDIR /app
-CMD ["node", "index.js"]
+CMD ["/sws", "--port", "8080", "--root", "/app", "--page-fallback", "/app/index.html"]
