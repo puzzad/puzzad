@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {logout, isLoggedIn} from '$lib/auth'
+  import {logout, isLoggedIn, isAdmin} from '$lib/auth'
   import {browser} from '$app/environment'
 
   export let logo
@@ -105,6 +105,9 @@
         {#if !$isLoggedIn}
           <li><a href="/login">Login</a></li>
         {:else}
+          {#if $isAdmin}
+            <li><a href="/admin">Admin</a></li>
+          {/if}
           <li><a href="/games">My Games</a></li>
           <li><a on:click|preventDefault={logout}>Logout</a></li>
         {/if}
@@ -119,6 +122,9 @@
       {#if !$isLoggedIn}
         <li><a href="/login">Login</a></li>
       {:else}
+        {#if $isAdmin}
+          <li><a href="/admin">Admin</a></li>
+        {/if}
         <li><a href="/games">My Games</a></li>
         <li><a href="" on:click|preventDefault={logout}>Logout</a></li>
       {/if}

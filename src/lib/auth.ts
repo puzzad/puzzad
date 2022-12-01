@@ -19,3 +19,13 @@ export const logout = async () => {
     await goto('/')
   }
 }
+
+export const isAdmin = readable<bool | null>(null, (set: Subscriber<bool | null>) => {
+  supabase.auth.getSession().then(response => {
+    set(response.data.session !== null && response.data.session.user.role == "supabase_admin")
+  })
+  const auth = supabase.auth.onAuthStateChange(async ({}, session) => {
+    set(session !== null && session.user.role == "supabase_admin")
+  })
+  return auth.data.subscription.unsubscribe
+})
