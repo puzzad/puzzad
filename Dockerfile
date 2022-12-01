@@ -12,4 +12,5 @@ COPY --from=build /sws/static-web-server /sws
 COPY --from=build /app/build /app
 COPY --from=build /app/package.json /app/package.json
 WORKDIR /app
-CMD ["/sws", "--port", "8080", "--root", "/app", "--page-fallback", "/app/index.html"]
+EXPOSE 3000
+CMD ["/sws", "--port", "3000", "--root", "/app", "--page-fallback", "/app/index.html"]
