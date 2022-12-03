@@ -21,7 +21,7 @@ jobs:
           fullname: 'false'
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Development image
-        id: build-image-auth
+        id: build-image-dev
         if: startsWith(github.ref, 'refs/heads/master')
         uses: redhat-actions/buildah-build@v2.10
         with:
@@ -34,7 +34,7 @@ jobs:
             --build-arg
             BUILD=staging
       - name: Build Production image
-        id: build-image-auth
+        id: build-image-prod
         if: startsWith(github.ref, 'refs/tags/v')
         uses: redhat-actions/buildah-build@v2.10
         with:
@@ -46,10 +46,20 @@ jobs:
             0
             --build-arg
             BUILD=build
-      - name: Push to GHCR
+      - name: Push to GHCR Development
+        if: startsWith(github.ref, 'refs/heads/master')
         uses: redhat-actions/push-to-registry@v2.6
         with:
-          image: ${{ steps.build-image-auth.outputs.image }}
+          image: ${{ steps.build-image-dev.outputs.image }}
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          tags: ${{ steps.tags.outputs.tags }}
+      - name: Push to GHCR Production
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: redhat-actions/push-to-registry@v2.6
+        with:
+          image: ${{ steps.build-image-prod.outputs.image }}
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
