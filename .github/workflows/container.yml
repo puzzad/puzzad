@@ -22,8 +22,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Edit URL for Prod on tag
         if: startsWith(github.ref, 'refs/tags/v')
-        run:
-          - sed -i 's#VITE_SUPABASE_URL=https://api.dev.puzzad.com#VITE_SUPABASE_URL=https://api.puzzad.com#' .env
+        run: |
+          sed -i 's#VITE_SUPABASE_URL=https://api.dev.puzzad.com#VITE_SUPABASE_URL=https://api.puzzad.com#' .env
       - name: Build image
         id: build-image-auth
         uses: redhat-actions/buildah-build@v2.10
