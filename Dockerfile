@@ -1,8 +1,9 @@
 FROM ghcr.io/greboid/dockerfiles/alpine:latest as build
+ARG BUILD=staging
 RUN apk add npm
 WORKDIR /app
 COPY . /app
-RUN npm install && npm run build
+RUN npm install && npm run ${BUILD}
 
 FROM ghcr.io/greboid/dockerfiles/alpine:latest
 RUN apk add nodejs-current
