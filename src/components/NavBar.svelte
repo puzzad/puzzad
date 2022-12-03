@@ -100,6 +100,7 @@
     <dialog open="{showDropdownMenu}" on:click={() => showDropdownMenu=false}>
       <ul class='{showDropdownMenu ? "dropdown" : ""}'>
         <li><a href="/adventures">Browse adventures</a></li>
+        <li><a href="/extras">Extras</a></li>
       </ul>
       <ul>
         {#if !$isLoggedIn}
@@ -117,6 +118,7 @@
   {#if !dropdownMenu}
     <ul class='{showDropdownMenu ? "dropdown" : ""}'>
       <li><a href="/adventures">Browse adventures</a></li>
+      <li><a href="/extras">Extras</a></li>
     </ul>
     <ul>
       {#if !$isLoggedIn}
