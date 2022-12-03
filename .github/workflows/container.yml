@@ -21,7 +21,7 @@ jobs:
           fullname: 'false'
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build image
-        if: startsWith(github.ref, 'master')
+        if: startsWith(github.ref, 'refs/heads/master')
         uses: redhat-actions/buildah-build@v2.10
         with:
           dockerfiles: Dockerfile
