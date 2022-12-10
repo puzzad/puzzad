@@ -57,7 +57,7 @@
       <p>
         You aren't part of any adventures! You can
         <a href="/adventures">browse the available adventures</a>, or if you
-        want to join a friend you can <a href="/#/">enter the game code</a> to
+        want to join a friend you can <a href="/">enter the game code</a> to
         jump straight in.
       </p>
     {/each}
