@@ -8,5 +8,6 @@
   }
 </script>
 {#if $isAdmin}
+  <h1>Admin Page</h1>
   <slot />
 {/if}
