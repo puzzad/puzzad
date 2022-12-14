@@ -3,6 +3,9 @@
   import SvelteHcaptcha from 'svelte-hcaptcha'
   import Spinner from '$components/Spinner.svelte'
   import {toasts} from 'svelte-toasts'
+  import {title} from '$lib/title'
+
+  title.set('Puzzad: Contact')
 
   let name, nameError, email, emailError, message, messageError, success, captchaToken = '', supabaseToken, loggedIn
   let loading = false

@@ -2,6 +2,9 @@
   import {supabase} from '$lib/db'
   import Spinner from '$components/Spinner.svelte'
   import {DateTime} from 'luxon'
+  import {title} from '$lib/title'
+
+  title.set('Puzzad: Admin: Games')
 
   let games = new Promise(async (resolve, reject) => {
     const { data, error } = await supabase.rpc('listallgames').throwOnError()

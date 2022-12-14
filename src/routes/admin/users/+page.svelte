@@ -1,6 +1,9 @@
 <script>
   import {supabase} from '$lib/db'
   import Spinner from '$components/Spinner.svelte'
+  import {title} from '$lib/title'
+
+  title.set('Puzzad: Admin: Users')
 
   let users = new Promise(async (resolve, reject) => {
     const { data, error } = await supabase.rpc('listallusers').throwOnError()
