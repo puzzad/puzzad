@@ -3,17 +3,16 @@
   import Spinner from '$components/Spinner.svelte'
   import {DateTime} from 'luxon'
 
-  let games = supabase.rpc('listallgames')
-  .then((data, error) => {
+  let games = new Promise(async (resolve, reject) => {
+    const { data, error } = await supabase.rpc('listallgames').throwOnError()
     if (error) {
-      throw Promise.reject('No valid token')
+      reject(error)
     } else {
-      return data.data
+      resolve(data)
     }
   })
+  .then(data => data)
   .catch(_ => [])
-
-  const settings = {columnFilter: true}
 </script>
 <style>
   section {
