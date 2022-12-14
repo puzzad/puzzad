@@ -22,10 +22,10 @@ export const logout = async () => {
 
 export const isAdmin = readable<bool | null>(null, (set: Subscriber<bool | null>) => {
   supabase.auth.getSession().then(response => {
-    set(response.data.session !== null && response.data.session.user.role == "supabase_admin")
+    set(response.data.session !== null && response.data.session.user.email?.endsWith(import.meta.env.VITE_ADMIN_DOMAIN))
   })
   const auth = supabase.auth.onAuthStateChange(async ({}, session) => {
-    set(session !== null && session.user.role == "supabase_admin")
+    set(session !== null && session.user.email?.endsWith(import.meta.env.VITE_ADMIN_DOMAIN))
   })
   return auth.data.subscription.unsubscribe
 })

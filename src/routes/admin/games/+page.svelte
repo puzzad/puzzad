@@ -3,23 +3,24 @@
   import Spinner from '$components/Spinner.svelte'
   import {DateTime} from 'luxon'
 
-  let games = supabase.auth.getSession().then(response => {
-    if (response.data.session && response.data.session.access_token) {
-      return response.data.session.access_token
-    }
-    throw Promise.reject('No valid token')
-  }).then(token => {
-    return supabase.rpc('listallgames', {jwt: token})
-  }).then((data, error) => {
+  let games = supabase.rpc('listallgames')
+  .then((data, error) => {
     if (error) {
       throw Promise.reject('No valid token')
     } else {
       return data.data
     }
-  }).catch(_ => [])
+  })
+  .catch(_ => [])
 
   const settings = {columnFilter: true}
 </script>
+<style>
+  section {
+    margin-left: calc(((90vw - 50rem )/ 2) * -1);
+    width: 90vw;
+  }
+</style>
 <section>
   <h2>Games</h2>
   {#await games}
