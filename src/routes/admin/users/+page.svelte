@@ -42,11 +42,18 @@
           <td>{new Date(user.confirmed).toLocaleString()}</td>
           <td>{new Date(user.lastSignin).toLocaleString()}</td>
           <td>
+            <table>
             {#each user.adventures as adventure}
-              {adventure.adventure} - {adventure.code}<br>
+              <tr>
+                <td>{adventure.adventure}</td>
+                <td>{adventure.code}</td>
+              </tr>
               {:else}
-              No Adventures
+              <tr>
+                <td colspan="2">No Adventures</td>
+              </tr>
             {/each}
+            </table>
           </td>
         </tr>
         {/each}
