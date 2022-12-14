@@ -50,7 +50,12 @@
           <td>{game.adventurename}</td>
           <td>{game.puzzletitle ?? "Not started"}</td>
           <td>{new Date(game.startTime).toLocaleString()}</td>
-          <td>{new Date(game.endTime).toLocaleString() ?? "In Progress"}</td>
+          <td>
+            {#if (game.endTime)}
+              {new Date(game.endTime).toLocaleString()}
+            {:else} In Progress
+            {/if}
+          </td>
           <td>
             {#if game.endTime }
               {DateTime.fromISO(game.endTime).
