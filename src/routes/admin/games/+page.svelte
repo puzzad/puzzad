@@ -20,6 +20,11 @@
 
   const settings = {columnFilter: true}
 </script>
+<style>
+  :global body {
+    max-width: 90vw !important;
+  }
+</style>
 <section>
   <h2>Games</h2>
   {#await games}
