@@ -92,6 +92,20 @@
     margin: 16px 7px;
     width: 20px;
   }
+
+  nav.admin {
+    position: fixed;
+    top: 2.6rem !important;
+    left: 0;
+    padding-right: 1rem;
+    width: 100%;
+  }
+  nav.admin ul {
+    justify-content: flex-end;
+  }
+  nav.admin ul li {
+    padding-left: 1em;
+  }
 </style>
 <nav>
   <h1><a href="/"><img width="178" height="40" alt="Puzzad" src="{logo}"></a></h1>
@@ -106,9 +120,6 @@
         {#if !$isLoggedIn}
           <li><a href="/login">Login</a></li>
         {:else}
-          {#if $isAdmin}
-            <li><a href="/admin">Admin</a></li>
-          {/if}
           <li><a href="/games">My Games</a></li>
           <li><a on:click|preventDefault={logout}>Logout</a></li>
         {/if}
@@ -124,12 +135,17 @@
       {#if !$isLoggedIn}
         <li><a href="/login">Login</a></li>
       {:else}
-        {#if $isAdmin}
-          <li><a href="/admin">Admin</a></li>
-        {/if}
         <li><a href="/games">My Games</a></li>
         <li><a href="" on:click|preventDefault={logout}>Logout</a></li>
       {/if}
     </ul>
   {/if}
 </nav>
+{#if $isAdmin}
+  <nav class="admin">
+    <ul>
+      <li><a href="/admin/games">All Games</a></li>
+      <li><a href="/admin/users">All Users</a></li>
+    </ul>
+  </nav>
+{/if}
