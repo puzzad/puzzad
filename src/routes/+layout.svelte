@@ -1,8 +1,6 @@
 <script lang="ts">
   import NavBar from '$components/NavBar.svelte'
   import logo from '$assets/logo.png'
-  import bahunya from '$assets/bahunya.min.css'
-  import puzzad from '$assets/puzzad.css'
   import {FlatToast, ToastContainer} from 'svelte-toasts'
   import {title} from '$lib/title'
   import * as Sentry from '@sentry/svelte'
