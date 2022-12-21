@@ -29,7 +29,7 @@
     "svelte-toasts": "^1.1.2",
     "tslib": "^2.4.1",
     "typescript": "^4.9.4",
-    "vite": "^4.0.2"
+    "vite": "^4.0.3"
   },
   "type": "module"
 }
