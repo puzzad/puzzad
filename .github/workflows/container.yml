@@ -48,7 +48,7 @@ jobs:
             BUILD=build
       - name: Push to GHCR Development
         if: startsWith(github.ref, 'refs/heads/master')
-        uses: redhat-actions/push-to-registry@v2.6
+        uses: redhat-actions/push-to-registry@v2.7
         with:
           image: ${{ steps.build-image-dev.outputs.image }}
           registry: ghcr.io
@@ -57,7 +57,7 @@ jobs:
           tags: ${{ steps.tags.outputs.tags }}
       - name: Push to GHCR Production
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: redhat-actions/push-to-registry@v2.6
+        uses: redhat-actions/push-to-registry@v2.7
         with:
           image: ${{ steps.build-image-prod.outputs.image }}
           registry: ghcr.io
