@@ -23,7 +23,7 @@ jobs:
       - name: Build Development image
         id: build-image-dev
         if: startsWith(github.ref, 'refs/heads/master')
-        uses: redhat-actions/buildah-build@v2.10
+        uses: redhat-actions/buildah-build@v2.11
         with:
           dockerfiles: Dockerfile
           image: ${{ github.repository }}
@@ -36,7 +36,7 @@ jobs:
       - name: Build Production image
         id: build-image-prod
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: redhat-actions/buildah-build@v2.10
+        uses: redhat-actions/buildah-build@v2.11
         with:
           dockerfiles: Dockerfile
           image: ${{ github.repository }}
