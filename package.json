@@ -14,7 +14,7 @@
     "@fireworks-js/svelte": "^2.10.1",
     "@sentry/svelte": "^7.29.0",
     "@sentry/tracing": "^7.29.0",
-    "@supabase/supabase-js": "^2.2.3",
+    "@supabase/supabase-js": "^2.4.0",
     "@sveltejs/adapter-static": "^1.0.1",
     "@sveltejs/kit": "^1.0.10",
     "@zerodevx/svelte-toast": "^0.8.2",
