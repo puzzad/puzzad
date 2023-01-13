@@ -15,7 +15,7 @@
     "@sentry/svelte": "^7.30.0",
     "@sentry/tracing": "^7.30.0",
     "@supabase/supabase-js": "^2.4.0",
-    "@sveltejs/adapter-static": "^1.0.1",
+    "@sveltejs/adapter-static": "^1.0.2",
     "@sveltejs/kit": "^1.0.11",
     "@zerodevx/svelte-toast": "^0.8.2",
     "form-data": "^4.0.0",
