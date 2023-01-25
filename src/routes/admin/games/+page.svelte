@@ -1,8 +1,8 @@
 <script>
   import {supabase} from '$lib/db'
   import Spinner from '$components/Spinner.svelte'
-  import {DateTime} from 'luxon'
   import {title} from '$lib/title'
+  import {formatDuration} from '$lib/time'
 
   title.set('Puzzad: Admin: Games')
 
@@ -34,10 +34,10 @@
         <th>User</th>
         <th>Code</th>
         <th>Adventure</th>
-        <th>Progress</th>
+        <th>Puzzle</th>
         <th>Start Time</th>
         <th>End Time</th>
-        <th>Time since starting or Duration</th>
+        <th>Duration</th>
       </tr>
       </thead>
       <tbody>
@@ -49,20 +49,16 @@
           <td>{game.puzzletitle ?? "Not started"}</td>
           <td>{new Date(game.startTime).toLocaleString()}</td>
           <td>
-            {#if (game.endTime)}
+            {#if game.endTime}
               {new Date(game.endTime).toLocaleString()}
             {:else} In Progress
             {/if}
           </td>
           <td>
             {#if game.endTime }
-              {DateTime.fromISO(game.endTime).
-                  diff(DateTime.fromISO(game.startTime), ['days', 'hours', 'minutes']).
-                  toHuman({listStyle: "short", unitDisplay: "short", maximumSignificantDigits: 2})}
+              {formatDuration(game.startTime, game.endTime)}
             {:else}
-              {DateTime.now().
-                  diff(DateTime.fromISO(game.startTime), ['days', 'hours', 'minutes']).
-                  toHuman({unitDisplay: "short", maximumSignificantDigits: 2})}
+              {formatDuration(game.startTime, Date())}
             {/if}
           </td>
         </tr>
