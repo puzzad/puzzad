@@ -22,6 +22,14 @@
     margin-left: calc(((90vw - 50rem )/ 2) * -1);
     width: 90vw;
   }
+
+  tr.finished {
+    background-color: #0e3806;
+  }
+
+  tbody tr:nth-child(2n).finished {
+    background-color: #0b2f04;
+  }
 </style>
 <section>
   <h2>Games</h2>
@@ -42,16 +50,23 @@
       </thead>
       <tbody>
       {#each games as game}
-        <tr>
+        <tr class:finished={!!game.endTime}>
           <td>{game.useremail}</td>
           <td>{game.code}</td>
           <td>{game.adventurename}</td>
-          <td>{game.puzzletitle ?? "Not started"}</td>
-          <td>{new Date(game.startTime).toLocaleString()}</td>
+          <td>{game.puzzletitle ?? "-"}</td>
+          <td>
+            {#if game.startTime}
+              {new Date(game.startTime).toLocaleString()}
+            {:else}
+              -
+            {/if}
+          </td>
           <td>
             {#if game.endTime}
               {new Date(game.endTime).toLocaleString()}
-            {:else} In Progress
+            {:else}
+              -
             {/if}
           </td>
           <td>
