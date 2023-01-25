@@ -95,16 +95,23 @@
 
   nav.admin {
     position: fixed;
-    top: 2.6rem !important;
-    left: 0;
-    padding-right: 1rem;
-    width: 100%;
+    top: 5rem !important;
+    right: 0;
+    padding: 0.5rem;
+    background-color: rgba(57, 37, 77, 0.5);
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
   }
+
   nav.admin ul {
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    margin: 0;
   }
+
   nav.admin ul li {
-    padding-left: 1em;
+    padding: 0.2em 1em;
   }
 </style>
 <nav>
@@ -144,6 +151,7 @@
 {#if $isAdmin}
   <nav class="admin">
     <ul>
+      <li>ADMIN</li>
       <li><a href="/admin/games">All Games</a></li>
       <li><a href="/admin/users">All Users</a></li>
     </ul>
