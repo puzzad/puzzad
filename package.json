@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@fireworks-js/svelte": "^2.10.3",
-    "@sentry/svelte": "^7.50.0",
+    "@sentry/svelte": "^7.54.0",
     "@sentry/tracing": "^7.50.0",
     "@supabase/supabase-js": "^2.21.0",
     "@sveltejs/adapter-static": "^2.0.1",
