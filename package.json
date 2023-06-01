@@ -23,7 +23,7 @@
     "svelte-check": "^3.0.4",
     "svelte-hcaptcha": "^0.1.1",
     "svelte-icons": "^2.1.0",
-    "svelte-preprocess": "^5.0.1",
+    "svelte-preprocess": "^5.0.4",
     "svelte-toasts": "^1.1.2",
     "tslib": "^2.5.0",
     "typescript": "^5.0.4",
