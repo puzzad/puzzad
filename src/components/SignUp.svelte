@@ -32,6 +32,7 @@
     grid-column: 1 / 3;
     margin: 10px 0;
     color: colours.$text-secondary;
+    font-size: small;
   }
 
   div {
