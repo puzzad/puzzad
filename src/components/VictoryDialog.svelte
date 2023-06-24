@@ -27,18 +27,28 @@
   ]
 </script>
 
-<style>
+<style lang="scss">
+  @use "../style/colours";
+
   dialog {
     position: fixed;
-    padding: 3em;
+    padding: var(--small-space) var(--large-space);
     top: 30vh;
     left: 30vh;
     right: 30vh;
-    background: linear-gradient(to top, #106310, #3C8E2B);
-    border-radius: 10px;
+    background: colours.$success;
+    color: colours.$text-inverted;
+    border: 1px solid colours.$border;
     text-align: center;
     z-index: 1001;
     animation: show 200ms linear;
+    display: flex;
+    flex-direction: column;
+    gap: var(--small-space);
+  }
+
+  h3 {
+    border-bottom: 0;
   }
 
   @keyframes show {
@@ -50,20 +60,8 @@
     }
   }
 
-  dialog h3 {
-    margin: 0 0 1em 0;
-  }
-
-  dialog p {
-    margin: 0 0 2em 0;
-  }
-
   dialog button {
     width: 100%;
-    text-transform: uppercase;
-    font-weight: bold;
-    font-size: x-large;
-    font-variant: all-small-caps;
   }
 
   /*noinspection CssUnusedSymbol*/
