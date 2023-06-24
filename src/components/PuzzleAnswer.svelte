@@ -17,27 +17,14 @@
 </script>
 
 <style>
-  @media (max-width: 480px) {
-    fieldset {
-      flex-direction: column;
-    }
-  }
-
-  fieldset {
+  form {
     display: flex;
-  }
-
-  fieldset input[type=text] {
-    flex-grow: 1;
+    flex-direction: column;
+    gap: 10px;
   }
 </style>
 
-<section>
-  <form on:submit|preventDefault={submit}>
-    <fieldset>
-      <legend>Enter a guess</legend>
-      <input type="text" bind:value={guess} disabled={checking}>
-      <input type="submit" value="Submit" disabled={checking}>
-    </fieldset>
-  </form>
-</section>
+<form on:submit|preventDefault={submit}>
+  <input id="guess" type="text" bind:value={guess} disabled={checking} placeholder="Enter a guess...">
+  <input type="submit" value="Submit" disabled={checking}>
+</form>

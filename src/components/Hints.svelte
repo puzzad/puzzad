@@ -1,9 +1,17 @@
 <script lang="ts">
   import RandomText from '$components/RandomText.svelte'
   import {getGameClient} from '$lib/db'
+  import {createEventDispatcher} from 'svelte'
+
+  const dispatch = createEventDispatcher()
 
   export let gameCode = ''
   export let puzzleId = 0
+  let details: HTMLElement
+
+  export const close = () => {
+    details.removeAttribute('open')
+  }
 
   export const refresh = async () => {
     const gameClient = await getGameClient(gameCode)
@@ -25,6 +33,12 @@
     refresh()
   }
 
+  let opened = false
+
+  $: if (opened) {
+    dispatch('open')
+  }
+
   const hintMessages = [
     'Need a hint? Browse our extensive collection below!',
     'Not sure where to go? Try one of our finest hints!',
@@ -35,39 +49,15 @@
   ]
 </script>
 
-<style>
-  section {
-    position: relative;
-    border-top: 10px solid #333333;
-    border-bottom: 2px solid #333333;
-    background-color: rgba(51, 51, 51, .3);
-    padding: 0 0.7em;
+<style lang="scss">
+  details {
+    display: contents;
   }
 
-  section::before {
-    float: right;
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
-    padding: 5px 10px;
-    margin: 0 20px;
-    content: "💡 hints";
-    font-weight: bold;
-    font-variant: small-caps;
-    background-color: #333333;
-    color: white;
-  }
-
-  section h4 {
-    border-bottom: 2px solid #e3bc5e;
-    font-variant: small-caps;
-    text-transform: lowercase;
-    padding: 0;
-    margin: 0;
-    font-weight: bold;
-  }
-
-  div {
-    position: relative;
+  .container {
+    flex-shrink: 1;
+    max-height: 80vh;
+    overflow-y: auto;
   }
 
   div p.locked {
@@ -78,38 +68,42 @@
     transition: filter 1s;
   }
 
-  button {
-    display: block;
-    position: absolute;
-    top: 25%;
-    bottom: 25%;
-    left: 25%;
-    right: 25%;
-    width: 50%;
-    height: 50%;
-    text-align: center;
+  .hint {
+    display: grid;
+
+    * {
+      grid-column: 1;
+      grid-row: 1;
+      justify-self: center;
+      align-self: center;
+    }
+
+    button {
+      z-index: 10;
+    }
   }
 </style>
 
-<section>
-  <p>
+<details bind:open={opened} bind:this={details}>
+  <summary>
     <RandomText options={hintMessages}></RandomText>
-  </p>
-  {#each hints as hint (hint.id)}
-    <h4>{hint.title}</h4>
-    <div>
-      <p class="{hint.locked ? 'locked' : ''}">
+  </summary>
+  <div class="container">
+    {#each hints as hint (hint.id)}
+      <h4>{hint.title}</h4>
+      <div class="hint">
+        <p class="{hint.locked ? 'locked' : ''}">
+          {#if hint.locked}
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+            labore et dolore magna aliqua.
+          {:else}
+            {hint.message}
+          {/if}
+        </p>
         {#if hint.locked}
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-          labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-          laboris nisi ut aliquip ex ea commodo consequat.
-        {:else}
-          {hint.message}
+          <button on:click={() => request(hint.id)}>Reveal this hint</button>
         {/if}
-      </p>
-      {#if hint.locked}
-        <button on:click={() => request(hint.id)}>Reveal this hint</button>
-      {/if}
-    </div>
-  {/each}
-</section>
+      </div>
+    {/each}
+  </div>
+</details>
