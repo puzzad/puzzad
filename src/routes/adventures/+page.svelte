@@ -33,17 +33,19 @@
           isPublic="{game.adventures?.public}"
       />
     {/each}
-    <details>
-      <summary>{finishedGames.length} finished adventure{finishedGames.length === 1 ? '' : 's'}</summary>
-      {#each finishedGames as game}
-        <AdventureBanner
-            status="{game.status}"
-            adventureName='{game.adventures?.name ?? "Unknown"}'
-            code="{game.code}"
-            isPublic="{game.adventures?.public}"
-        />
-      {/each}
-    </details>
+    {#if finishedGames.length > 0}
+      <details>
+        <summary>{finishedGames.length} finished adventure{finishedGames.length === 1 ? '' : 's'}</summary>
+        {#each finishedGames as game}
+          <AdventureBanner
+              status="{game.status}"
+              adventureName='{game.adventures?.name ?? "Unknown"}'
+              code="{game.code}"
+              isPublic="{game.adventures?.public}"
+          />
+        {/each}
+      </details>
+    {/if}
   {/if}
 {:catch error}
   <Error error={error}></Error>
