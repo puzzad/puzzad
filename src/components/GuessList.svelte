@@ -88,6 +88,8 @@
         <p class="guess">{(guess.content === '*hint' && '💡 A hint was unlocked') || guess.content}</p>
         <p class="date">{guess.created_at}</p>
       </li>
+    {:else}
+      <p>You haven't guessed anything yet!</p>
     {/each}
   {:catch error}
     <Error error={error}/>
