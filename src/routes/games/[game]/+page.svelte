@@ -57,17 +57,6 @@
     padding: 0.5em;
   }
 
-  .stats {
-    border: 1px solid #333333;
-    border-radius: 15px;
-    padding: 1em 2em;
-    margin-top: 0;
-    text-align: center;
-  }
-
-  .stats h3 {
-    margin: 0;
-  }
 </style>
 
 {#await game}

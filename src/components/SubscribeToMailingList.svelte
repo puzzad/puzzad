@@ -65,38 +65,22 @@
   }
 </script>
 
-<style>
+<style lang="scss">
   a {
     font-size: small;
+    margin-bottom: 10px;
   }
 
   section {
-    border-radius: 15px;
-    padding: 1em;
-    margin: 0;
-    background-color: #39254D;
     display: flex;
     flex-direction: column;
-    align-items: center;
   }
 
   form {
-    display: contents;
-  }
-
-  h3 {
-    margin: 0;
-  }
-
-  p {
-    margin-bottom: 0;
-    text-align: center;
-  }
-
-  input, input[type=submit] {
-    margin: 1em 0 0 0;
-    width: 50%;
-    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
+    margin-top: 10px;
   }
 
   label {
@@ -132,7 +116,7 @@
         <a href="#" on:click|preventDefault={() => useAccount = false}>Want to use a different address?</a>
       {/if}
       {#if !useAccount}
-        <SvelteHcaptcha sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY} theme="dark"
+        <SvelteHcaptcha sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY}
                         on:success={captchaSuccess}
                         on:error={captchaFail}
                         on:expired={captchaFail}

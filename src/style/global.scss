@@ -193,3 +193,25 @@ form.basic {
     font-size: larger;
   }
 }
+
+table {
+  border-collapse: collapse;
+  border: 1px solid colours.$border;
+  margin: 10px 0;
+
+  th, td {
+    padding: 5px 10px;
+  }
+
+  th {
+    font-weight: bold;
+    text-align: left;
+    border-bottom: 1px solid colours.$border;
+    background-color: colours.$brand;
+    color: colours.$text-inverted;
+  }
+
+  tr:nth-child(even) {
+    background-color: colours.$border;
+  }
+}
