@@ -2,6 +2,7 @@ import {readable} from 'svelte/store'
 import type {Subscriber} from 'svelte/store'
 import {supabase} from '$lib/db'
 import {goto} from '$app/navigation'
+import {toasts} from 'svelte-toasts'
 
 export const isLoggedIn = readable<bool | null>(null, (set: Subscriber<bool | null>) => {
   supabase.auth.getSession().then(response => {
@@ -16,6 +17,12 @@ export const isLoggedIn = readable<bool | null>(null, (set: Subscriber<bool | nu
 export const logout = async () => {
   let {error} = await supabase.auth.signOut()
   if (!error) {
+    toasts.add({
+      title: 'Logged out',
+      description: 'You have been logged out.',
+      duration: 5000,
+      type: 'success',
+    })
     await goto('/')
   }
 }

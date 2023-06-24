@@ -1,12 +1,13 @@
 <script lang="ts">
   import '../../src/style/global.scss'
-  import {FlatToast, ToastContainer} from 'svelte-toasts'
+  import {ToastContainer} from 'svelte-toasts'
   import {title} from '$lib/title'
   import * as Sentry from '@sentry/svelte'
   import {BrowserTracing} from '@sentry/tracing'
   import {logout, isLoggedIn, isAdmin} from '$lib/auth'
   import Nav from '$components/Nav.svelte'
   import Footer from '$components/Footer.svelte'
+  import Toast from '$components/Toast.svelte'
 
   export const ssr = false
 
@@ -27,7 +28,7 @@
   <slot/>
 </main>
 <ToastContainer placement="bottom-right" theme="dark" let:data={data}>
-  <FlatToast {data}/>
+  <Toast type={data.type} title={data.title} message={data.description}/>
 </ToastContainer>
 
 <Footer isAdmin={$isAdmin}/>

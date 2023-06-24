@@ -5,6 +5,7 @@
   import Nav from '$components/Nav.svelte'
   import Spinner from '$components/Spinner.svelte'
   import Footer from '$components/Footer.svelte'
+  import Toast from '$components/Toast.svelte'
 
   title.set('Puzzad: Design System')
 </script>
@@ -305,4 +306,12 @@
   <h4>&lt;Footer isAdmin={"{true}"}}/&gt;</h4>
 
   <Footer isAdmin={true}/>
+
+  <h4>&lt;Toast type="success"/&gt;</h4>
+
+  <Toast type="success" title="Toast title" message="“Adventure is worthwhile in itself.” -- Amelia Earhart"/>
+
+  <h4>&lt;Toast type="error"/&gt;</h4>
+
+  <Toast type="error" title="Toast title" message="“Adventure is worthwhile in itself.” -- Amelia Earhart"/>
 </section>
