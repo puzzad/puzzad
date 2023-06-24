@@ -1,0 +1,195 @@
+@use "reset";
+
+@use "colours";
+@use "fonts";
+@use "puzzles";
+
+:root {
+  --small-space: 40px;
+  --large-space: 100px;
+
+  @media (max-width: 1200px) {
+    --small-space: 30px;
+    --large-space: 50px;
+  }
+
+  @media (max-width: 1000px) {
+    --small-space: 20px;
+    --large-space: 30px;
+  }
+
+  @media (max-width: 800px) {
+    --small-space: 10px;
+    --large-space: 20px;
+  }
+}
+
+body {
+  background-color: colours.$background;
+  font-family: fonts.$primary;
+  font-size: 20px;
+
+  min-width: 360px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  padding-top: var(--small-space);
+
+  // The content is wrapped in a <div> for weird sveltekit reasons.
+  & > div {
+    flex-grow: 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    main {
+      flex-grow: 1;
+    }
+
+    & > * {
+      margin-left: var(--large-space);
+      margin-right: var(--large-space);
+    }
+  }
+}
+
+a {
+  text-decoration: none;
+  color: colours.$link;
+  transition: color 100ms ease-in-out;
+
+  &:hover, &:focus {
+    color: colours.$link-active;
+  }
+}
+
+h2 {
+  font-family: fonts.$header;
+  font-weight: 800;
+  font-size: 2.4em;
+
+  margin: 30px 0;
+}
+
+h3 {
+  font-size: 1.8em;
+  line-height: 1em;
+
+  border-image-source: linear-gradient(90deg, colours.$brand 0%, colours.$brand 90%, transparent 100%);
+  border-bottom: 5px solid;
+  border-image-slice: 1;
+
+  margin: 20px 0;
+  padding: 0 5px;
+}
+
+h4 {
+  font-size: 1.6em;
+  line-height: 1em;
+
+  border-image-source: linear-gradient(90deg, colours.$border 0%, colours.$border 90%, transparent 100%);
+  border-bottom: 5px solid;
+  border-image-slice: 1;
+
+  padding: 0 5px;
+  margin: 15px 0;
+}
+
+h5 {
+  font-size: 1.4em;
+  line-height: 1em;
+
+  border-image-source: linear-gradient(90deg, colours.$border 0%, colours.$border 90%, transparent 100%);
+  border-bottom: 2px solid;
+  border-image-slice: 1;
+
+  padding: 0 5px;
+  margin: 10px 0;
+}
+
+h6 {
+  padding: 0 5px;
+  font-size: 1.2em;
+}
+
+p {
+  padding: 5px;
+}
+
+ul {
+  list-style-type: disc;
+  padding-left: 40px;
+}
+
+hr {
+  height: 1px;
+  border: 0;
+  border-top: 1px solid colours.$border;
+}
+
+input[type=text], input[type=password], input[type=number], input[type=email] {
+  border: 1px solid colours.$border;
+  border-radius: 5px;
+  padding: 8px;
+  font-family: fonts.$primary;
+  font-size: large;
+
+  &::placeholder {
+    color: colours.$text-secondary;
+  }
+
+  &:active, &:focus {
+    border-color: colours.$brand;
+    outline: none;
+  }
+}
+
+input[type=submit], button {
+  text-transform: uppercase;
+  padding: 8px 20px;
+  font-family: fonts.$header;
+  font-size: large;
+  font-weight: 800;
+  letter-spacing: 1px;
+
+  border: 1px solid colours.$brand;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 300ms ease-in-out;
+  background-color: colours.$background;
+  color: colours.$brand;
+
+  &:hover, &:active, &:focus {
+    background-color: colours.$brand;
+    color: colours.$text-inverted;
+  }
+}
+
+form.basic {
+  display: grid;
+  grid-template-columns: auto 1fr ;
+  grid-gap: 10px var(--small-space);
+  align-items: center;
+  justify-items: stretch;
+  padding: 5px;
+
+  @media (max-width: 500px) {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  button {
+    grid-column: 2;
+  }
+
+  label {
+    justify-self: right;
+    font-family: fonts.$header;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: larger;
+  }
+}

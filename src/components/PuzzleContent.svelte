@@ -8,6 +8,7 @@
   export let content = ''
 
   const embedRegex = /\$[^$]+?\$/g
+  const sectionRegex = /<section class="(.*?)">.*?<\/section>/gs
 
   let html = Promise.all([
     getGameClient(gameCode),
@@ -28,7 +29,16 @@
               }),
           ),
     ])
-  }).then(([content, ...urls]) => content.replace(embedRegex, () => urls.shift()))
+  }).then(([content, ...urls]) =>
+      content.replace(embedRegex, () => urls.shift())
+  ).then(content => {
+    let sections = {}
+    for (const match of content.matchAll(sectionRegex)) {
+      sections[match[1]] = (sections[match[1]] || '') + match[0]
+    }
+    console.log(sections)
+    content
+  })
 </script>
 
 {#await html}

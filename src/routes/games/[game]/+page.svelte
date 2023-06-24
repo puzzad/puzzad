@@ -73,9 +73,9 @@
 {#await game}
   <Spinner/>
 {:then gameData}
-  <h1>
+  <h2>
     <AdventureLogo name={gameData.adventures.name}></AdventureLogo>
-  </h1>
+  </h2>
   {#if gameData.status === 'EXPIRED'}
     <p>Congratulations! You finished the adventure!</p>
     <Certificate adventureName={gameData.adventures.name} teamName={data.game}

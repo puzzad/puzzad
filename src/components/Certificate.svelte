@@ -1,6 +1,6 @@
 <script lang="ts">
   import certificateFrame from '$assets/certificate-frame.webp'
-  import Spinner from './Spinner.svelte'
+  import Spinner from '$components/Spinner.svelte'
   import Error from './Error.svelte'
 
   export let teamName = ''

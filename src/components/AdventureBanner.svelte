@@ -11,23 +11,40 @@
   let backgroundUrl = adventureName &&
       supabase.storage.from('adventures').getPublicUrl(adventureName + '/background.jpg').data.publicUrl
 </script>
-<style>
+<style lang="scss">
+  @use "../style/colours";
+
   a {
     position: relative;
     display: block;
     height: 300px;
     margin: 50px 0;
-    border-radius: 10px;
-    border: 5px solid transparent;
+    border-radius: 20px;
+    border: 5px solid colours.$border;
     background-origin: border-box;
     background-clip: border-box;
-    transition: border-color .2s;
+    transition: border-color 200ms;
     overflow: clip;
-    overflow-clip-margin: 5px;
+    overflow-clip-margin: -5px;
+    max-width: 1024px;
   }
 
   a:hover {
-    border-color: #ccc;
+    border-color: colours.$brand;
+
+    .logo {
+      margin-left: 20px;
+      animation: logoUnsettle 0.5s linear;
+    }
+  }
+
+  @keyframes logoUnsettle {
+    0% {
+      margin-left: 0;
+    }
+    100% {
+      margin-left: 20px;
+    }
   }
 
   /*noinspection CssUnusedSymbol*/
@@ -57,8 +74,8 @@
   .expired::after {
     content: '';
     position: absolute;
-    bottom: 10%;
-    right: 10px;
+    bottom: 15%;
+    right: 15px;
     width: 40%;
     height: 50%;
     background-image: url('../assets/complete.png');
@@ -130,8 +147,8 @@
     position: absolute;
     right: -65px;
     bottom: -40px;
-    background-color: #265118;
-    color: white;
+    background-color: colours.$success;
+    color: colours.$text-inverted;
     width: 150px;
     height: 100px;
     text-align: center;

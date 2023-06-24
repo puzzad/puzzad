@@ -1,0 +1,18 @@
+@use "colours";
+@use "fonts";
+
+section.puzzle {
+  margin: var(--small-space) 0;
+}
+
+section.story p:first-child:first-letter {
+  font-size: 6em;
+  line-height: 1em;
+  float: left;
+  font-family: fonts.$header;
+  font-weight: bold;
+  color: colours.$brand;
+  padding-top: 10px;
+  padding-right: 3px;
+  padding-left: 3px;
+}

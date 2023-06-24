@@ -19,21 +19,25 @@
   ]
 </script>
 
-<style>
+<style lang="scss">
+  @use "../style/colours";
+
   blockquote {
     white-space: pre-line;
     font-size: xx-large;
     font-style: italic;
     border: 0;
-    background-color: #222222;
+    background-color: colours.$border;
     border-radius: 15px;
     padding: 1em;
-    margin: 0;
+    margin: var(--small-space) 0;
+    display: inline-block;
   }
 </style>
 
-<h2>You're logged in</h2>
-<p>There's not a lot we can show you here if you're already logged in. How about a joke?</p>
+<h2>You're already logged in</h2>
+<p>There's not a lot of point in looking at a login page if you're already logged in. How about a joke?</p>
 <blockquote>
   <RandomText options={jokes}></RandomText>
 </blockquote>
+<p>Now you're properly warmed up, you probably want to see about some <a href="/adventures">adventures</a>.</p>

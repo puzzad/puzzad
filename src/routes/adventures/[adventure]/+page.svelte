@@ -61,29 +61,26 @@
   }
 </script>
 
-<style>
-  @media (min-width: 480px) {
+<style lang="scss">
+  @use "../../../style/colours";
+
+  @media (min-width: 1000px) {
     div {
       display: grid;
       grid-template-columns: 60% auto;
       grid-gap: 2em;
     }
+
+    .sidebar {
+      border-left: 1px solid colours.$border;
+      padding-left: var(--small-space);
+    }
   }
 
-  .sidebar p, .sidebar h4 {
-    margin: 0.5em 0;
-    padding: 0.2em;
-  }
-
-  .sidebar p {
-    font-size: small;
-  }
-
-  .sidebar h4 {
-    font-size: medium;
-    border-image: linear-gradient(to right, #e3bc5e 0, #e3bc5e 50%, #222222 100%) 30 1;
-    border-bottom-width: 1px;
-    border-bottom-style: solid;
+  button {
+    width: 100%;
+    font-size: xx-large;
+    margin: var(--small-space) 0;
   }
 
   .sidebar h4 > :global(svg) {
@@ -91,16 +88,6 @@
     width: 0.8em;
     display: inline-block;
     vertical-align: baseline;
-  }
-
-  .description :global(p:first-of-type) {
-    margin-top: 0;
-  }
-
-  button {
-    width: 100%;
-    padding: 1em;
-    background-color: #3C8E2B;
   }
 </style>
 
@@ -117,7 +104,8 @@
         <Spinner></Spinner>
       {:else if $isLoggedIn}
         <button on:click={() => addAdventure(details)}>
-          Start this adventure for {details.price === 0 ? 'free' : '£' + details.price}</button>
+          Start this adventure for {details.price === 0 ? 'free' : '£' + details.price}
+        </button>
       {:else}
         <p>You must <a href="/login">login</a> before you can start an adventure.</p>
       {/if}

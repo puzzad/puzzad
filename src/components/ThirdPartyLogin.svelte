@@ -30,15 +30,13 @@
   }
 </script>
 
-<style>
+<style lang="scss">
+  @use "../style/colours";
+
   section {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    border-radius: 20px;
-    padding: 1em;
-    text-align: center;
-    background-color: #222222;
+    gap: var(--small-space);
   }
 
   .icon {
@@ -49,35 +47,23 @@
     margin-right: 0.5em;
   }
 
-  button {
-    display: block;
-    background-color: var(--links);
-    border: 0;
-    width: 100%;
-    color: black;
-    border-radius: 10px;
-    margin: 1em 0;
-    padding: 0.5em;
-  }
+  .socialicons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 
-  button:hover {
-    text-decoration: none;
-    filter: brightness(1.2);
+    button {
+      width: 100%;
+      max-width: 400px;
+    }
   }
 
   .disclaimer {
-    font-size: small;
-    color: #999999;
-  }
-
-  h3 {
-    margin-top: 0;
-    font-size: larger;
+    color: colours.$text-secondary;
   }
 </style>
 
 <section>
-  <h3>From another land?</h3>
   <p>
     Login with an external service:
   </p>

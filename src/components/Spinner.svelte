@@ -1,4 +1,6 @@
-<style>
+<style lang="scss">
+  @use '../style/colours';
+
   section {
     display: flex;
     justify-content: center;
@@ -19,8 +21,10 @@
     animation-play-state: inherit;
     font-size: 50px;
     padding: 50px 0;
-    /* sepia is 39 degrees, our accent colour is 42 degrees, so rotate by 3 */
-    filter: grayscale(100%) sepia(100%) hue-rotate(3deg) contrast(40%) saturate(400%);
+    user-select: none;
+    filter:
+        #{'grayscale(100%) contrast(1000%) invert()'}
+        colours.$filter-black-to-brand;
   }
 </style>
 <section>

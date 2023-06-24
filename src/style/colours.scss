@@ -1,0 +1,16 @@
+$interaction-lighten-amount: 20%;
+
+$brand: rgb(191, 54, 12);
+$background: rgb(241, 241, 241);
+$border: rgb(203, 203, 203);
+$text: rgb(11, 12, 12);
+$text-secondary: rgb(71, 72, 72);
+$text-inverted: $background;
+
+$error: rgb(164, 70, 63);
+$success: rgb(0, 112, 60);
+
+$link: rgb(29, 112, 184);
+$link-active: lighten($link, $interaction-lighten-amount);
+
+$filter-black-to-brand: #{'invert(24%) sepia(57%) saturate(2893%) hue-rotate(358deg) brightness(94%) contrast(93%)'};

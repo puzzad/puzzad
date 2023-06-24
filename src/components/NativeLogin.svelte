@@ -30,52 +30,27 @@
   }
 </script>
 
-<style>
-  h3 {
-    margin-top: 0;
-    font-size: larger;
-  }
-
+<style lang="scss">
   section {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    border: 1px solid #666666;
-    border-radius: 20px;
-    padding: 1em;
-    text-align: center;
+    gap: var(--small-space);
   }
 
-  input, button {
-    width: 100%;
-    height: 3em;
-    margin-bottom: 1em;
-  }
-
-  label {
-    text-transform: lowercase;
-    font-variant: small-caps;
-    text-align: left;
-    width: 100%;
-  }
-
-  form {
-    display: contents;
-  }
 </style>
 
 <section>
-  <h3>Puzzad native?</h3>
   <p>
     Login using your Puzzad account:
   </p>
-  <form on:submit|preventDefault={login}>
+  <form class="basic" on:submit|preventDefault={login}>
     <label for="email">E-mail</label>
     <input
         id="email"
         type="email"
         name="email"
         bind:value={email}
+        placeholder="puzzler@example.com"
         required
     />
     <label for="password">Password</label>
@@ -84,13 +59,12 @@
         type="password"
         name="password"
         bind:value={password}
+        placeholder="MySuperSecurePassword123!"
         required
     />
     <button type="submit">
       Login
     </button>
   </form>
-  <p class="signup">
-    Don't have a Puzzad account and don't want to use an external service? <a href="/signup">Sign up here!</a>
-  </p>
+  <p>Don't have a Puzzad account and don't want to use an external service? <a href="/signup">Sign up here!</a></p>
 </section>

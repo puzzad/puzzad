@@ -1,13 +1,13 @@
 <script>
   import {goto} from '$app/navigation'
   import {isAdmin} from '$lib/auth'
-  import {browser} from '$app/environment'
-
-  if (browser && !$isAdmin) {
-    goto('/')
-  }
+  import Spinner from '$components/Spinner.svelte'
 </script>
-{#if $isAdmin}
-  <h1>Admin Page</h1>
+
+{#if $isAdmin === null}
+  <Spinner></Spinner>
+{:else if $isAdmin === true}
   <slot />
+{:else}
+  {goto('/')}
 {/if}
