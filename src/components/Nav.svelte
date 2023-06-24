@@ -30,7 +30,7 @@
     @media (max-width: 1000px) {
       flex-direction: row;
       position: absolute;
-      bottom: -30px;
+      bottom: -35px;
       left: 0;
       right: 0;
       margin: 0;
