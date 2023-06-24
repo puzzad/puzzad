@@ -3,9 +3,6 @@
   import {title} from '$lib/title.ts'
   import preview from '$assets/preview.webp'
 
-  import DatabasePage from '$components/DatabasePage.svelte'
-  import StartAdventureCallout from '$components/StartAdventureCallout.svelte'
-
   let code = ''
 
   const handleGameCode = () => {
@@ -15,6 +12,38 @@
 </script>
 
 <style lang="scss">
+  @use "../style/colours";
+
+  .code {
+    display: grid;
+    grid-template-columns: 55% 45%;
+    padding: 3rem;
+    grid-column-gap: 3rem;
+
+    form {
+      max-width: 800px;
+      background-color: colours.$border;
+      border-radius: 10px;
+      box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+      padding: var(--large-space) var(--small-space);
+      display: flex;
+      flex-direction: column;
+      gap: var(--small-space);
+      align-items: stretch;
+      text-align: center;
+    }
+
+    h3 {
+      border-bottom: 0;
+    }
+
+    @media (max-width: 1200px) {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: var(--large-space);
+    }
+  }
+
   .hero {
     display: grid;
     grid-template-columns: 45% 55%;
@@ -22,28 +51,9 @@
     grid-column-gap: 3rem;
 
     @media (max-width: 1200px) {
-      grid-template-columns: 100%;
-    }
-
-    .blurb {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-
-      h2 {
-        font-family: var(--header-font);
-        font-size: var(--font-size-xxl);
-        margin-bottom: 0.7em;
-        white-space: pre-line;
-
-        @media (max-width: 1200px) {
-          white-space: normal;
-        }
-      }
-
-      p {
-        font-size: var(--font-size-xl);
-      }
+      gap: var(--large-space);
     }
 
     .preview {
@@ -57,14 +67,8 @@
       }
 
       button {
-        cursor: pointer;
-        background-color: var(--accent);
-        color: white;
-        border: 0;
-        border-radius: 0.5em;
-        font-size: var(--font-size-xl);
-        padding: 0.6em;
-        text-decoration: underline;
+        font-size: x-large;
+        padding: 1em;
         max-width: 80%;
         justify-self: center;
 
@@ -78,6 +82,28 @@
         }
       }
     }
+  }
+
+  .blurb {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  h2 {
+    font-size: xxx-large;
+    text-transform: uppercase;
+    margin-bottom: 0.7em;
+    white-space: pre-line;
+    line-height: 1em;
+
+    @media (max-width: 1200px) {
+      white-space: normal;
+    }
+  }
+
+  p {
+    font-size: x-large;
   }
 </style>
 
@@ -94,25 +120,29 @@
     </p>
   </div>
   <div class="preview">
-    <img src="{preview}" alt="Preview of several puzzles from Conspiracy: a picture of a fridge, a section of door mat, a ticket machine, and a locked book">
-    <button>
+    <img src="{preview}"
+         alt="Preview of several puzzles from Conspiracy: a fridge, a section of door mat, a ticket machine, and a locked book">
+    <button on:click={() => goto('/adventures/Conspiracy')}>
       Play &lsquo;Conspiracy&rsquo; for free now &raquo;
     </button>
   </div>
 </div>
 
-<!--<div id="container">-->
-<!--  <div id="hero">-->
-<!--    <StartAdventureCallout></StartAdventureCallout>-->
-<!--  </div>-->
-<!--  <section id="play">-->
-<!--    <h3>Got a game code?</h3>-->
-<!--    <form on:submit|preventDefault={handleGameCode}>-->
-<!--      <input type="text" placeholder="revolving-magenta-ocelot" bind:value={code}>-->
-<!--      <input type="submit" value="Play!">-->
-<!--    </form>-->
-<!--  </section>-->
-<!--  <section id="intro" class="text">-->
-<!--    <DatabasePage page="homepage"></DatabasePage>-->
-<!--  </section>-->
-<!--</div>-->
+<div class="code">
+  <form on:submit|preventDefault={handleGameCode}>
+    <h3>Got a game code?</h3>
+    <input type="text" placeholder="revolving-magenta-ocelot" bind:value={code}>
+    <input type="submit" value="Play!">
+  </form>
+  <div class="blurb">
+    <h2>
+      Help A Friend
+      On Their Adventure
+    </h2>
+    <p>
+      When you start a puzzle adventure, you get a unique game code like <code>revolving-magneta-ocelot</code>.
+      Share this code with your friends to let them join your adventure! You'll progress as a team, and be able
+      to see what one another are guessing in real time!
+    </p>
+  </div>
+</div>

@@ -72,6 +72,7 @@
     }
 
     .sidebar {
+      margin-top: 3em;
       border-left: 1px solid colours.$border;
       padding-left: var(--small-space);
     }
@@ -94,11 +95,11 @@
 {#await details}
   <Spinner/>
 {:then details}
-  <h2>
-    <AdventureLogo name={details.name}></AdventureLogo>
-  </h2>
   <div>
     <section class="description">
+      <h2>
+        <AdventureLogo name={details.name}></AdventureLogo>
+      </h2>
       {@html details.description}
       {#if $isLoggedIn === null}
         <Spinner></Spinner>
