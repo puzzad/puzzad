@@ -17,10 +17,6 @@
   .catch(_ => [])
 </script>
 <style>
-  section {
-    margin-left: calc(((90vw - 50rem )/ 2) * -1);
-    width: 90vw;
-  }
 </style>
 <section>
   <h2>Users</h2>

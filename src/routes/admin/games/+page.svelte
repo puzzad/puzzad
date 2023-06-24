@@ -17,18 +17,16 @@
   .then(data => data)
   .catch(_ => [])
 </script>
-<style>
-  section {
-    margin-left: calc(((90vw - 50rem )/ 2) * -1);
-    width: 90vw;
-  }
+<style lang="scss">
+  @use "../../../style/colours";
 
   tr.finished {
-    background-color: #0e3806;
+    background-color: colours.$success;
+    color: colours.$text-inverted;
   }
 
   tbody tr:nth-child(2n).finished {
-    background-color: #0b2f04;
+    background-color: darken(colours.$success, 5%);
   }
 </style>
 <section>
