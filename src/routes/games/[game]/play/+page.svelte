@@ -8,12 +8,35 @@
   import VictoryDialog from '$components/VictoryDialog.svelte'
   import {parsePuzzleContent} from '$lib/puzzle'
   import GuessList from '$components/GuessList.svelte'
+  import {onMount} from 'svelte'
 
-  let previousGuesses
   let hints
+  let root
   let solved = false
+  let details = []
 
   export let data
+
+  onMount(() => {
+    const observer = new MutationObserver(records => {
+      records.flatMap(r => Array.from(r.addedNodes.values())).filter(n => n.tagName === 'DETAILS').forEach(e => {
+        details.push(e)
+        e.addEventListener('toggle', () => {
+          if (e.open) {
+            details.forEach(d => {
+              if (d !== e) {
+                d.removeAttribute('open')
+              }
+            })
+          }
+        })
+      })
+    })
+
+    observer.observe(root, { subtree: true, childList: true })
+
+    return () => observer.disconnect()
+  })
 
   const load = async () =>
       getGameClient(data.game).
@@ -49,14 +72,6 @@
     reload()
   }
 
-  function handleHintsOpened() {
-    previousGuesses.removeAttribute('open')
-  }
-
-  let guessesOpened = false
-  $: if (guessesOpened) {
-    hints.close()
-  }
 </script>
 
 <style lang="scss">
@@ -117,42 +132,51 @@
       margin-top: 1em;
     }
   }
+
+  details.info[open] summary {
+    display: none;
+  }
 </style>
 
-{#await gameData}
-  <Spinner/>
-{:then gameData}
-  <h2>{gameData.adventure.name}: {gameData.title}</h2>
+<div id="root" bind:this={root}>
+  {#await gameData}
+    <Spinner/>
+  {:then gameData}
+    <h2>{gameData.adventure.name}: {gameData.title}</h2>
 
-  <div id="container">
-    <div id="main-content">
-      {@html gameData.sections.story || ''}
-      {@html gameData.sections.puzzle || ''}
-    </div>
-    <div id="sidebar">
-      {#if gameData.sections.tip}
-        <h3>Information</h3>
-        {@html gameData.sections.tip}
-        <hr>
-      {/if}
-      <h3>Guess</h3>
-      <PuzzleAnswer gameCode={data.game} puzzle={gameData.id}></PuzzleAnswer>
-      <details bind:open={guessesOpened} bind:this={previousGuesses}>
-        <summary>See previous guesses</summary>
-        <div class="guesses">
-          <GuessList game={data.game} puzzle={gameData.id} on:hint={() => {hints && hints.refresh()}}
-                     on:solve={() => {solved = true}}/>
+    <div id="container">
+      <div id="main-content">
+        {@html gameData.sections.story || ''}
+        {@html gameData.sections.puzzle || ''}
+      </div>
+      <div id="sidebar">
+        {#if gameData.sections.tip}
+          <h3>Information</h3>
+          <details open class="info">
+            <summary>Show information</summary>
+            {@html gameData.sections.tip}
+          </details>
+          <hr>
+        {/if}
+        <h3>Guess</h3>
+        <PuzzleAnswer gameCode={data.game} puzzle={gameData.id}></PuzzleAnswer>
+        <details>
+          <summary>See previous guesses</summary>
+          <div class="guesses">
+            <GuessList game={data.game} puzzle={gameData.id} on:hint={() => {hints && hints.refresh()}}
+                       on:solve={() => {solved = true}}/>
+          </div>
+        </details>
+        <h3>Hints</h3>
+        <div class="hints">
+          <Hints gameCode={data.game} puzzleId={gameData.id} bind:this={hints}></Hints>
         </div>
-      </details>
-      <h3>Hints</h3>
-      <div class="hints">
-        <Hints gameCode={data.game} puzzleId={gameData.id} bind:this={hints} on:open={handleHintsOpened}></Hints>
       </div>
     </div>
-  </div>
 
-  {#if solved}
-    <VictoryDialog game={data.game} finished={gameData.next === null} on:next={reload}></VictoryDialog>
-  {/if}
+    {#if solved}
+      <VictoryDialog game={data.game} finished={gameData.next === null} on:next={reload}></VictoryDialog>
+    {/if}
 
-{/await}
+  {/await}
+</div>

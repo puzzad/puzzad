@@ -1,17 +1,9 @@
 <script lang="ts">
   import RandomText from '$components/RandomText.svelte'
   import {getGameClient} from '$lib/db'
-  import {createEventDispatcher} from 'svelte'
-
-  const dispatch = createEventDispatcher()
 
   export let gameCode = ''
   export let puzzleId = 0
-  let details: HTMLElement
-
-  export const close = () => {
-    details.removeAttribute('open')
-  }
 
   export const refresh = async () => {
     const gameClient = await getGameClient(gameCode)
@@ -31,12 +23,6 @@
 
   $: if (gameCode && puzzleId) {
     refresh()
-  }
-
-  let opened = false
-
-  $: if (opened) {
-    dispatch('open')
   }
 
   const hintMessages = [
@@ -84,7 +70,7 @@
   }
 </style>
 
-<details bind:open={opened} bind:this={details}>
+<details>
   <summary>
     <RandomText options={hintMessages}></RandomText>
   </summary>
