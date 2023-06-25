@@ -55,6 +55,9 @@
     button {
       width: 100%;
       max-width: 400px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
       @media (max-width: 1000px) {
         max-width: 100%;
