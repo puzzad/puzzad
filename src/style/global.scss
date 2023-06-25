@@ -28,6 +28,7 @@ body {
   background-color: colours.$background;
   font-family: fonts.$primary;
   font-size: 20px;
+  color: colours.$text;
 
   min-width: 360px;
   min-height: 100vh;
@@ -131,6 +132,8 @@ hr {
 
 input[type=text], input[type=password], input[type=number], input[type=email] {
   border: 1px solid colours.$border;
+  background-color: colours.$background;
+  color: colours.$text;
   border-radius: 5px;
   padding: 8px;
   font-family: fonts.$primary;
@@ -163,7 +166,7 @@ input[type=submit], button {
 
   &:hover, &:active, &:focus {
     background-color: colours.$brand;
-    color: colours.$text-inverted;
+    color: colours.$text-on-brand;
   }
 }
 
@@ -208,7 +211,7 @@ table {
     text-align: left;
     border-bottom: 1px solid colours.$border;
     background-color: colours.$brand;
-    color: colours.$text-inverted;
+    color: colours.$text-on-brand;
   }
 
   tr:nth-child(even) {

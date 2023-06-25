@@ -48,6 +48,10 @@
     background-color: colours.$text-inverted;
   }
 
+  .colour-text-on-brand {
+    background-color: colours.$text-on-brand;
+  }
+
   .colour-error {
     background-color: colours.$error;
   }
@@ -115,7 +119,7 @@
       </td>
       <td>
         <h4>colours.$border</h4>
-        <p>Used for borders and dividers.</p>
+        <p>Used for borders, dividers, and backgrounds to secondary sections.</p>
       </td>
     </tr>
 
@@ -145,7 +149,17 @@
       </td>
       <td>
         <h4>colours.$text-inverted</h4>
-        <p>Used for text that's on a dark background (such as colours.$brand).</p>
+        <p>Used for text that's on a dark background (such as colours.$border).</p>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <div class="colour colour-text-on-brand"></div>
+      </td>
+      <td>
+        <h4>colours.$text-on-brand</h4>
+        <p>Used for text that's rendered on the brand colour.</p>
       </td>
     </tr>
 

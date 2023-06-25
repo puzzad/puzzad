@@ -1,16 +1,33 @@
-$interaction-lighten-amount: 20%;
-
 $brand: rgb(191, 54, 12);
-$background: rgb(241, 241, 241);
-$border: rgb(203, 203, 203);
-$text: rgb(11, 12, 12);
-$text-secondary: rgb(71, 72, 72);
+$background: var(--background);
+$border: var(--border);
+$text: var(--text);
+$text-secondary: var(--text-secondary);
 $text-inverted: $background;
+$text-on-brand: rgba(241, 241, 241);
 
 $error: rgb(164, 70, 63);
 $success: rgb(0, 112, 60);
 
-$link: rgb(29, 112, 184);
-$link-active: lighten($link, $interaction-lighten-amount);
+$link: var(--link);
+$link-active: var(--link-active);
 
 $filter-black-to-brand: #{'invert(24%) sepia(57%) saturate(2893%) hue-rotate(358deg) brightness(94%) contrast(93%)'};
+
+:root {
+  --background: rgb(241, 241, 241);
+  --border: rgb(203, 203, 203);
+  --text: rgb(11, 12, 12);
+  --text-secondary: rgb(71, 72, 72);
+  --link: rgb(29, 112, 184);
+  --link-active: rgb(87, 163, 229);
+
+  @media (prefers-color-scheme: dark) {
+    --background: rgb(40, 40, 44);
+    --border: rgb(70, 70, 75);
+    --text: rgb(241, 241, 241);
+    --text-secondary: rgb(190, 190, 190);
+    --link: rgb(68, 137, 197);
+    --link-active: rgb(146, 186, 221);
+  }
+}
