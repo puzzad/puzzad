@@ -130,7 +130,7 @@ hr {
   border-top: 1px solid colours.$border;
 }
 
-input[type=text], input[type=password], input[type=number], input[type=email] {
+input[type=text], input[type=password], input[type=number], input[type=email], textarea {
   border: 1px solid colours.$border;
   background-color: colours.$background;
   color: colours.$text;
@@ -167,6 +167,18 @@ input[type=submit], button {
   &:hover, &:active, &:focus {
     box-shadow: 0 0 15px colours.$brand;
   }
+
+  &:disabled {
+    border-color: transparent;
+    background-color: colours.$border;
+    color: colours.$text;
+    cursor: not-allowed;
+  }
+}
+
+textarea {
+  min-height: 200px;
+  resize: vertical;
 }
 
 form.basic {

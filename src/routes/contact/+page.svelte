@@ -59,21 +59,12 @@
   }
 </script>
 <style>
-  form {
-    display: grid;
-  }
-
-  input {
-    margin-bottom: 1em;
-  }
-
-  button {
-    margin-top: 1em;
-    margin-right: 0;
-  }
-
   section :global(iframe) {
     margin-top: 1em;
+  }
+
+  #captcha {
+    grid-column: 2;
   }
 </style>
 <section>
@@ -83,11 +74,11 @@
   {:else if success}
     <p>Your message has been sent</p>
   {:else}
-    <form method="POST" on:submit|preventDefault={handleSubmit}>
+    <form method="POST" class="basic" on:submit|preventDefault={handleSubmit}>
       <label for="name">Name
         {#if nameError}<span class="error">The name field is required</span>{/if}
       </label>
-      <input id="name" name="name" bind:value={name}/>
+      <input id="name" name="name" type="text" bind:value={name}/>
       {#if !loggedIn}
         <label for="email">Email
           {#if emailError}<span class="error">The email field is required</span>{/if}
@@ -99,13 +90,15 @@
       </label>
       <textarea id="message" name="message" bind:value={message}></textarea>
       {#if !loggedIn}
-        <SvelteHcaptcha sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY}
-                        theme="dark"
-                        reCaptchaCompa="false"
-                        on:success={captchaSuccess}
-                        on:error={captchaFail}
-                        on:expired={captchaFail}
-        />
+        <div id="captcha">
+          <SvelteHcaptcha sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY}
+                          theme="dark"
+                          reCaptchaCompa="false"
+                          on:success={captchaSuccess}
+                          on:error={captchaFail}
+                          on:expired={captchaFail}
+          />
+        </div>
       {/if}
       <button type="submit" disabled={!(loggedIn || captchaToken !== '')}>Submit</button>
     </form>
