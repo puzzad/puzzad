@@ -161,12 +161,11 @@ input[type=submit], button {
   border-radius: 5px;
   cursor: pointer;
   transition: all 300ms ease-in-out;
-  background-color: colours.$background;
-  color: colours.$brand;
+  background-color: colours.$brand;
+  color: colours.$text-on-brand;
 
   &:hover, &:active, &:focus {
-    background-color: colours.$brand;
-    color: colours.$text-on-brand;
+    box-shadow: 0 0 15px colours.$brand;
   }
 }
 
