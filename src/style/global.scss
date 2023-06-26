@@ -231,7 +231,7 @@ table {
 }
 
 code {
-  color: colours.$brand;
-  border: 1px solid colours.$border;
-  padding: 5px;
+  background-color: colours.$border;
+  padding: 0 10px;
+  margin: 0 5px;
 }

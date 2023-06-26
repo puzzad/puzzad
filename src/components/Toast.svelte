@@ -1,7 +1,7 @@
 <script>
-  export let type = 'success';
-  export let title = '';
-  export let message = '';
+  export let type = 'success'
+  export let title = ''
+  export let message = ''
 </script>
 
 <style lang="scss">
@@ -9,18 +9,18 @@
 
   div {
     border: 1px solid colours.$border;
-    width: 350px;
-    color: colours.$text-inverted;
+    min-width: 250px;
+    max-width: max(450px, 25vw);
+    color: colours.$text-on-brand;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: var(--small-space);
 
     h5 {
-      margin: var(--small-space) var(--small-space) 0 var(--small-space);
       padding: 0;
       border-bottom: none;
-    }
-
-    p {
-      padding: 10px var(--small-space) var(--small-space) var(--small-space);
     }
 
     &.success {
@@ -34,6 +34,6 @@
 </style>
 
 <div class="toast {type}">
-  <h5>{title}</h5>
+  {#if title}<h5>{title}</h5>{/if}
   <p>{message}</p>
 </div>
