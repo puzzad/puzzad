@@ -1,27 +1,30 @@
 <script lang="ts">
-  import {supabase} from '$lib/db'
   import {toasts} from 'svelte-toasts'
+  import {requestEmailVerification, signup} from '$lib/auth.ts'
 
   let email
   let password
 
   export const authAction = async () => {
-    let {error} = await supabase.auth.signUp({email, password})
-    if (error) {
-      toasts.add({
-        title: 'Error',
-        description: error.message,
-        duration: 10000,
-        type: 'error',
-      })
-    } else {
+    signup(email, password)
+    .then(user => requestEmailVerification(email))
+    .then(_ => {
       toasts.add({
         title: 'Success',
         description: 'An email has been sent to you for verification!',
         duration: 10000,
         type: 'success',
       })
-    }
+    })
+    .catch(error => {
+      console.log(error)
+      toasts.add({
+        title: 'Error',
+        description: error.message,
+        duration: 10000,
+        type: 'error',
+      })
+    })
   }
 </script>
 

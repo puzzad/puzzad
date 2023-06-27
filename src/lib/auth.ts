@@ -1,38 +1,41 @@
-import {readable} from 'svelte/store'
+import {get, readable, writable} from 'svelte/store'
 import type {Subscriber} from 'svelte/store'
-import {supabase} from '$lib/db'
-import {goto} from '$app/navigation'
-import {toasts} from 'svelte-toasts'
+import PocketBase, {Admin, Record} from 'pocketbase'
 
-export const isLoggedIn = readable<bool | null>(null, (set: Subscriber<bool | null>) => {
-  supabase.auth.getSession().then(response => {
-    set(response.data.session !== null)
-  })
-  const auth = supabase.auth.onAuthStateChange(async ({}, session) => {
-    set(session !== null)
-  })
-  return auth.data.subscription.unsubscribe
-})
+export const pb = new PocketBase(import.meta.env.VITE_SUPABASE_URL);
 
-export const logout = async () => {
-  let {error} = await supabase.auth.signOut()
-  if (!error) {
-    toasts.add({
-      title: 'Logged out',
-      description: 'You have been logged out.',
-      duration: 5000,
-      type: 'success',
-    })
-    await goto('/')
-  }
+export const currentUser = writable<Record | Admin | null>(pb.authStore.model);
+
+pb.authStore.onChange((token, model) => {
+  currentUser.set(model);
+}, true);
+
+export const loginNative = async (email, password) => {
+  return pb.collection("users").authWithPassword(email, password)
 }
 
-export const isAdmin = readable<bool | null>(null, (set: Subscriber<bool | null>) => {
-  supabase.auth.getSession().then(response => {
-    set(response.data.session !== null && response.data.session.user.email?.endsWith(import.meta.env.VITE_ADMIN_DOMAIN))
+export const loginOauth = async (provider) => {
+  return pb.collection("users").authWithOAuth2({provider: provider})
+}
+
+export const requestEmailVerification = async (email) => {
+  return pb.collection("users").requestVerification(email)
+}
+
+export const logout = async () => {
+  pb.authStore.clear()
+}
+
+export const signup = async(email, password) => {
+  pb.collection("users").create({
+    email: email,
+    password: password,
+    passwordConfirm: password,
   })
-  const auth = supabase.auth.onAuthStateChange(async ({}, session) => {
-    set(session !== null && session.user.email?.endsWith(import.meta.env.VITE_ADMIN_DOMAIN))
-  })
-  return auth.data.subscription.unsubscribe
+      .then(_ => login(email,password))
+      .catch(error => console.log(error))
+}
+
+export const isAdmin = readable<bool | null>(false, (set: Subscriber<bool | null>) => {
+  return set(pb.authStore.model instanceof Admin)
 })

@@ -1,11 +1,4 @@
-import {createClient, RealtimeClient, SupabaseClient} from '@supabase/supabase-js'
 import type {Database} from './schema'
-import {decodeJWTPayload} from '@supabase/gotrue-js/src/lib/helpers'
-
-export const supabase = createClient<Database>(
-    import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.VITE_SUPABASE_ANON_KEY,
-)
 
 export async function getGameClient(gameCode: string): Promise<SupabaseClient<Database>> {
   return createClient<Database>(

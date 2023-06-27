@@ -2,16 +2,14 @@
   import FaGoogle from 'svelte-icons/fa/FaGoogle.svelte'
   import FaDiscord from 'svelte-icons/fa/FaDiscord.svelte'
   import FaTwitch from 'svelte-icons/fa/FaTwitch.svelte'
-  import {supabase} from '$lib/db'
   import {toasts} from 'svelte-toasts'
   import {goto} from '$app/navigation'
+  import {loginOauth} from '$lib/auth.ts'
 
   const handleOauthLogin = async (name) => {
-    supabase.auth.signInWithOAuth({provider: name})
+    loginOauth(name)
     .then(response => {
-      if (response.error) {
-        return Promise.reject(response.error)
-      }
+      console.log(response)
       toasts.add({
         title: 'Success',
         description: 'Login success.',

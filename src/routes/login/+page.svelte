@@ -3,7 +3,7 @@
   import NativeLogin from '$components/NativeLogin.svelte'
   import AlreadyLoggedIn from '$components/AlreadyLoggedIn.svelte'
   import Spinner from '$components/Spinner.svelte'
-  import {isLoggedIn} from '$lib/auth'
+  import {currentUser} from '$lib/auth'
   import {title} from '$lib/title'
 
   title.set('Puzzad: Login')
@@ -44,10 +44,7 @@
     }
   }
 </style>
-
-{#if $isLoggedIn === null}
-  <Spinner></Spinner>
-{:else if !$isLoggedIn}
+{#if !$currentUser}
   <h2>Login</h2>
   <div id="root">
     <div id="left"><ThirdPartyLogin></ThirdPartyLogin></div>

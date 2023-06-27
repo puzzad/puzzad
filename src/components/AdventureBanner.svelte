@@ -1,6 +1,6 @@
 <script lang="ts">
-  import {supabase} from '$lib/db'
   import AdventureLogo from '$components/AdventureLogo.svelte'
+  import {pb} from '$lib/auth.ts'
 
   export let adventureName
   export let code
@@ -8,8 +8,10 @@
   export let isPublic = true
   export let price = null
 
-  let backgroundUrl = adventureName &&
-      supabase.storage.from('adventures').getPublicUrl(adventureName + '/background.jpg').data.publicUrl
+  let backgroundUrl = pb.collection('adventures').getFirstListItem('name=\'test\'')
+  .then(response => {
+    return pb.files.getUrl(response, response.background)
+  })
 </script>
 <style lang="scss">
   @use "../style/colours";
@@ -156,19 +158,22 @@
     font-size: x-large;
   }
 </style>
-<a class="{status.toLowerCase()}"
-   style="background-image: url('{backgroundUrl}')"
-   href="{code ? '/games/' + code : '/adventures/' + adventureName}">
-  <div class="logo">
-    <AdventureLogo bind:name={adventureName}></AdventureLogo>
-  </div>
-  {#if code}
-    <code>{code}</code>
-  {/if}
-  {#if !isPublic}
-    <div class="admin">ADMIN ONLY</div>
-  {/if}
-  {#if price !== null}
-    <div class="price">{price === 0 ? 'Free!' : '£' + price}</div>
-  {/if}
-</a>
+{#await backgroundUrl}
+{:then backgroundUrl}
+  <a class="{status.toLowerCase()}"
+     style="background-image: url('{backgroundUrl}')"
+     href="{code ? '/games/' + code : '/adventures/' + adventureName}">
+    <div class="logo">
+      <AdventureLogo bind:name={adventureName}></AdventureLogo>
+    </div>
+    {#if code}
+      <code>{code}</code>
+    {/if}
+    {#if !isPublic}
+      <div class="admin">ADMIN ONLY</div>
+    {/if}
+    {#if price !== null}
+      <div class="price">{price === 0 ? 'Free!' : '£' + price}</div>
+    {/if}
+  </a>
+{/await}
