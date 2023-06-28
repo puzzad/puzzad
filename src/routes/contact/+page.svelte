@@ -10,10 +10,10 @@
   let name, nameError, email, emailError, message, messageError, success, captchaToken = '', supabaseToken, loggedIn
   let loading = false
   const handleSubmit = () => {
-    fetch(import.meta.env.VITE_SUPABASE_URL + '/mail/contact', {
+    fetch(import.meta.env.VITE_SUPABASE_URL + 'mail/contact', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + supabaseToken,
+        'Authorization': 'Bearer ' + pb.authStore.token,
         'Content-Type': 'Application/json',
       },
       body: JSON.stringify({
