@@ -1,9 +1,9 @@
 <script lang="ts">
-  import {supabase} from '$lib/db.ts'
   import SvelteHcaptcha from 'svelte-hcaptcha'
   import Spinner from '$components/Spinner.svelte'
   import {toasts} from 'svelte-toasts'
   import {title} from '$lib/title'
+  import {currentUser, pb} from '$lib/auth.ts'
 
   title.set('Puzzad: Contact')
 
@@ -41,16 +41,14 @@
       })
     })
   }
-  supabase.auth.getSession().then(response => {
-    if (response.data.session && response.data.session.user.email) {
-      loggedIn = true
-      email = response.data.session.user.email
-      supabaseToken = response.data.session.access_token
-    } else {
-      loggedIn = false
-    }
-    loading = false
-  })
+  console.log($currentUser)
+  if ($currentUser) {
+    loggedIn = true
+    email = $currentUser?.email ?? ""
+    supabaseToken = pb.authStore.token
+  } else {
+    loggedIn = false
+  }
   const captchaSuccess = (token) => {
     captchaToken = token.detail.token
   }
@@ -79,7 +77,7 @@
         {#if nameError}<span class="error">The name field is required</span>{/if}
       </label>
       <input id="name" name="name" type="text" bind:value={name}/>
-      {#if !loggedIn}
+      {#if !loggedIn || email===""}
         <label for="email">Email
           {#if emailError}<span class="error">The email field is required</span>{/if}
         </label>
