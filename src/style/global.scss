@@ -235,3 +235,20 @@ code {
   padding: 0 10px;
   margin: 0 5px;
 }
+
+blockquote {
+  border: 5px solid colours.$border;
+  border-radius: 5px;
+  padding: 0.5em;
+  color: colours.$brand;
+  font-size: xx-large;
+  white-space: pre-line;
+  font-style: italic;
+  text-align: center;
+
+  .attribution {
+    display: block;
+    text-align: right;
+    font-size: large;
+  }
+}

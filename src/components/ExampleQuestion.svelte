@@ -3,6 +3,7 @@
   import {toasts} from 'svelte-toasts'
 
   export let answer: string
+  export let header = true
 
   let guess = ''
   let correct = false
@@ -25,6 +26,7 @@
   aside {
     display: flex;
     flex-direction: column;
+    max-width: 1200px;
 
     @media (min-width: 1000px) {
       flex-direction: row;
@@ -37,7 +39,7 @@
       }
     }
 
-    div {
+    h4 + div {
       @media (min-width: 1000px) {
         text-align: center;
         border-left: 1px solid colours.$border;
@@ -58,7 +60,9 @@
 </style>
 
 <aside>
-  <h4>Example</h4>
+  {#if header}
+    <h4>Example</h4>
+  {/if}
   <div>
     <slot/>
     <form on:submit|preventDefault={handleGuess}>
