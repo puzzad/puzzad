@@ -5,8 +5,8 @@
   import {pb} from '$lib/auth.ts'
   import AdventureBanner from '$components/AdventureBanner.svelte'
 
-  let adventures = pb.collection("adventures").getList().then(response => response.items)
-  let games = pb.collection("games").getList().then(response => response.items)
+  let adventures = pb.collection("adventures").getList(1, 50).then(response => response.items)
+  let games = pb.collection("games").getList(1, 50, {expand: "adventure"}).then(response => response.items)
 
   title.set('Puzzad: Adventures')
 </script>
@@ -21,9 +21,9 @@
     {#each activeGames as game}
       <AdventureBanner
           status="{game.status}"
-          adventureName='{game.adventures?.name ?? "Unknown"}'
+          adventureName='{game.expand.adventure?.name ?? "Unknown"}'
           code="{game.code}"
-          isPublic="{game.adventures?.public}"
+          isPublic="{game.expand.adventure?.public}"
       />
     {/each}
     {#if finishedGames.length > 0}

@@ -11,9 +11,8 @@
   import Spinner from '$components/Spinner.svelte'
   import AdventureLogo from '$components/AdventureLogo.svelte'
   import Error from '$components/Error.svelte'
-  import {supabase} from '$lib/db'
+  import {currentUser, pb} from '$lib/auth'
   import {title} from '$lib/title'
-  import {isLoggedIn} from '$lib/auth'
 
   export let data
 
@@ -28,23 +27,12 @@
     ['Accessibility: motion', FaVideo, (f) => f.accessibility.motion],
   ]
 
-  let details = supabase.from('adventures').
-      select(`id,name,description,price,features`).
-      eq('name', data.adventure).
-      throwOnError().
-      single().
-      then(({data}) => {
+  let details = pb.collection("adventures").getFirstListItem("name='"+data.adventure+"'").then((data) => {
         title.set('Puzzad: ' + data.name)
+    data.displayFeatures = []
         data.displayFeatures = features.
             map(([name, comp, value]) => [name, comp, value(data.features)]).
             filter(([name, comp, value]) => value !== undefined)
-        data.description = data.description.replace(
-            /\$(.*?)\$/g,
-            (r, g) => supabase.storage.
-                from('adventures').
-                getPublicUrl(data.name + '/' + g).
-                data.publicUrl,
-        )
         return data
       }).catch(_ => {
         return goto(`/adventures`)
@@ -52,11 +40,21 @@
 
   const addAdventure = async (details) => {
     if (details.price === 0) {
-      let {data, error} = await supabase.rpc('addfreeadventure', {adventureid: details.id})
-      console.log(error)
-      if (data) {
-        await goto(`/games/${data}`)
-      }
+      fetch(import.meta.env.VITE_SUPABASE_URL+"adventure/" + details.id + "/start", {
+        method: "POST",
+        headers: {
+          'Authorization': pb.authStore.token
+        }
+      })
+          .then(response => {
+            if (response.ok) {
+              return response.json()
+            } else {
+              return Promise.reject("Bad server response")
+            }
+      })
+      .then(body => goto(`/games/`+body.code))
+          .catch(error => console.log(error))
     }
   }
 </script>
@@ -101,9 +99,7 @@
         <AdventureLogo name={details.name}></AdventureLogo>
       </h2>
       {@html details.description}
-      {#if $isLoggedIn === null}
-        <Spinner></Spinner>
-      {:else if $isLoggedIn}
+      {#if $currentUser}
         <button on:click={() => addAdventure(details)}>
           Start this adventure for {details.price === 0 ? 'free' : '£' + details.price}
         </button>

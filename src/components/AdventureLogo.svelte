@@ -3,7 +3,7 @@
 
   export let name = ''
 
-  let logoURL = pb.collection('adventures').getFirstListItem('name=\'test\'')
+  let logoURL = pb.collection('adventures').getFirstListItem('name=\''+name+'\'')
   .then(response => {
     return pb.files.getUrl(response, response.logo)
   })

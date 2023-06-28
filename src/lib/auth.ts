@@ -3,6 +3,7 @@ import type {Subscriber} from 'svelte/store'
 import PocketBase, {Admin, Record} from 'pocketbase'
 
 export const pb = new PocketBase(import.meta.env.VITE_SUPABASE_URL);
+pb.autoCancellation(false);
 
 export const currentUser = writable<Record | Admin | null>(pb.authStore.model);
 

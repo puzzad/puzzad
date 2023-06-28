@@ -8,7 +8,7 @@
   export let isPublic = true
   export let price = null
 
-  let backgroundUrl = pb.collection('adventures').getFirstListItem('name=\'test\'')
+  let backgroundUrl = pb.collection('adventures').getFirstListItem('name=\''+adventureName+'\'')
   .then(response => {
     return pb.files.getUrl(response, response.background)
   })
