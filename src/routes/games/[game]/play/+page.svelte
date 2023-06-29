@@ -4,6 +4,8 @@
   import {parsePuzzleContent} from '$lib/puzzle'
   import {onMount} from 'svelte'
   import {pb} from '$lib/auth.ts'
+  import {goto} from '$app/navigation'
+  import PuzzleAnswer from '$components/PuzzleAnswer.svelte'
 
   let hints
   let root
@@ -36,15 +38,10 @@
   const load = async () =>
       pb.collection("games").getFirstListItem("code='"+data.game+"'", {expand: "adventure,puzzle"})
       .then((gameData) => {
-        console.log(gameData)
             title.set(`Puzzad: ${gameData.expand.adventure.name}: ${gameData.expand.puzzle.title}`)
             return gameData
           })
-      .then(gameData => {
-        console.log(gameData)
-        return gameData
-          })
-          //.catch(() => goto(`/games/${data.game}`))
+          .catch(() => goto(`/games/${data.game}`))
 
   const reload = () => {
     solved = false
@@ -127,24 +124,24 @@
   {#await gameData}
     <Spinner/>
   {:then gameData}
-    <h2>{gameData.adventure.name}: {gameData.title}</h2>
+    <h2>{gameData.expand.adventure.name}: {gameData.expand.puzzle.title}</h2>
 
     <div id="container">
       <div id="main-content">
-        {@html gameData.sections.story || ''}
-        {@html gameData.sections.puzzle || ''}
+        {@html gameData.expand.puzzle.story || ''}
+        {@html gameData.expand.puzzle.puzzle || ''}
       </div>
       <div id="sidebar">
-        {#if gameData.sections.tip}
+        {#if gameData.expand.puzzle.information}
           <h3>Information</h3>
           <details open class="info">
             <summary>Show information</summary>
-            {@html gameData.sections.tip}
+            {@html gameData.expand.puzzle.information}
           </details>
           <hr>
         {/if}
         <h3>Guess</h3>
-<!--        <PuzzleAnswer gameCode={data.game} puzzle={gameData.id}></PuzzleAnswer>-->
+        <PuzzleAnswer gameID={gameData.id} puzzle={gameData.expand.puzzle.id}></PuzzleAnswer>
         <details>
           <summary>See previous guesses</summary>
           <div class="guesses">
