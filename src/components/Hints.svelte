@@ -1,6 +1,5 @@
 <script lang="ts">
   import RandomText from '$components/RandomText.svelte'
-  import {getGameClient} from '$lib/db'
 
   export let gameCode = ''
   export let puzzleId = 0

@@ -1,7 +1,5 @@
 <script lang="ts">
-  import {getGameClient} from '$lib/db'
-  import {pb} from '$lib/auth.ts'
-
+  export let gameClient
   export let puzzle = 0
   export let gameID = ''
 
@@ -10,7 +8,7 @@
 
   const submit = async () => {
     checking = true
-    pb.collection("guesses").create({content: guess, puzzle: puzzle, game: gameID})
+    gameClient.collection("guesses").create({content: guess, puzzle: puzzle, game: gameID})
         .then(() => guess = '')
         .finally(() => checking = false)
   }

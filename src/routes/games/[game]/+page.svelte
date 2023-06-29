@@ -3,14 +3,14 @@
   import AdventureLogo from '$components/AdventureLogo.svelte'
   import {formatDuration} from '$lib/time'
   import Spinner from '$components/Spinner.svelte'
-  import {title} from '$lib/title.ts'
+  import {title} from '$lib/title'
   import Error from '$components/Error.svelte'
   import Certificate from '$components/Certificate.svelte'
-  import {pb} from '$lib/auth.ts'
+  import {client} from '$lib/api'
 
   export let data
 
-  let game = pb.collection("games").getFirstListItem("code='"+data.game+"'", {expand: "adventure"})
+  let game = client.collection("games").getFirstListItem("code='"+data.game+"'", {expand: "adventure"})
       .then((game) => {
         title.set(`Puzzad: ${game.expand.adventure.name} - ${data.game}`)
         return game

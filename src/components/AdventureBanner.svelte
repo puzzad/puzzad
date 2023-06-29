@@ -1,6 +1,6 @@
 <script lang="ts">
   import AdventureLogo from '$components/AdventureLogo.svelte'
-  import {pb} from '$lib/auth.ts'
+  import {client} from '$lib/api'
 
   export let adventureName
   export let code
@@ -8,9 +8,9 @@
   export let isPublic = true
   export let price = null
 
-  let backgroundUrl = pb.collection('adventures').getFirstListItem('name=\''+adventureName+'\'')
+  let backgroundUrl = client.collection('adventures').getFirstListItem('name=\''+adventureName+'\'')
   .then(response => {
-    return pb.files.getUrl(response, response.background)
+    return client.files.getUrl(response, response.background)
   })
 </script>
 <style lang="scss">

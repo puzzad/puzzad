@@ -1,11 +1,11 @@
 <script lang="ts">
-  import {pb} from '$lib/auth'
+  import {client} from '$lib/api'
 
   export let name = ''
 
-  let logoURL = pb.collection('adventures').getFirstListItem('name=\''+name+'\'')
+  let logoURL = client.collection('adventures').getFirstListItem('name=\''+name+'\'')
   .then(response => {
-    return pb.files.getUrl(response, response.logo)
+    return client.files.getUrl(response, response.logo)
   })
 </script>
 

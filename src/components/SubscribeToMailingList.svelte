@@ -1,5 +1,4 @@
 <script lang="ts">
-  import {supabase} from '$lib/db'
   import Spinner from '$components/Spinner.svelte'
   import SvelteHcaptcha from 'svelte-hcaptcha'
   import {toasts} from 'svelte-toasts'

@@ -1,34 +1,21 @@
 <script lang="ts">
   import {toasts} from 'svelte-toasts'
-  import {getGameClient, getRealTimeClient, supabase} from '$lib/db'
-  import {onDestroy, onMount} from 'svelte'
+  import {onMount} from 'svelte'
   import {createEventDispatcher} from 'svelte'
   import Error from '$components/Error.svelte'
   import Spinner from '$components/Spinner.svelte'
 
-  let realTimeClient
   const dispatch = createEventDispatcher()
 
-  export let game
-  export let puzzle
+  export let gameClient
 
   onMount(async () => {
-    realTimeClient = await getRealTimeClient(game)
-    await realTimeClient.channel('public:guesses:game=eq.' + game).on('postgres_changes', {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'guesses',
-      filter: 'game=eq.' + game,
-    }, handleStreamedGuess).subscribe()
-  })
-
-  onDestroy(function() {
-    if (realTimeClient) {
-      realTimeClient.disconnect()
-    }
+    let unsub = await gameClient.collection('guesses').subscribe('*', handleStreamedGuess)
+    return () => unsub()
   })
 
   const handleStreamedGuess = function(payload) {
+    console.log(payload)
     newGuesses = newGuesses.concat(payload.record)
     if (payload.record.content === '*hint') {
       dispatch('hint')
@@ -44,14 +31,9 @@
     }
   }
 
-  let previousGuesses = getGameClient(game).
-      then((gc) => gc.from('guesses').
-          select('id,created_at,content,correct').
-          eq('game', game).
-          eq('puzzle', puzzle).
-          order('created_at', {ascending: true}).
-          throwOnError()).
-      then(({data}) => data)
+  let previousGuesses = gameClient.collection('guesses').
+          getList(1, 50, {sort: 'created'}).
+          then(({items}) => items)
 
   let newGuesses = []
 </script>
@@ -86,7 +68,7 @@
     {#each previousGuesses.concat(newGuesses) as guess (guess.id)}
       <li class="{(guess.content === '*hint' && 'hint') || (guess.correct && 'correct') || 'wrong'}">
         <p class="guess">{(guess.content === '*hint' && '💡 A hint was unlocked') || guess.content}</p>
-        <p class="date">{guess.created_at}</p>
+        <p class="date">{guess.created}</p>
       </li>
     {:else}
       <p>You haven't guessed anything yet!</p>

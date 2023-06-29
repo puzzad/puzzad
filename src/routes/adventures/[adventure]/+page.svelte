@@ -11,7 +11,7 @@
   import Spinner from '$components/Spinner.svelte'
   import AdventureLogo from '$components/AdventureLogo.svelte'
   import Error from '$components/Error.svelte'
-  import {currentUser, pb} from '$lib/auth'
+  import {currentUser, client} from '$lib/api'
   import {title} from '$lib/title'
 
   export let data
@@ -27,12 +27,12 @@
     ['Accessibility: motion', FaVideo, (f) => f.accessibility.motion],
   ]
 
-  let details = pb.collection("adventures").getFirstListItem("name='"+data.adventure+"'").then((data) => {
+  let details = client.collection("adventures").getFirstListItem("name='"+data.adventure+"'").then((data) => {
         title.set('Puzzad: ' + data.name)
     data.displayFeatures = []
         data.displayFeatures = features.
             map(([name, comp, value]) => [name, comp, value(data.features)]).
-            filter(([name, comp, value]) => value !== undefined)
+            filter(([, , value]) => value !== undefined)
         return data
       }).catch(_ => {
         return goto(`/adventures`)
@@ -43,7 +43,7 @@
       fetch(import.meta.env.VITE_SUPABASE_URL+"adventure/" + details.id + "/start", {
         method: "POST",
         headers: {
-          'Authorization': pb.authStore.token
+          'Authorization': client.authStore.token
         }
       })
           .then(response => {

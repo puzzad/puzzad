@@ -4,7 +4,7 @@
   import FaTwitch from 'svelte-icons/fa/FaTwitch.svelte'
   import {toasts} from 'svelte-toasts'
   import {goto} from '$app/navigation'
-  import {loginOauth} from '$lib/auth.ts'
+  import {loginOauth} from '$lib/api'
 
   const handleOauthLogin = async (name) => {
     loginOauth(name)

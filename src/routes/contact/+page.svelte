@@ -3,17 +3,17 @@
   import Spinner from '$components/Spinner.svelte'
   import {toasts} from 'svelte-toasts'
   import {title} from '$lib/title'
-  import {currentUser, pb} from '$lib/auth.ts'
+  import {currentUser, client} from '$lib/api'
 
   title.set('Puzzad: Contact')
 
-  let name, nameError, email, emailError, message, messageError, success, captchaToken = '', supabaseToken, loggedIn
+  let name, nameError, email, emailError, message, messageError, success, captchaToken = '', loggedIn
   let loading = false
   const handleSubmit = () => {
     fetch(import.meta.env.VITE_SUPABASE_URL + 'mail/contact', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + pb.authStore.token,
+        'Authorization': 'Bearer ' + client.authStore.token,
         'Content-Type': 'Application/json',
       },
       body: JSON.stringify({
@@ -45,7 +45,6 @@
   if ($currentUser) {
     loggedIn = true
     email = $currentUser?.email ?? ""
-    supabaseToken = pb.authStore.token
   } else {
     loggedIn = false
   }

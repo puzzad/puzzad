@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {loginNative} from '$lib/auth'
+  import {loginNative} from '$lib/api'
   import {toasts} from 'svelte-toasts'
 
   let email

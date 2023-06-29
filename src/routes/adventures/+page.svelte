@@ -2,11 +2,11 @@
   import Spinner from '$components/Spinner.svelte'
   import {title} from '$lib/title'
   import Error from '$components/Error.svelte'
-  import {pb} from '$lib/auth.ts'
+  import {client} from '$lib/api'
   import AdventureBanner from '$components/AdventureBanner.svelte'
 
-  let adventures = pb.collection("adventures").getList(1, 50).then(response => response.items)
-  let games = pb.collection("games").getList(1, 50, {expand: "adventure"}).then(response => response.items)
+  let adventures = client.collection("adventures").getList(1, 50).then(response => response.items)
+  let games = client.collection("games").getList(1, 50, {expand: "adventure"}).then(response => response.items)
 
   title.set('Puzzad: Adventures')
 </script>

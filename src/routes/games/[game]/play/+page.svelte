@@ -1,11 +1,11 @@
 <script lang="ts">
   import Spinner from '$components/Spinner.svelte'
   import {title} from '$lib/title'
-  import {parsePuzzleContent} from '$lib/puzzle'
   import {onMount} from 'svelte'
-  import {pb} from '$lib/auth.ts'
+  import {getGameClient} from '$lib/api.ts'
   import {goto} from '$app/navigation'
   import PuzzleAnswer from '$components/PuzzleAnswer.svelte'
+  import GuessList from '$components/GuessList.svelte'
 
   let hints
   let root
@@ -35,13 +35,17 @@
     return () => observer.disconnect()
   })
 
-  const load = async () =>
-      pb.collection("games").getFirstListItem("code='"+data.game+"'", {expand: "adventure,puzzle"})
-      .then((gameData) => {
-            title.set(`Puzzad: ${gameData.expand.adventure.name}: ${gameData.expand.puzzle.title}`)
-            return gameData
-          })
-          .catch(() => goto(`/games/${data.game}`))
+  const load = async () => {
+    let gameClient = await getGameClient(data.game)
+    return await gameClient.collection("games").
+        getList(1, 1, {expand: "adventure,puzzle"}).
+        then(({items}) => items[0]).
+        then((gameData) => {
+          title.set(`Puzzad: ${gameData.expand.adventure.name}: ${gameData.expand.puzzle.title}`)
+          gameData.client = gameClient
+          return gameData
+        })
+  }
 
   const reload = () => {
     solved = false
@@ -141,12 +145,12 @@
           <hr>
         {/if}
         <h3>Guess</h3>
-        <PuzzleAnswer gameID={gameData.id} puzzle={gameData.expand.puzzle.id}></PuzzleAnswer>
+        <PuzzleAnswer gameClient={gameData.client} gameID={gameData.id} puzzle={gameData.expand.puzzle.id}></PuzzleAnswer>
         <details>
           <summary>See previous guesses</summary>
           <div class="guesses">
-<!--            <GuessList game={data.game} puzzle={gameData.id} on:hint={() => {hints && hints.refresh()}}-->
-<!--                       on:solve={() => {solved = true}}/>-->
+            <GuessList gameClient={gameData.client} on:hint={() => {hints && hints.refresh()}}
+                       on:solve={() => {solved = true}}/>
           </div>
         </details>
         <h3>Hints</h3>

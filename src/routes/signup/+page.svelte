@@ -1,6 +1,6 @@
 <script lang="ts">
   import {title} from '$lib/title'
-  import {currentUser} from '$lib/auth'
+  import {currentUser} from '$lib/api'
   import SignUp from '$components/SignUp.svelte'
   import AlreadyLoggedIn from '$components/AlreadyLoggedIn.svelte'
 

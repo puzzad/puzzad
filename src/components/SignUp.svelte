@@ -1,6 +1,6 @@
 <script lang="ts">
   import {toasts} from 'svelte-toasts'
-  import {requestEmailVerification, signup} from '$lib/auth.ts'
+  import {requestEmailVerification, signup} from '$lib/api'
 
   let email
   let password
