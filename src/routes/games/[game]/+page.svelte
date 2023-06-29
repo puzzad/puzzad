@@ -1,33 +1,27 @@
 <script lang="ts">
   import {goto} from '$app/navigation'
   import AdventureLogo from '$components/AdventureLogo.svelte'
-  import {getGameClient} from '$lib/db'
   import {formatDuration} from '$lib/time'
   import Spinner from '$components/Spinner.svelte'
   import {title} from '$lib/title.ts'
   import Error from '$components/Error.svelte'
-  import GameStats from '$components/GameStats.svelte'
   import Certificate from '$components/Certificate.svelte'
-  import SubscribeToMailingList from '$components/SubscribeToMailingList.svelte'
+  import {pb} from '$lib/auth.ts'
 
   export let data
 
-  let game = getGameClient(data.game).then((gc) =>
-      gc.from('games').
-          select('status, startTime, endTime, adventures ( name, description)').
-          eq('code', data.game).
-          throwOnError().
-          single()).
-      then(({data: game}) => game).
-      then((game) => {
-        title.set(`Puzzad: ${game.adventures.name} - ${data.game}`)
+  let game = pb.collection("games").getFirstListItem("code='"+data.game+"'", {expand: "adventure"})
+      .then((game) => {
+        title.set(`Puzzad: ${game.expand.adventure.name} - ${data.game}`)
         return game
       })
 
-  const handleStartAdventure = async () =>
-      getGameClient(data.game).
-          then((gc) => gc.rpc('startadventure').throwOnError()).
-          then(() => goto(`/games/${data.game}/play`))
+  const handleStartAdventure = async () =>{
+    fetch(import.meta.env.VITE_SUPABASE_URL + "games/" + data.game + "/start", {
+      method: "POST",
+    })
+    .then(() => goto(`/games/${data.game}/play`))
+  }
 
   const handleContinueAdventure = async function() {
     await goto(`/games/${data.game}/play`)
@@ -63,18 +57,18 @@
   <Spinner/>
 {:then gameData}
   <h2>
-    <AdventureLogo name={gameData.adventures.name}></AdventureLogo>
+    <AdventureLogo name={gameData.expand.adventure.name}></AdventureLogo>
   </h2>
   {#if gameData.status === 'EXPIRED'}
     <p>Congratulations! You finished the adventure!</p>
-    <Certificate adventureName={gameData.adventures.name} teamName={data.game}
+    <Certificate adventureName={gameData.expand.adventure.name} teamName={data.game}
                  completionDate={gameData.endTime}></Certificate>
     <section class="stats">
       <h3>Adventure statistics</h3>
       <p>You took {formatDuration(gameData.startTime, gameData.endTime)}!</p>
-      <GameStats code={data.game} startTime={gameData.startTime}></GameStats>
+<!--      <GameStats code={data.game} startTime={gameData.startTime}></GameStats>-->
     </section>
-    <SubscribeToMailingList></SubscribeToMailingList>
+<!--    <SubscribeToMailingList></SubscribeToMailingList>-->
   {:else if gameData.status === 'PAID'}
     <p>
       You've not yet started your adventure! Remember, it's dangerous to go alone.

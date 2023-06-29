@@ -1,14 +1,9 @@
 <script lang="ts">
-  import {goto} from '$app/navigation'
-  import {getGameClient} from '$lib/db'
   import Spinner from '$components/Spinner.svelte'
   import {title} from '$lib/title'
-  import Hints from '$components/Hints.svelte'
-  import PuzzleAnswer from '$components/PuzzleAnswer.svelte'
-  import VictoryDialog from '$components/VictoryDialog.svelte'
   import {parsePuzzleContent} from '$lib/puzzle'
-  import GuessList from '$components/GuessList.svelte'
   import {onMount} from 'svelte'
+  import {pb} from '$lib/auth.ts'
 
   let hints
   let root
@@ -39,27 +34,17 @@
   })
 
   const load = async () =>
-      getGameClient(data.game).
-          then((client) => client.from('games').
-              select('puzzle (id, title, content, next, storage_slug, adventure (name))').
-              eq('code', data.game).
-              throwOnError().
-              single(),
-          ).
-          then(({data: {puzzle}}) => puzzle).
-          then((gameData) => {
-            title.set(`Puzzad: ${gameData.adventure.name}: ${gameData.title}`)
+      pb.collection("games").getFirstListItem("code='"+data.game+"'", {expand: "adventure,puzzle"})
+      .then((gameData) => {
+        console.log(gameData)
+            title.set(`Puzzad: ${gameData.expand.adventure.name}: ${gameData.expand.puzzle.title}`)
             return gameData
-          }).
-          then((gameData) => Promise.all([
-            gameData,
-            parsePuzzleContent(data.game, gameData.storage_slug, gameData.content),
-          ])).
-          then(([gameData, parsedContent]) => {
-            gameData.sections = parsedContent
-            return gameData
-          }).
-          catch(() => goto(`/games/${data.game}`))
+          })
+      .then(gameData => {
+        console.log(gameData)
+        return gameData
+          })
+          //.catch(() => goto(`/games/${data.game}`))
 
   const reload = () => {
     solved = false
@@ -159,23 +144,23 @@
           <hr>
         {/if}
         <h3>Guess</h3>
-        <PuzzleAnswer gameCode={data.game} puzzle={gameData.id}></PuzzleAnswer>
+<!--        <PuzzleAnswer gameCode={data.game} puzzle={gameData.id}></PuzzleAnswer>-->
         <details>
           <summary>See previous guesses</summary>
           <div class="guesses">
-            <GuessList game={data.game} puzzle={gameData.id} on:hint={() => {hints && hints.refresh()}}
-                       on:solve={() => {solved = true}}/>
+<!--            <GuessList game={data.game} puzzle={gameData.id} on:hint={() => {hints && hints.refresh()}}-->
+<!--                       on:solve={() => {solved = true}}/>-->
           </div>
         </details>
         <h3>Hints</h3>
         <div class="hints">
-          <Hints gameCode={data.game} puzzleId={gameData.id} bind:this={hints}></Hints>
+<!--          <Hints gameCode={data.game} puzzleId={gameData.id} bind:this={hints}></Hints>-->
         </div>
       </div>
     </div>
 
     {#if solved}
-      <VictoryDialog game={data.game} finished={gameData.next === null} on:next={reload}></VictoryDialog>
+<!--      <VictoryDialog game={data.game} finished={gameData.next === null} on:next={reload}></VictoryDialog>-->
     {/if}
 
   {/await}

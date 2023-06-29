@@ -4,6 +4,15 @@ import PocketBase, {Admin, Record} from 'pocketbase'
 
 export const pb = new PocketBase(import.meta.env.VITE_SUPABASE_URL);
 pb.autoCancellation(false);
+pb.beforeSend = function (url, options) {
+  let matches = document.location.pathname.match("^\\/games\\/(\\w+-\\w+-\\w+)(?:\\/.*)?$")
+  if (matches && matches.length == 2) {
+    options.headers = Object.assign({}, options.headers, {
+      'X-POCKETBASE-GAME': matches[1],
+    });
+  }
+  return { url, options }
+};
 
 export const currentUser = writable<Record | Admin | null>(pb.authStore.model);
 
