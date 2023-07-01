@@ -17,7 +17,7 @@
     "@supabase/supabase-js": "^2.24.0",
     "@sveltejs/adapter-static": "^2.0.2",
     "@sveltejs/kit": "^1.15.2",
-    "@zerodevx/svelte-toast": "^0.9.3",
+    "@zerodevx/svelte-toast": "^0.9.4",
     "form-data": "^4.0.0",
     "sass": "^1.62.1",
     "svelte": "^3.55.1",
