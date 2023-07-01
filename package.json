@@ -11,7 +11,7 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
   },
   "devDependencies": {
-    "@fireworks-js/svelte": "^2.10.3",
+    "@fireworks-js/svelte": "^2.10.6",
     "@sentry/svelte": "^7.54.0",
     "@sentry/tracing": "^7.50.0",
     "@supabase/supabase-js": "^2.24.0",
