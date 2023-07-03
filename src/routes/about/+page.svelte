@@ -10,9 +10,8 @@
   <h3>About</h3>
   <p>Puzzad is a trading name of Lunarian Limited, a company registered in England and Wales. Company number:
     11937813.
-    Registered address: Lunarian Limited, International House, 24 Holborn Viaduct, City of London, United Kingdom,
-    EC1A
-    2BN.</p>
+    Registered address: 6 Coppers Close, Bury St Edmunds, United Kingdom, IP33 2JG.
+  </p>
 </section>
 
 <section class="text">
@@ -27,7 +26,7 @@
 
 <section class="text">
   <h3>Privacy policy</h3>
-  <p>This notice was last updated on the <strong>22nd of November 2022</strong>. A record of changes is available
+  <p>This notice was last updated on the <strong>3rd of July 2023</strong>. A record of changes is available
     at the end of this policy.</p>
   <p>Puzzad is a trading name of Lunarian Limited which is registered with the UK Information Commissioner's Office.
     Registration number: ZA521851.</p>
@@ -224,6 +223,8 @@
   <p>ICO website: https://www.ico.org.uk</p>
 
   <h4>Changes to this policy</h4>
+  <h5>3rd July 2023</h5>
+  <p>Updated company registered address.</p>
   <h5>22nd November 2022</h5>
   <p>Added data collection and transfer of data to hCaptcha required for preventing automated abuse.</p>
   <p>Added lawful basis of legitimate interest in preventing fraud and automated abuse.</p>
