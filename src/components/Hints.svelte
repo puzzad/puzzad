@@ -6,8 +6,8 @@
   export let puzzleId = 0
 
   export const refresh = async () => {
-    let client = getGameClient(gameCode)
-    //hints = data
+       hints = await getGameClient(gameCode).
+       then(client => client.send("/hints/get", {}))
   }
 
   const request = async function(id) {
