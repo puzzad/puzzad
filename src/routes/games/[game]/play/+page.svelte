@@ -157,7 +157,7 @@
         </details>
         <h3>Hints</h3>
         <div class="hints">
-          <Hints gameCode={data.game} puzzleId={gameData.id} bind:this={hints}></Hints>
+          <Hints gameClient={gameData.client} gameCode={data.game} puzzleId={gameData.id} bind:this={hints}></Hints>
         </div>
       </div>
     </div>

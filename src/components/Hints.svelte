@@ -7,12 +7,16 @@
 
   export const refresh = async () => {
        hints = await getGameClient(gameCode).
-       then(client => client.send("/hints/get", {}))
+       then(client => client.collection('currenthints').getFullList()).
+       then(hints => hints)
+
   }
 
   const request = async function(id) {
-    let client = getGameClient(gameCode)
-    //await gameClient.rpc('requesthint', {puzzleid: puzzleId, gamecode: gameCode, hintid: id})
+    getGameClient(gameCode).then(client => client.send("/hints/request", {
+      method: "POST",
+      body: id,
+    }))
   }
 
   let hints = []

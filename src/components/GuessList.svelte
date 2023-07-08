@@ -15,7 +15,6 @@
   })
 
   const handleStreamedGuess = function(payload) {
-    console.log(payload)
     newGuesses = newGuesses.concat(payload.record)
     if (payload.record.content === '*hint') {
       dispatch('hint')
