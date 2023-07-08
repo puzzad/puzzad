@@ -6,6 +6,8 @@
   import {goto} from '$app/navigation'
   import PuzzleAnswer from '$components/PuzzleAnswer.svelte'
   import GuessList from '$components/GuessList.svelte'
+  import Hints from "$components/Hints.svelte";
+  import VictoryDialog from "$components/VictoryDialog.svelte";
 
   let hints
   let root
@@ -155,13 +157,13 @@
         </details>
         <h3>Hints</h3>
         <div class="hints">
-<!--          <Hints gameCode={data.game} puzzleId={gameData.id} bind:this={hints}></Hints>-->
+          <Hints gameCode={data.game} puzzleId={gameData.id} bind:this={hints}></Hints>
         </div>
       </div>
     </div>
 
     {#if solved}
-<!--      <VictoryDialog game={data.game} finished={gameData.next === null} on:next={reload}></VictoryDialog>-->
+      <VictoryDialog game={data.game} finished={gameData.next === null} on:next={reload}></VictoryDialog>
     {/if}
 
   {/await}

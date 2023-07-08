@@ -6,11 +6,12 @@
   import {title} from '$lib/title'
   import Error from '$components/Error.svelte'
   import Certificate from '$components/Certificate.svelte'
-  import {client} from '$lib/api'
+  import {client, getGameClient} from '$lib/api'
 
   export let data
 
-  let game = client.collection("games").getFirstListItem("code='"+data.game+"'", {expand: "adventure"})
+  let game = getGameClient(data.game).
+  then(client => client.collection("games").getFirstListItem("username='"+data.game+"'", {expand: "adventure"}))
       .then((game) => {
         title.set(`Puzzad: ${game.expand.adventure.name} - ${data.game}`)
         return game
