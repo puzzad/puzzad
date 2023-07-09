@@ -68,7 +68,7 @@
     <section class="stats">
       <h3>Adventure statistics</h3>
       <p>You took {formatDuration(gameData.start, gameData.end)}!</p>
-<!--      <GameStats code={data.game} startTime={gameData.startTime}></GameStats>-->
+      <GameStats code={data.game} startTime={gameData.startTime}></GameStats>
     </section>
 <!--    <SubscribeToMailingList></SubscribeToMailingList>-->
   {:else if gameData.status === 'PAID'}

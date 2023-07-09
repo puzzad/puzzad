@@ -1,19 +1,17 @@
 <script lang="ts">
     import {formatDuration} from '$lib/time'
   import Error from '$components/Error.svelte'
+    import {getGameClient} from '$lib/api.ts'
 
   export let code
-  export let startTime
+
   let stats = getGameClient(code).
-      then((gc) => gc.rpc('getstats', {gamecode: code}).throwOnError()).
-      then(({data: stats}) => stats).
-      then((rows) => {
-        let lastTime = startTime
-        rows.forEach((r) => {
-          r.time = formatDuration(lastTime, r.solvetime)
-          lastTime = r.solvetime
+      then(client => client.collection("solvetimes").getFullList()).
+      then(solveTimes => {
+        solveTimes.forEach(solveTime => {
+          solveTime.time = formatDuration(solveTime.gameStart, solveTime.timeSolved)
         })
-        return rows
+        return solveTimes
       })
 </script>
 
@@ -31,7 +29,7 @@
       <tr>
         <td>{puzzle.title}</td>
         <td class="time">{puzzle.time}</td>
-        <td>{puzzle.hints}</td>
+        <td>{puzzle.usedhints}</td>
       </tr>
     {/each}
     </tbody>
