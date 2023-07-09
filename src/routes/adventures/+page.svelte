@@ -34,7 +34,7 @@
               status="{game.status}"
               adventureName='{game.expand.adventure?.name ?? "Unknown"}'
               code="{game.code}"
-              isPublic="{game.adventures?.public}"
+              isPublic="{game.expand.adventure?.public}"
           />
         {/each}
       </details>
