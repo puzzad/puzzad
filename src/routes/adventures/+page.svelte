@@ -22,7 +22,7 @@
       <AdventureBanner
           status="{game.status}"
           adventureName='{game.expand.adventure?.name ?? "Unknown"}'
-          code="{game.code}"
+          code="{game.username}"
           isPublic="{game.expand.adventure?.public}"
       />
     {/each}
