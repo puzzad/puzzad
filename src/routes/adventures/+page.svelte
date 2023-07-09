@@ -32,7 +32,7 @@
         {#each finishedGames as game}
           <AdventureBanner
               status="{game.status}"
-              adventureName='{game.adventures?.name ?? "Unknown"}'
+              adventureName='{game.expand.adventure?.name ?? "Unknown"}'
               code="{game.code}"
               isPublic="{game.adventures?.public}"
           />
