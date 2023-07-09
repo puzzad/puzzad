@@ -63,7 +63,7 @@
   {#if gameData.status === 'EXPIRED'}
     <p>Congratulations! You finished the adventure!</p>
     <Certificate adventureName={gameData.expand.adventure.name} teamName={data.game}
-                 completionDate={gameData.endTime}></Certificate>
+                 completionDate={gameData.end}></Certificate>
     <section class="stats">
       <h3>Adventure statistics</h3>
       <p>You took {formatDuration(gameData.startTime, gameData.endTime)}!</p>
