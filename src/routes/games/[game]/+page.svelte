@@ -7,6 +7,7 @@
   import Error from '$components/Error.svelte'
   import Certificate from '$components/Certificate.svelte'
   import {client, getGameClient} from '$lib/api'
+  import GameStats from '$components/GameStats.svelte'
 
   export let data
 
@@ -66,7 +67,7 @@
                  completionDate={gameData.end}></Certificate>
     <section class="stats">
       <h3>Adventure statistics</h3>
-      <p>You took {formatDuration(gameData.startTime, gameData.endTime)}!</p>
+      <p>You took {formatDuration(gameData.start, gameData.end)}!</p>
 <!--      <GameStats code={data.game} startTime={gameData.startTime}></GameStats>-->
     </section>
 <!--    <SubscribeToMailingList></SubscribeToMailingList>-->
