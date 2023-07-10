@@ -8,6 +8,7 @@
   import Certificate from '$components/Certificate.svelte'
   import {client, getGameClient} from '$lib/api'
   import GameStats from '$components/GameStats.svelte'
+  import SubscribeToMailingList from '$components/SubscribeToMailingList.svelte'
 
   export let data
 
@@ -68,9 +69,9 @@
     <section class="stats">
       <h3>Adventure statistics</h3>
       <p>You took {formatDuration(gameData.start, gameData.end)}!</p>
-      <GameStats code={data.game} startTime={gameData.startTime}></GameStats>
+      <GameStats code={data.game}></GameStats>
     </section>
-<!--    <SubscribeToMailingList></SubscribeToMailingList>-->
+    <SubscribeToMailingList></SubscribeToMailingList>
   {:else if gameData.status === 'PAID'}
     <p>
       You've not yet started your adventure! Remember, it's dangerous to go alone.
