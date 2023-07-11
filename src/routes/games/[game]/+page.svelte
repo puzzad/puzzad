@@ -20,7 +20,7 @@
       })
 
   const handleStartAdventure = async () =>{
-    client.send(import.meta.env.VITE_SUPABASE_URL+"wom/startgame",{
+    client.send("/wom/startgame",{
       method: "POST",
       headers: {
         'Content-Type': 'application/json',

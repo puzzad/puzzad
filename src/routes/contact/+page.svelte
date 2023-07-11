@@ -13,6 +13,7 @@
     fetch(import.meta.env.VITE_SUPABASE_URL + 'wom/contact', {
       method: 'POST',
       headers: {
+        'Authorization': 'Bearer ' + client.authStore.token,
         'Content-Type': 'Application/json',
       },
       body: JSON.stringify({

@@ -14,7 +14,7 @@
 
   const request = async function(id) {
     getGameClient(gameCode)
-    .then(client => client.send(import.meta.env.VITE_SUPABASE_URL + "wom/requesthint", {
+    .then(client => client.send("/wom/requesthint", {
       method: "POST",
       body: JSON.stringify({ hint: id }),
     }))

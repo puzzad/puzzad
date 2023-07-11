@@ -40,21 +40,14 @@
 
   const addAdventure = async (details) => {
     if (details.price === 0) {
-      client.send(import.meta.env.VITE_SUPABASE_URL+"wom/startadventure",{
+      client.send("/wom/startadventure",{
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ adventure: details.id })
       })
-      .then(response => {
-        if (response.ok) {
-          return response.json()
-        } else {
-          return Promise.reject("Bad server response")
-        }
-      })
-      .then(body => goto(`/games/`+body.code))
+      .then(response => goto(`/games/`+response.code))
           .catch(error => console.log(error))
     }
   }
