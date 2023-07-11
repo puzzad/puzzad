@@ -29,6 +29,9 @@
         useAccount = false
       }
       loading = false
+  } else {
+    useAccount = false
+    loading = false
   }
 
   const handleSubmit = () => {
