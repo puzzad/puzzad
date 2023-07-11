@@ -10,10 +10,9 @@
   let name, nameError, email, emailError, message, messageError, success, captchaToken = '', loggedIn
   let loading = false
   const handleSubmit = () => {
-    fetch(import.meta.env.VITE_SUPABASE_URL + 'mail/contact', {
+    fetch(import.meta.env.VITE_SUPABASE_URL + 'wom/contact', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + client.authStore.token,
         'Content-Type': 'Application/json',
       },
       body: JSON.stringify({
@@ -21,7 +20,7 @@
         'name': name,
         'email': email,
         'message': message,
-      }),
+      })
     }).then(response => {
       if (!response.ok) {
         return response.json().then((j) => {

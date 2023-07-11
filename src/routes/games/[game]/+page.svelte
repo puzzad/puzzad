@@ -20,8 +20,12 @@
       })
 
   const handleStartAdventure = async () =>{
-    fetch(import.meta.env.VITE_SUPABASE_URL + "games/" + data.game + "/start", {
+    client.send(import.meta.env.VITE_SUPABASE_URL+"wom/startgame",{
       method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ game: data.game })
     })
     .then(() => goto(`/games/${data.game}/play`))
   }

@@ -40,18 +40,19 @@
 
   const addAdventure = async (details) => {
     if (details.price === 0) {
-      fetch(import.meta.env.VITE_SUPABASE_URL+"adventure/" + details.id + "/start", {
+      client.send(import.meta.env.VITE_SUPABASE_URL+"wom/startadventure",{
         method: "POST",
         headers: {
-          'Authorization': client.authStore.token
-        }
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ adventure: details.id })
       })
-          .then(response => {
-            if (response.ok) {
-              return response.json()
-            } else {
-              return Promise.reject("Bad server response")
-            }
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          return Promise.reject("Bad server response")
+        }
       })
       .then(body => goto(`/games/`+body.code))
           .catch(error => console.log(error))

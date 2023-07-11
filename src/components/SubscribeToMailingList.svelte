@@ -36,16 +36,15 @@
 
   const handleSubmit = () => {
     loading = true
-    fetch(import.meta.env.VITE_SUPABASE_URL + 'mail/subscribe', {
+    client.send(import.meta.env.VITE_SUPABASE_URL + 'wom/subscribe', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + supabaseToken,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         email: email,
         captcha: captchaToken,
-      }),
+      })
     }).then((response) => {
       if (!response.ok) {
         return response.json().then((j) => {
