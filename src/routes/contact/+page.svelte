@@ -14,7 +14,7 @@
       method: 'POST',
       headers: {
         'Authorization': 'Bearer ' + client.authStore.token,
-        'Content-Type': 'Application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         'token': captchaToken,
