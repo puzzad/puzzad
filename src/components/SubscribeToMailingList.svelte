@@ -36,7 +36,7 @@
 
   const handleSubmit = () => {
     loading = true
-    client.send(import.meta.env.VITE_SUPABASE_URL + 'wom/subscribe', {
+    client.send('/wom/subscribe', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -45,13 +45,6 @@
         email: email,
         captcha: captchaToken,
       })
-    }).then((response) => {
-      if (!response.ok) {
-        return response.json().then((j) => {
-          throw j.error
-        })
-      }
-      return response.json()
     }).then((r) => {
       needConfirm = r.NeedConfirm
       success = true
