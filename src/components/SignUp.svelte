@@ -91,7 +91,7 @@
       If you create an account, we will only use your e-mail address to send you information
       related to your account (e.g. password reset links and receipts). We won't use it for marketing
       purposes unless you explicitly sign up for our mailing list, and we'll never sell your data or
-      give it to anyone who will abuse it. See the <a href="/privacy">privacy</a> page for further
+      give it to anyone who will abuse it. See the <a href="/about">privacy</a> page for further
       information.
     </p>
   </form>
