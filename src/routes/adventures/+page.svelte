@@ -1,19 +1,12 @@
 <script lang="ts">
-  import AdventureBanner from '$components/AdventureBanner.svelte'
-  import {supabase} from '$lib/db'
   import Spinner from '$components/Spinner.svelte'
   import {title} from '$lib/title'
   import Error from '$components/Error.svelte'
+  import {client} from '$lib/api'
+  import AdventureBanner from '$components/AdventureBanner.svelte'
 
-  let adventures = supabase.from('adventures').
-      select('id,name,price,public').
-      throwOnError().
-      then(({data}) => data)
-
-  let games = supabase.from('games').
-      select('id, status, adventures (name, public), status, code').
-      throwOnError().
-      then(({data}) => data)
+  let adventures = client.collection("adventures").getList(1, 50).then(response => response.items)
+  let games = client.collection("games").getList(1, 50, {expand: "adventure"}).then(response => response.items)
 
   title.set('Puzzad: Adventures')
 </script>
@@ -28,9 +21,9 @@
     {#each activeGames as game}
       <AdventureBanner
           status="{game.status}"
-          adventureName='{game.adventures?.name ?? "Unknown"}'
-          code="{game.code}"
-          isPublic="{game.adventures?.public}"
+          adventureName='{game.expand.adventure?.name ?? "Unknown"}'
+          code="{game.username}"
+          isPublic="{game.expand.adventure?.public}"
       />
     {/each}
     {#if finishedGames.length > 0}
@@ -39,9 +32,9 @@
         {#each finishedGames as game}
           <AdventureBanner
               status="{game.status}"
-              adventureName='{game.adventures?.name ?? "Unknown"}'
-              code="{game.code}"
-              isPublic="{game.adventures?.public}"
+              adventureName='{game.expand.adventure?.name ?? "Unknown"}'
+              code="{game.username}"
+              isPublic="{game.expand.adventure?.public}"
           />
         {/each}
       </details>

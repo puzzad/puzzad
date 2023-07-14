@@ -1,24 +1,20 @@
 <script lang="ts">
-  import {supabase} from '$lib/db'
-  import {goto} from '$app/navigation'
+  import {loginNative} from '$lib/api'
   import {toasts} from 'svelte-toasts'
 
   let email
   let password
 
   const login = async () => {
-    supabase.auth.signInWithPassword({email, password})
+    loginNative(email, password)
         .then(response => {
-          if (response.error) {
-            return Promise.reject(response.error)
-          }
-      toasts.add({
+          toasts.add({
         title: 'Success',
         description: 'Login success.',
         duration: 10000,
         type: 'success',
       })
-      return goto('/')
+      //return goto('/')
     }).catch(err => {
       toasts.add({
         title: 'Error',

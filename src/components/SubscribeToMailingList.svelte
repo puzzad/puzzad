@@ -1,8 +1,9 @@
 <script lang="ts">
-  import {supabase} from '$lib/db'
   import Spinner from '$components/Spinner.svelte'
   import SvelteHcaptcha from 'svelte-hcaptcha'
   import {toasts} from 'svelte-toasts'
+  import {client} from '$lib/api.ts'
+  import {Admin, Record} from 'pocketbase'
 
   let loading = true
   let useAccount = true
@@ -12,36 +13,38 @@
   let success = false
   let needConfirm = false
 
-  supabase.auth.getSession().then(response => {
-    if (response.data.session && response.data.session.user.email) {
-      useAccount = true
-      email = response.data.session.user.email
-      supabaseToken = response.data.session.access_token
-    } else {
-      useAccount = false
-    }
+
+  if (client.authStore.isValid) {
+    useAccount = true
+    let model = client.authStore.model
+      if (model instanceof Admin) {
+        email = model.email
+        useAccount = true
+        supabaseToken = client.authStore.token
+      } else if (model instanceof Record) {
+        email = model.email
+        useAccount = true
+        supabaseToken = client.authStore.token
+      } else {
+        useAccount = false
+      }
+      loading = false
+  } else {
+    useAccount = false
     loading = false
-  })
+  }
 
   const handleSubmit = () => {
     loading = true
-    fetch(import.meta.env.VITE_SUPABASE_URL + '/mail/subscribe', {
+    client.send('/wom/subscribe', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + supabaseToken,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         email: email,
         captcha: captchaToken,
-      }),
-    }).then((response) => {
-      if (!response.ok) {
-        return response.json().then((j) => {
-          throw j.error
-        })
-      }
-      return response.json()
+      })
     }).then((r) => {
       needConfirm = r.NeedConfirm
       success = true

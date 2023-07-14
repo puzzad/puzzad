@@ -1,18 +1,16 @@
 <script lang="ts">
-  import {getGameClient} from '$lib/db'
-
+  export let gameClient
   export let puzzle = 0
-  export let gameCode = ''
+  export let gameID = ''
 
   let guess = ''
   let checking = false
 
   const submit = async () => {
     checking = true
-    await getGameClient(gameCode).
-        then((gc) => gc.from('guesses').insert({content: guess, puzzle: puzzle, game: gameCode}).throwOnError()).
-        then(() => guess = '').
-        finally(() => checking = false)
+    gameClient.collection("guesses").create({content: guess, puzzle: puzzle, game: gameID})
+        .then(() => guess = '')
+        .finally(() => checking = false)
   }
 </script>
 

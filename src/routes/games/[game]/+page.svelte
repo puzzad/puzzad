@@ -1,33 +1,34 @@
 <script lang="ts">
   import {goto} from '$app/navigation'
   import AdventureLogo from '$components/AdventureLogo.svelte'
-  import {getGameClient} from '$lib/db'
   import {formatDuration} from '$lib/time'
   import Spinner from '$components/Spinner.svelte'
-  import {title} from '$lib/title.ts'
+  import {title} from '$lib/title'
   import Error from '$components/Error.svelte'
-  import GameStats from '$components/GameStats.svelte'
   import Certificate from '$components/Certificate.svelte'
+  import {client, getGameClient} from '$lib/api'
+  import GameStats from '$components/GameStats.svelte'
   import SubscribeToMailingList from '$components/SubscribeToMailingList.svelte'
 
   export let data
 
-  let game = getGameClient(data.game).then((gc) =>
-      gc.from('games').
-          select('status, startTime, endTime, adventures ( name, description)').
-          eq('code', data.game).
-          throwOnError().
-          single()).
-      then(({data: game}) => game).
-      then((game) => {
-        title.set(`Puzzad: ${game.adventures.name} - ${data.game}`)
+  let game = getGameClient(data.game).
+  then(client => client.collection("games").getFirstListItem("username='"+data.game+"'", {expand: "adventure"}))
+      .then((game) => {
+        title.set(`Puzzad: ${game.expand.adventure.name} - ${data.game}`)
         return game
       })
 
-  const handleStartAdventure = async () =>
-      getGameClient(data.game).
-          then((gc) => gc.rpc('startadventure').throwOnError()).
-          then(() => goto(`/games/${data.game}/play`))
+  const handleStartAdventure = async () =>{
+    client.send("/wom/startgame",{
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ game: data.game })
+    })
+    .then(() => goto(`/games/${data.game}/play`))
+  }
 
   const handleContinueAdventure = async function() {
     await goto(`/games/${data.game}/play`)
@@ -63,16 +64,16 @@
   <Spinner/>
 {:then gameData}
   <h2>
-    <AdventureLogo name={gameData.adventures.name}></AdventureLogo>
+    <AdventureLogo name={gameData.expand.adventure.name}></AdventureLogo>
   </h2>
   {#if gameData.status === 'EXPIRED'}
     <p>Congratulations! You finished the adventure!</p>
-    <Certificate adventureName={gameData.adventures.name} teamName={data.game}
-                 completionDate={gameData.endTime}></Certificate>
+    <Certificate adventureName={gameData.expand.adventure.name} teamName={data.game}
+                 completionDate={gameData.end}></Certificate>
     <section class="stats">
       <h3>Adventure statistics</h3>
-      <p>You took {formatDuration(gameData.startTime, gameData.endTime)}!</p>
-      <GameStats code={data.game} startTime={gameData.startTime}></GameStats>
+      <p>You took {formatDuration(gameData.start, gameData.end)}!</p>
+      <GameStats code={data.game}></GameStats>
     </section>
     <SubscribeToMailingList></SubscribeToMailingList>
   {:else if gameData.status === 'PAID'}

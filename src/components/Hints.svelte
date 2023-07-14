@@ -1,22 +1,23 @@
 <script lang="ts">
   import RandomText from '$components/RandomText.svelte'
-  import {getGameClient} from '$lib/db'
+  import {getGameClient} from "$lib/api.ts";
 
   export let gameCode = ''
   export let puzzleId = 0
 
   export const refresh = async () => {
-    const gameClient = await getGameClient(gameCode)
-    const {data, error} = await gameClient.rpc('gethints', {puzzleid: puzzleId, gamecode: gameCode})
-    if (error) {
-      throw error
-    }
-    hints = data
+       hints = await getGameClient(gameCode).
+       then(client => client.collection('currenthints').getFullList()).
+       then(hints => hints)
+
   }
 
   const request = async function(id) {
-    const gameClient = await getGameClient(gameCode)
-    await gameClient.rpc('requesthint', {puzzleid: puzzleId, gamecode: gameCode, hintid: id})
+    getGameClient(gameCode)
+    .then(client => client.send("/wom/requesthint", {
+      method: "POST",
+      body: JSON.stringify({ hint: id }),
+    }))
   }
 
   let hints = []

@@ -1,14 +1,13 @@
 <script lang="ts">
-  import {goto} from '$app/navigation'
-  import {getGameClient} from '$lib/db'
   import Spinner from '$components/Spinner.svelte'
   import {title} from '$lib/title'
-  import Hints from '$components/Hints.svelte'
-  import PuzzleAnswer from '$components/PuzzleAnswer.svelte'
-  import VictoryDialog from '$components/VictoryDialog.svelte'
-  import {parsePuzzleContent} from '$lib/puzzle'
-  import GuessList from '$components/GuessList.svelte'
   import {onMount} from 'svelte'
+  import {getGameClient} from '$lib/api.ts'
+  import {goto} from '$app/navigation'
+  import PuzzleAnswer from '$components/PuzzleAnswer.svelte'
+  import GuessList from '$components/GuessList.svelte'
+  import Hints from "$components/Hints.svelte";
+  import VictoryDialog from "$components/VictoryDialog.svelte";
 
   let hints
   let root
@@ -38,28 +37,20 @@
     return () => observer.disconnect()
   })
 
-  const load = async () =>
-      getGameClient(data.game).
-          then((client) => client.from('games').
-              select('puzzle (id, title, content, next, storage_slug, adventure (name))').
-              eq('code', data.game).
-              throwOnError().
-              single(),
-          ).
-          then(({data: {puzzle}}) => puzzle).
-          then((gameData) => {
-            title.set(`Puzzad: ${gameData.adventure.name}: ${gameData.title}`)
-            return gameData
-          }).
-          then((gameData) => Promise.all([
-            gameData,
-            parsePuzzleContent(data.game, gameData.storage_slug, gameData.content),
-          ])).
-          then(([gameData, parsedContent]) => {
-            gameData.sections = parsedContent
-            return gameData
-          }).
-          catch(() => goto(`/games/${data.game}`))
+  const load = async () => {
+    let gameClient = await getGameClient(data.game)
+    return await gameClient.collection("games").
+        getList(1, 1, {expand: "adventure,puzzle"}).
+        then(({items}) => items[0]).
+        then((gameData) => {
+          if (gameData.end !== "") {
+            solved = true
+          }
+          title.set(`Puzzad: ${gameData.expand.adventure.name}: ${gameData.expand?.puzzle?.title ?? ""}`)
+          gameData.client = gameClient
+          return gameData
+        })
+  }
 
   const reload = () => {
     solved = false
@@ -142,41 +133,40 @@
   {#await gameData}
     <Spinner/>
   {:then gameData}
-    <h2>{gameData.adventure.name}: {gameData.title}</h2>
+    {#if solved}
+      <VictoryDialog game={data.game} finished={gameData.puzzle === ""} on:next={reload}></VictoryDialog>
+    {:else if gameData.puzzle !== ""}
+      <h2>{gameData.expand.adventure.name}: {gameData.expand.puzzle.title}</h2>
 
-    <div id="container">
-      <div id="main-content">
-        {@html gameData.sections.story || ''}
-        {@html gameData.sections.puzzle || ''}
-      </div>
-      <div id="sidebar">
-        {#if gameData.sections.tip}
-          <h3>Information</h3>
-          <details open class="info">
-            <summary>Show information</summary>
-            {@html gameData.sections.tip}
+      <div id="container">
+        <div id="main-content">
+          {@html gameData.expand.puzzle.story || ''}
+          {@html gameData.expand.puzzle.puzzle || ''}
+        </div>
+        <div id="sidebar">
+          {#if gameData.expand.puzzle.information}
+            <h3>Information</h3>
+            <details open class="info">
+              <summary>Show information</summary>
+              {@html gameData.expand.puzzle.information}
+            </details>
+            <hr>
+          {/if}
+          <h3>Guess</h3>
+          <PuzzleAnswer gameClient={gameData.client} gameID={gameData.id} puzzle={gameData.expand.puzzle.id}></PuzzleAnswer>
+          <details>
+            <summary>See previous guesses</summary>
+            <div class="guesses">
+              <GuessList gameClient={gameData.client} on:hint={() => {hints && hints.refresh()}}
+                         on:solve={() => {solved = true}}/>
+            </div>
           </details>
-          <hr>
-        {/if}
-        <h3>Guess</h3>
-        <PuzzleAnswer gameCode={data.game} puzzle={gameData.id}></PuzzleAnswer>
-        <details>
-          <summary>See previous guesses</summary>
-          <div class="guesses">
-            <GuessList game={data.game} puzzle={gameData.id} on:hint={() => {hints && hints.refresh()}}
-                       on:solve={() => {solved = true}}/>
+          <h3>Hints</h3>
+          <div class="hints">
+            <Hints gameClient={gameData.client} gameCode={data.game} puzzleId={gameData.id} bind:this={hints}></Hints>
           </div>
-        </details>
-        <h3>Hints</h3>
-        <div class="hints">
-          <Hints gameCode={data.game} puzzleId={gameData.id} bind:this={hints}></Hints>
         </div>
       </div>
-    </div>
-
-    {#if solved}
-      <VictoryDialog game={data.game} finished={gameData.next === null} on:next={reload}></VictoryDialog>
     {/if}
-
   {/await}
 </div>

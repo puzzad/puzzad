@@ -15,7 +15,7 @@ export default {
       $assets: 'src/assets',
     },
     adapter: adapter({
-      fallback: 'index.html'
+      fallback: '200.html',
     }),
   },
 }

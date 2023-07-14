@@ -1,27 +1,27 @@
 <script lang="ts">
-  import {supabase} from '$lib/db.ts'
   import SvelteHcaptcha from 'svelte-hcaptcha'
   import Spinner from '$components/Spinner.svelte'
   import {toasts} from 'svelte-toasts'
   import {title} from '$lib/title'
+  import {currentUser, client} from '$lib/api'
 
   title.set('Puzzad: Contact')
 
-  let name, nameError, email, emailError, message, messageError, success, captchaToken = '', supabaseToken, loggedIn
+  let name, nameError, email, emailError, message, messageError, success, captchaToken = '', loggedIn
   let loading = false
   const handleSubmit = () => {
-    fetch(import.meta.env.VITE_SUPABASE_URL + '/mail/contact', {
+    fetch(import.meta.env.VITE_SUPABASE_URL + 'wom/contact', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + supabaseToken,
-        'Content-Type': 'Application/json',
+        'Authorization': 'Bearer ' + client.authStore.token,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         'token': captchaToken,
         'name': name,
         'email': email,
         'message': message,
-      }),
+      })
     }).then(response => {
       if (!response.ok) {
         return response.json().then((j) => {
@@ -41,16 +41,13 @@
       })
     })
   }
-  supabase.auth.getSession().then(response => {
-    if (response.data.session && response.data.session.user.email) {
-      loggedIn = true
-      email = response.data.session.user.email
-      supabaseToken = response.data.session.access_token
-    } else {
-      loggedIn = false
-    }
-    loading = false
-  })
+  console.log($currentUser)
+  if ($currentUser) {
+    loggedIn = true
+    email = $currentUser?.email ?? ""
+  } else {
+    loggedIn = false
+  }
   const captchaSuccess = (token) => {
     captchaToken = token.detail.token
   }
@@ -79,7 +76,7 @@
         {#if nameError}<span class="error">The name field is required</span>{/if}
       </label>
       <input id="name" name="name" type="text" bind:value={name}/>
-      {#if !loggedIn}
+      {#if !loggedIn || email===""}
         <label for="email">Email
           {#if emailError}<span class="error">The email field is required</span>{/if}
         </label>

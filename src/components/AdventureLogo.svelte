@@ -1,9 +1,15 @@
 <script lang="ts">
-  import {supabase} from '$lib/db'
+  import {client} from '$lib/api'
 
   export let name = ''
 
-  let logoUrl = name && supabase.storage.from('adventures').getPublicUrl(name + '/logo.png').data.publicUrl
+  let logoURL = client.collection('adventures').getFirstListItem('name=\''+name+'\'')
+  .then(response => {
+    return client.files.getUrl(response, response.logo)
+  })
 </script>
 
-<img src="{logoUrl}" alt="{name}">
+{#await logoURL}
+{:then logoURL}
+<img src="{logoURL}" alt="{name}">
+{/await}

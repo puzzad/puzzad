@@ -6,7 +6,7 @@
   export let data
 
   $: if (data.code) {
-    fetch(import.meta.env.VITE_SUPABASE_URL + '/mail/unsubscribe', {
+    fetch(import.meta.env.VITE_SUPABASE_URL + 'wom/unsubscribe', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
