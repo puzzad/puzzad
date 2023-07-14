@@ -26,7 +26,7 @@
     "svelte-icons": "^2.1.0",
     "svelte-preprocess": "^5.0.4",
     "svelte-toasts": "^1.1.2",
-    "tslib": "^2.5.0",
+    "tslib": "^2.6.0",
     "typescript": "^5.0.4",
     "vite": "^4.1.5"
   },
