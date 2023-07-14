@@ -11,7 +11,13 @@
       password: password,
       passwordConfirm: password,
     })
-    .then(user => requestEmailVerification(email))
+    .then(_ => {
+      let localEmail = email;
+      email = ""; 
+      password = "";
+      return localEmail
+    })
+    .then(email => requestEmailVerification(email))
     .then(_ => {
       toasts.add({
         title: 'Success',
