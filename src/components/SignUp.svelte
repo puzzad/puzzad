@@ -1,12 +1,16 @@
 <script lang="ts">
   import {toasts} from 'svelte-toasts'
-  import {requestEmailVerification, signup} from '$lib/api'
+  import {client, requestEmailVerification} from '$lib/api'
 
   let email
   let password
 
   export const authAction = async () => {
-    signup(email, password)
+    client.collection('users').create({
+      email: email,
+      password: password,
+      passwordConfirm: password,
+    })
     .then(user => requestEmailVerification(email))
     .then(_ => {
       toasts.add({

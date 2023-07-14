@@ -40,14 +40,6 @@ export const logout = async () => {
   client.authStore.clear()
 }
 
-export const signup = async (email: string, password: string) => {
-  client.collection('users').create({
-    email: email,
-    password: password,
-    passwordConfirm: password,
-  }).then(_ => loginNative(email, password)).catch(error => console.log(error))
-}
-
 export const isAdmin = readable<boolean | null>(false, (set: Subscriber<boolean | null>) => {
   return set(client.authStore.model instanceof Admin)
 })
