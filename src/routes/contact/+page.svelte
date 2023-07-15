@@ -41,7 +41,6 @@
       })
     })
   }
-  console.log($currentUser)
   if ($currentUser) {
     loggedIn = true
     email = $currentUser?.email ?? ""

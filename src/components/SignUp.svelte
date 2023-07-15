@@ -27,7 +27,6 @@
       })
     })
     .catch(error => {
-      console.log(error)
       toasts.add({
         title: 'Error',
         description: error.message,

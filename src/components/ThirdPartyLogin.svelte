@@ -9,7 +9,6 @@
   const handleOauthLogin = async (name) => {
     loginOauth(name)
     .then(response => {
-      console.log(response)
       toasts.add({
         title: 'Success',
         description: 'Login success.',

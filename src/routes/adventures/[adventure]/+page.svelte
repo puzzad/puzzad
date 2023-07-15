@@ -13,6 +13,7 @@
   import Error from '$components/Error.svelte'
   import {currentUser, client} from '$lib/api'
   import {title} from '$lib/title'
+  import {toasts} from 'svelte-toasts'
 
   export let data
 
@@ -48,7 +49,12 @@
         body: JSON.stringify({ adventure: details.id })
       })
       .then(response => goto(`/games/`+response.code))
-          .catch(error => console.log(error))
+          .catch(error => toasts.add({
+        title: 'Error adding adventure',
+        description: error,
+        duration: 10000,
+        type: 'error',
+      }))
     }
   }
 </script>
