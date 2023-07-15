@@ -37,7 +37,7 @@
     left: 30vh;
     right: 30vh;
     background: colours.$success;
-    color: colours.$text-inverted;
+    color: colours.$text-on-brand;
     border: 1px solid colours.$border;
     text-align: center;
     z-index: 1001;
