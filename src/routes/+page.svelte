@@ -2,6 +2,7 @@
   import {goto} from '$app/navigation'
   import {title} from '$lib/title.ts'
   import preview from '$assets/preview.webp'
+  import tickets from '$assets/tickets.webp'
 
   let code = ''
 
@@ -31,6 +32,7 @@
       gap: var(--small-space);
       align-items: stretch;
       text-align: center;
+      color: colours.$text-on-brand;
     }
 
     h3 {
@@ -129,7 +131,7 @@
 </div>
 
 <div class="code">
-  <form on:submit|preventDefault={handleGameCode}>
+  <form on:submit|preventDefault={handleGameCode} style="background-image: url('{tickets}')">
     <h3>Got a game code?</h3>
     <input type="text" placeholder="revolving.magenta.ocelot" bind:value={code}>
     <input type="submit" value="Play!">
