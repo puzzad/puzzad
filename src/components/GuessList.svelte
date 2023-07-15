@@ -9,9 +9,9 @@
 
   export let gameClient
 
-  onMount(async () => {
-    let unsub = await gameClient.collection('guesses').subscribe('*', handleStreamedGuess)
-    return () => unsub()
+  onMount(() => {
+    let unsub = gameClient.collection('guesses').subscribe('*', handleStreamedGuess)
+    return async () => (await unsub)();
   })
 
   const handleStreamedGuess = function(payload) {
