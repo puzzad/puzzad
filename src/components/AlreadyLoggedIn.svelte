@@ -19,22 +19,6 @@
   ]
 </script>
 
-<style lang="scss">
-  @use "../style/colours";
-
-  blockquote {
-    white-space: pre-line;
-    font-size: xx-large;
-    font-style: italic;
-    border: 0;
-    background-color: colours.$border;
-    border-radius: 15px;
-    padding: 1em;
-    margin: var(--small-space) 0;
-    display: inline-block;
-  }
-</style>
-
 <h2>You're already logged in</h2>
 <p>There's not a lot of point in looking at a login page if you're already logged in. How about a joke?</p>
 <blockquote>
