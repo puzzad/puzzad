@@ -131,7 +131,7 @@
 <div class="code">
   <form on:submit|preventDefault={handleGameCode}>
     <h3>Got a game code?</h3>
-    <input type="text" placeholder="revolving-magenta-ocelot" bind:value={code}>
+    <input type="text" placeholder="revolving.magenta.ocelot" bind:value={code}>
     <input type="submit" value="Play!">
   </form>
   <div class="blurb">
@@ -140,7 +140,7 @@
       On Their Adventure
     </h2>
     <p>
-      When you start a puzzle adventure, you get a unique game code like <code>revolving-magneta-ocelot</code>.
+      When you start a puzzle adventure, you get a unique game code like <code>revolving.magneta.ocelot</code>.
       Share this code with your friends to let them join your adventure! You'll progress as a team, and be able
       to see what one another are guessing in real time!
     </p>
