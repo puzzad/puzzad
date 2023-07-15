@@ -1,7 +1,3 @@
-<script lang="ts">
-  export let isAdmin
-</script>
-
 <style lang="scss">
   @use "../style/colours";
   @use "../style/fonts";
@@ -57,14 +53,4 @@
       <li><a href="https://puzzles.mit.edu/resources.html">MIT Mystery Hunt: Resources for Beginners</a></li>
     </ul>
   </div>
-  {#if isAdmin}
-    <div>
-      <h3>Admin pages</h3>
-      <ul>
-        <li><a href="/admin/design">Design system</a></li>
-        <li><a href="/admin/games">All games</a></li>
-        <li><a href="/admin/users">All users</a></li>
-      </ul>
-    </div>
-  {/if}
 </footer>

@@ -1,5 +1,4 @@
-import {readable, writable} from 'svelte/store'
-import type {Subscriber} from 'svelte/store'
+import {writable} from 'svelte/store'
 import PocketBase, {Admin, LocalAuthStore, Record} from 'pocketbase'
 
 export const client = new PocketBase(import.meta.env.VITE_SUPABASE_URL, new LocalAuthStore('puzzad-user-key'))
@@ -39,7 +38,3 @@ export const requestEmailVerification = async (email: string) => {
 export const logout = async () => {
   client.authStore.clear()
 }
-
-export const isAdmin = readable<boolean | null>(false, (set: Subscriber<boolean | null>) => {
-  return set(client.authStore.model instanceof Admin)
-})

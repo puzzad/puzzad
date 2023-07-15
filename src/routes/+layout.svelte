@@ -2,7 +2,7 @@
   import '../../src/style/global.scss'
   import {ToastContainer} from 'svelte-toasts'
   import {title} from '$lib/title'
-  import {logout, isAdmin, currentUser} from '$lib/api'
+  import {logout, currentUser} from '$lib/api'
   import Nav from '$components/Nav.svelte'
   import Footer from '$components/Footer.svelte'
   import Toast from '$components/Toast.svelte'
@@ -18,4 +18,4 @@
   <Toast type={data.type} title={data.title} message={data.description}/>
 </ToastContainer>
 
-<Footer isAdmin={$isAdmin}/>
+<Footer/>
