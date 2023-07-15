@@ -1,5 +1,6 @@
 import {writable} from 'svelte/store'
 import PocketBase, {Admin, LocalAuthStore, Record} from 'pocketbase'
+import {goto} from '$app/navigation'
 
 export const client = new PocketBase(import.meta.env.VITE_SUPABASE_URL, new LocalAuthStore('puzzad-user-key'))
 client.autoCancellation(false)
@@ -37,4 +38,5 @@ export const requestEmailVerification = async (email: string) => {
 
 export const logout = async () => {
   client.authStore.clear()
+  await goto("/")
 }
