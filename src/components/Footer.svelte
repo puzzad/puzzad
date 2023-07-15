@@ -47,10 +47,10 @@
     </p>
   </div>
   <div>
-    <h3>Useful links</h3>
+    <h3>Learn more</h3>
     <ul>
-      <li><a href="/extras">Extra resources</a></li>
-      <li><a href="https://puzzles.mit.edu/resources.html">MIT Mystery Hunt: Resources for Beginners</a></li>
+      <li><a href="/content/what-is-a-puzzle-hunt">What is a puzzle hunt?</a></li>
+      <li><a href="/content/common-codes">Common codes and techniques</a></li>
     </ul>
   </div>
 </footer>
