@@ -1,12 +1,12 @@
 <script lang="ts">
-  import {loginNative} from '$lib/api'
+  import {client} from '$lib/api'
   import {toasts} from 'svelte-toasts'
 
   let email
   let password
 
   const login = async () => {
-    loginNative(email, password)
+    client.collection('users').authWithPassword(email, password)
         .then(response => {
           toasts.add({
         title: 'Success',

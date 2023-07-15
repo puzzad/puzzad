@@ -4,10 +4,10 @@
   import FaTwitch from 'svelte-icons/fa/FaTwitch.svelte'
   import {toasts} from 'svelte-toasts'
   import {goto} from '$app/navigation'
-  import {loginOauth} from '$lib/api'
+  import {client} from '$lib/api'
 
   const handleOauthLogin = async (name) => {
-    loginOauth(name)
+    client.collection('users').authWithOAuth2({provider: name})
     .then(response => {
       toasts.add({
         title: 'Success',

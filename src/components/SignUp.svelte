@@ -1,6 +1,6 @@
 <script lang="ts">
   import {toasts} from 'svelte-toasts'
-  import {client, requestEmailVerification} from '$lib/api'
+  import {client} from '$lib/api'
 
   let email
   let password
@@ -17,7 +17,7 @@
       password = "";
       return localEmail
     })
-    .then(email => requestEmailVerification(email))
+    .then(email => client.collection('users').requestVerification(email))
     .then(_ => {
       toasts.add({
         title: 'Success',

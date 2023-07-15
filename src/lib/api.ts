@@ -24,18 +24,6 @@ export const getGameClient = async (code: string) => {
   }
 }
 
-export const loginNative = async (email: string, password: string) => {
-  return client.collection('users').authWithPassword(email, password)
-}
-
-export const loginOauth = async (provider: string) => {
-  return client.collection('users').authWithOAuth2({provider: provider})
-}
-
-export const requestEmailVerification = async (email: string) => {
-  return client.collection('users').requestVerification(email)
-}
-
 export const logout = async () => {
   client.authStore.clear()
   await goto("/")
