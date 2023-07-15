@@ -7,9 +7,8 @@
 
   export const refresh = async () => {
        hints = await getGameClient(gameCode).
-       then(client => client.collection('currenthints').getFullList()).
-       then(hints => hints)
-
+           then(client => client.send("/wom/gethints", {})).
+           then(hints => hints)
   }
 
   const request = async function(id) {
@@ -79,15 +78,15 @@
     {#each hints as hint (hint.id)}
       <h4>{hint.title}</h4>
       <div class="hint">
-        <p class="{hint.locked ? 'locked' : ''}">
-          {#if hint.locked}
+        <p class="{hint.message === '' ? 'locked' : ''}">
+          {#if hint.message === ''}
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
             labore et dolore magna aliqua.
           {:else}
             {hint.message}
           {/if}
         </p>
-        {#if hint.locked}
+        {#if hint.message === ''}
           <button on:click={() => request(hint.id)}>Reveal this hint</button>
         {/if}
       </div>
