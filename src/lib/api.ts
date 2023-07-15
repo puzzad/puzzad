@@ -20,7 +20,16 @@ export const getGameClient = async (code: string) => {
   } else {
     return gameClient.collection('games').
         authWithPassword(code, 'puzzad').
-        then(_ => gameClient)
+        then(_ => gameClient).
+        then(c => { registerGameToAccount(c.authStore.model?.id); return c })
+  }
+}
+
+const registerGameToAccount = (id: string | undefined) => {
+  if (client.authStore.model !== null && id && !client.authStore.model.games.includes(id)) {
+    client.collection('users').
+        update(client.authStore.model.id, {games: client.authStore.model.games.concat([id])}).
+        then(r => {})
   }
 }
 
