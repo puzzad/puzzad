@@ -6,7 +6,7 @@
   export let data
 
   $: if (data.code) {
-    fetch(import.meta.env.VITE_SUPABASE_URL + 'wom/confirm', {
+    fetch(import.meta.env.VITE_API_URL + 'wom/confirm', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -2,10 +2,10 @@ import {writable} from 'svelte/store'
 import PocketBase, {Admin, LocalAuthStore, Record} from 'pocketbase'
 import {goto} from '$app/navigation'
 
-export const client = new PocketBase(import.meta.env.VITE_SUPABASE_URL, new LocalAuthStore('puzzad-user-key'))
+export const client = new PocketBase(import.meta.env.VITE_API_URL, new LocalAuthStore('puzzad-user-key'))
 client.autoCancellation(false)
 
-const gameClient = new PocketBase(import.meta.env.VITE_SUPABASE_URL, new LocalAuthStore('puzzad-game-key'))
+const gameClient = new PocketBase(import.meta.env.VITE_API_URL, new LocalAuthStore('puzzad-game-key'))
 gameClient.autoCancellation(false)
 
 export const currentUser = writable<Record | Admin | null>(client.authStore.model)

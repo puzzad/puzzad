@@ -10,7 +10,7 @@
   let name, nameError, email, emailError, message, messageError, success, captchaToken = '', loggedIn
   let loading = false
   const handleSubmit = () => {
-    fetch(import.meta.env.VITE_SUPABASE_URL + 'wom/contact', {
+    fetch(import.meta.env.VITE_API_URL + 'wom/contact', {
       method: 'POST',
       headers: {
         'Authorization': 'Bearer ' + client.authStore.token,
