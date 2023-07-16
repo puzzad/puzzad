@@ -19,14 +19,9 @@
         return game
       })
 
-  const handleStartAdventure = async () =>{
-    client.send("/wom/startgame",{
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ game: data.game })
-    })
+  const handleStartAdventure = async () => {
+    getGameClient(data.game)
+    .then(client => client.send("/wom/startgame",{method: "POST"}))
     .then(() => goto(`/games/${data.game}/play`))
   }
 
