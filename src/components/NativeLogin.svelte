@@ -62,5 +62,6 @@
       Login
     </button>
   </form>
+  <p>Forgotten your password? <a href="/login/reset">Click here</a></p>
   <p>Don't have a Puzzad account and don't want to use an external service? <a href="/signup">Sign up here!</a></p>
 </section>
