@@ -6,10 +6,9 @@
   let password
 
   export const authAction = async () => {
-    client.collection('users').create({
-      email: email,
-      password: password,
-      passwordConfirm: password,
+    client.send("/wom/signup", {
+      method: "POST",
+      body: JSON.stringify({"email": email, "password": password})
     })
     .then(_ => {
       let localEmail = email;
@@ -17,7 +16,6 @@
       password = "";
       return localEmail
     })
-    .then(email => client.collection('users').requestVerification(email))
     .then(_ => {
       toasts.add({
         title: 'Success',
