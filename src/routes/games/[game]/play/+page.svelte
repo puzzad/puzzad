@@ -134,7 +134,7 @@
     <Spinner/>
   {:then gameData}
     {#if solved}
-      <VictoryDialog game={data.game} finished={gameData.puzzle === ""} on:next={reload}></VictoryDialog>
+      <VictoryDialog game={data.game} finished={gameData.expand.puzzle.next === ""} on:next={reload}></VictoryDialog>
     {:else if gameData.puzzle !== ""}
       <h2>{gameData.expand.adventure.name}: {gameData.expand.puzzle.title}</h2>
 
