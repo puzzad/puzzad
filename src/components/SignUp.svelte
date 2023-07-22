@@ -4,8 +4,18 @@
 
   let email
   let password
+  let confirmation
 
   export const authAction = async () => {
+    if (password !== confirmation) {
+      toasts.add({
+        title: 'Error',
+        description: "Passwords must match",
+        duration: 10000,
+        type: 'error',
+      })
+      return
+    }
     client.send("/wom/signup", {
       method: "POST",
       body: JSON.stringify({"email": email, "password": password})
@@ -88,6 +98,15 @@
         type="password"
         name="password"
         bind:value={password}
+        placeholder="MySuperSecurePassword123!"
+        required
+    />
+    <label for="password">Confirmation</label>
+    <input
+        id="confirmation"
+        type="password"
+        name="confirmation"
+        bind:value={confirmation}
         placeholder="MySuperSecurePassword123!"
         required
     />
