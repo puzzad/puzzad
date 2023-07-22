@@ -8,7 +8,7 @@
 
   const handleOauthLogin = async (name) => {
     client.collection('users').authWithOAuth2({provider: name})
-    .then(response => {
+    .then(() => {
       toasts.add({
         title: 'Success',
         description: 'Login success.',

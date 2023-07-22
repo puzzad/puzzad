@@ -1,20 +1,20 @@
 <script lang="ts">
   import {client} from '$lib/api'
   import {toasts} from 'svelte-toasts'
+  import {goto} from '$app/navigation'
 
   let email
   let password
 
   const login = async () => {
-    client.collection('users').authWithPassword(email, password)
-        .then(response => {
-          toasts.add({
+    client.collection('users').authWithPassword(email, password).then(() => {
+      toasts.add({
         title: 'Success',
         description: 'Login success.',
         duration: 10000,
         type: 'success',
       })
-      //return goto('/')
+      return goto('/')
     }).catch(err => {
       toasts.add({
         title: 'Error',
