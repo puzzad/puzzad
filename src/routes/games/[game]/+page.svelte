@@ -6,23 +6,26 @@
   import {title} from '$lib/title'
   import Error from '$components/Error.svelte'
   import Certificate from '$components/Certificate.svelte'
-  import {client, getGameClient} from '$lib/api'
+  import {getGameClient} from '$lib/api'
   import GameStats from '$components/GameStats.svelte'
   import SubscribeToMailingList from '$components/SubscribeToMailingList.svelte'
 
   export let data
 
   let game = getGameClient(data.game).
-  then(client => client.collection("games").getFirstListItem("username='"+data.game+"'", {expand: "adventure"}))
-      .then((game) => {
+      then(client => client.
+          collection('games').
+          getFirstListItem('username=\'' + data.game + '\'', {expand: 'adventure'}),
+      ).
+      then((game) => {
         title.set(`Puzzad: ${game.expand.adventure.name} - ${data.game}`)
         return game
       })
 
   const handleStartAdventure = async () => {
-    getGameClient(data.game)
-    .then(client => client.send("/wom/startgame",{method: "POST"}))
-    .then(() => goto(`/games/${data.game}/play`))
+    getGameClient(data.game).
+        then(client => client.send('/wom/startgame', {method: 'POST'})).
+        then(() => goto(`/games/${data.game}/play`))
   }
 
   const handleContinueAdventure = async function() {
@@ -92,12 +95,16 @@
     </button>
   {/if}
 {:catch error}
-  {#if error.message === 'Invalid team code'}
+  {#if error.response?.message === 'Failed to authenticate.'}
     <h1>Game not found</h1>
     <p>
       The adventure you are seeking does not seem to exist.
+    </p>
+    <p>
       If you have been given a code, please double check your spelling.
-      If you registered the adventure yourself, you can find it listed in <a href="/games">My Games</a>.
+    </p>
+    <p>
+      If you registered the adventure yourself, you can find it listed on the <a href="/adventures">adventures page</a>.
     </p>
   {:else}
     <Error error={error}></Error>
