@@ -2,13 +2,8 @@
   import {goto} from '$app/navigation'
   import {title} from '$lib/title.ts'
   import preview from '$assets/preview.webp'
-  import tickets from '$assets/tickets.webp'
+  import JoinGame from '$components/JoinGame.svelte'
 
-  let code = ''
-
-  const handleGameCode = () => {
-    goto(`/games/${code.toLowerCase().replace(/[^a-z.]/g, '')}`)
-  }
   title.set('Puzzad')
 </script>
 
@@ -20,24 +15,6 @@
     grid-template-columns: 55% 45%;
     padding: 3rem;
     grid-column-gap: 3rem;
-
-    form {
-      max-width: 800px;
-      background-color: colours.$border;
-      border-radius: 10px;
-      box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
-      padding: var(--large-space) var(--small-space);
-      display: flex;
-      flex-direction: column;
-      gap: var(--small-space);
-      align-items: stretch;
-      text-align: center;
-      color: colours.$text-on-brand;
-    }
-
-    h3 {
-      border-bottom: 0;
-    }
 
     @media (max-width: 1200px) {
       display: flex;
@@ -131,11 +108,7 @@
 </div>
 
 <div class="code">
-  <form on:submit|preventDefault={handleGameCode} style="background-image: url('{tickets}')">
-    <h3>Got a game code?</h3>
-    <input type="text" placeholder="revolving.magenta.ocelot" bind:value={code}>
-    <input type="submit" value="Play!">
-  </form>
+  <JoinGame/>
   <div class="blurb">
     <h2>
       Help A Friend
