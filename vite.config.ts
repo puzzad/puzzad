@@ -9,11 +9,9 @@ const config: UserConfig = {
     ValidateEnv({
       validator: 'zod',
       schema: {
-        VITE_API_URL: z
-        .string()
-        .transform((value) => value.endsWith('/') ? value : `${value}/`),
+        VITE_API_URL: z.string().transform((value) => value.endsWith('/') ? value : `${value}/`),
         VITE_HCAPTCHA_SITE_KEY: z.string().min(1)
-    }
+      }
     })
   ],
   optimizeDeps: {
