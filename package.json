@@ -18,7 +18,7 @@
     "@sveltejs/kit": "^1.22.3",
     "@zerodevx/svelte-toast": "^0.9.5",
     "form-data": "^4.0.0",
-    "pocketbase": "^0.15.3",
+    "pocketbase": "^0.16.0",
     "sass": "^1.63.6",
     "svelte": "^4.0.5",
     "svelte-check": "^3.4.6",
