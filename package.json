@@ -14,7 +14,7 @@
     "@julr/vite-plugin-validate-env": "^0.2.4",
     "@sentry/svelte": "^7.58.1",
     "@sentry/tracing": "^7.61.0",
-    "@sveltejs/adapter-static": "^2.0.2",
+    "@sveltejs/adapter-static": "^2.0.3",
     "@sveltejs/kit": "^1.22.3",
     "@zerodevx/svelte-toast": "^0.9.5",
     "form-data": "^4.0.0",
