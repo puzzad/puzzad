@@ -21,7 +21,7 @@
     "pocketbase": "^0.16.0",
     "sass": "^1.64.2",
     "svelte": "^4.2.0",
-    "svelte-check": "^3.4.6",
+    "svelte-check": "^3.5.2",
     "svelte-hcaptcha": "^0.1.1",
     "svelte-icons": "^2.1.0",
     "svelte-preprocess": "^5.0.4",
