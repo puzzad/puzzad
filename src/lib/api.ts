@@ -1,6 +1,7 @@
 import {writable} from 'svelte/store'
-import PocketBase, {Admin, LocalAuthStore, Record} from 'pocketbase'
+import PocketBase, {LocalAuthStore} from 'pocketbase'
 import {goto} from '$app/navigation'
+import type AuthModel from 'pocketbase'
 
 export const client = new PocketBase(import.meta.env.VITE_API_URL, new LocalAuthStore('puzzad-user-key'))
 client.autoCancellation(false)
@@ -8,7 +9,7 @@ client.autoCancellation(false)
 const gameClient = new PocketBase(import.meta.env.VITE_API_URL, new LocalAuthStore('puzzad-game-key'))
 gameClient.autoCancellation(false)
 
-export const currentUser = writable<Record | Admin | null>(client.authStore.model)
+export const currentUser = writable<AuthModel | null>(client.authStore.model)
 
 client.authStore.onChange((token, model) => {
   currentUser.set(model)

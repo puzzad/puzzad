@@ -3,7 +3,6 @@
   import SvelteHcaptcha from 'svelte-hcaptcha'
   import {toasts} from 'svelte-toasts'
   import {client} from '$lib/api.ts'
-  import {Admin, Record} from 'pocketbase'
 
   let loading = true
   let useAccount = true
@@ -16,15 +15,10 @@
 
   if (client.authStore.isValid) {
     useAccount = true
-    let model = client.authStore.model
-      if (model instanceof Admin) {
-        email = model.email
-        useAccount = true
-        supabaseToken = client.authStore.token
-      } else if (model instanceof Record) {
-        email = model.email
-        useAccount = true
-        supabaseToken = client.authStore.token
+      if (client.authStore.isAdmin || client.authStore.isAuthRecord) {
+          email = client.authStore.model.email
+          useAccount = true
+          supabaseToken = client.authStore.token
       } else {
         useAccount = false
       }
