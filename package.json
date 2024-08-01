@@ -10,7 +10,7 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
   },
   "devDependencies": {
-    "@fireworks-js/svelte": "^2.10.7",
+    "@fireworks-js/svelte": "^2.10.8",
     "@julr/vite-plugin-validate-env": "^1.1.1",
     "@sentry/svelte": "^7.104.0",
     "@sentry/tracing": "^7.114.0",
