@@ -19,7 +19,7 @@
     "@zerodevx/svelte-toast": "^0.9.6",
     "form-data": "^4.0.0",
     "pocketbase": "^0.21.5",
-    "sass": "^1.77.8",
+    "sass": "^1.81.0",
     "svelte": "^5.1.9",
     "svelte-check": "^4.0.5",
     "svelte-hcaptcha": "^0.1.1",
