@@ -17,7 +17,7 @@
     "@sveltejs/adapter-static": "^3.0.6",
     "@sveltejs/kit": "^2.9.0",
     "@zerodevx/svelte-toast": "^0.9.6",
-    "form-data": "^4.0.0",
+    "form-data": "^4.0.1",
     "pocketbase": "^0.21.5",
     "sass": "^1.81.0",
     "svelte": "^5.1.9",
