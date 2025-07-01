@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@fireworks-js/svelte": "^2.10.8",
-    "@julr/vite-plugin-validate-env": "^1.2.0",
+    "@julr/vite-plugin-validate-env": "^2.1.0",
     "@sentry/svelte": "^9.15.0",
     "@sentry/tracing": "^7.120.3",
     "@sveltejs/adapter-static": "^3.0.8",
