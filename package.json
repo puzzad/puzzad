@@ -13,7 +13,7 @@
     "@fireworks-js/svelte": "^2.10.8",
     "@julr/vite-plugin-validate-env": "^1.2.0",
     "@sentry/svelte": "^9.15.0",
-    "@sentry/tracing": "^7.120.3",
+    "@sentry/tracing": "^7.120.4",
     "@sveltejs/adapter-static": "^3.0.8",
     "@sveltejs/kit": "^2.22.2",
     "@zerodevx/svelte-toast": "^0.9.6",
