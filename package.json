@@ -11,7 +11,6 @@
   },
   "devDependencies": {
     "@fireworks-js/svelte": "^2.10.8",
-    "@julr/vite-plugin-validate-env": "^1.2.0",
     "@sentry/svelte": "^10.17.0",
     "@sentry/tracing": "^7.120.4",
     "@sveltejs/adapter-static": "^3.0.8",
@@ -28,8 +27,7 @@
     "svelte-toasts": "^1.1.2",
     "tslib": "^2.8.1",
     "typescript": "^5.9.3",
-    "vite": "^6.4.1",
-    "zod": "^3.25.48"
+    "vite": "^6.4.1"
   },
   "type": "module"
 }
