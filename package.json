@@ -14,7 +14,7 @@
     "@sentry/svelte": "^10.17.0",
     "@sentry/tracing": "^7.120.4",
     "@sveltejs/adapter-static": "^3.0.8",
-    "@sveltejs/kit": "^2.48.4",
+    "@sveltejs/kit": "^2.49.1",
     "@zerodevx/svelte-toast": "^0.9.6",
     "form-data": "^4.0.4",
     "pocketbase": "^0.26.2",
