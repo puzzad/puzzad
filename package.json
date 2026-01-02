@@ -13,7 +13,7 @@
     "@fireworks-js/svelte": "^2.10.8",
     "@sentry/svelte": "^10.29.0",
     "@sentry/tracing": "^7.120.4",
-    "@sveltejs/adapter-static": "^3.0.8",
+    "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.49.1",
     "@zerodevx/svelte-toast": "^0.9.6",
     "form-data": "^4.0.5",
