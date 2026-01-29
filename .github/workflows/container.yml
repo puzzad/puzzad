@@ -15,7 +15,7 @@ jobs:
 
       - name: Generate tags
         id: tags
-        uses: greboid/docker-tags-action@v6.0.4
+        uses: greboid/docker-tags-action@v6.0.6
         with:
           separator: ' '
           fullname: 'false'
