@@ -19,7 +19,7 @@
     "form-data": "^4.0.5",
     "pocketbase": "^0.26.5",
     "sass": "^1.94.2",
-    "svelte": "^5.45.5",
+    "svelte": "^5.46.1",
     "svelte-check": "^4.3.4",
     "svelte-hcaptcha": "^0.1.1",
     "svelte-icons": "^2.1.0",
